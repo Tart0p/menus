@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Générateur de menu</title>
+<style>
+body{
+font-family:Arial;
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+button{
+padding:10px;
+font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Menu de la semaine</h1>
+
+<label>
+<input type="checkbox" id="viande">
+Inclure les repas avec viande
+</label>
+
+<br><br>
+
+<button onclick="genererMenu()">Générer le menu</button>
+
+<h2>Résultat</h2>
+
+<ul id="menu"></ul>
+
+<script>
+
+const repas = [
+{name:"Lasagnes", viande:true},
+{name:"Poulet curry", viande:true},
+{name:"Burger", viande:true},
+{name:"Chili con carne", viande:true},
+{name:"Tacos", viande:true},
+
+{name:"Omelette", viande:false},
+{name:"Risotto champignons", viande:false},
+{name:"Curry légumes", viande:false},
+{name:"Salade grecque", viande:false},
+{name:"Pizza margherita", viande:false},
+{name:"Riz sauté légumes", viande:false},
+{name:"Pâtes pesto", viande:false},
+{name:"Soupe légumes", viande:false},
+{name:"Quiche légumes", viande:false},
+{name:"Gratin pommes de terre", viande:false},
+{name:"Falafel", viande:false},
+{name:"Couscous légumes", viande:false},
+{name:"Pad thai végétarien", viande:false},
+{name:"Salade quinoa", viande:false},
+{name:"Tarte tomate", viande:false}
+];
+
+function shuffle(array){
+return array.sort(()=>Math.random()-0.5);
+}
+
+function genererMenu(){
+
+const inclureViande =
+document.getElementById("viande").checked;
+
+let liste = repas.filter(r=>{
+if(inclureViande) return true
+return r.viande === false
+})
+
+const precedent =
+JSON.parse(localStorage.getItem("menu_precedent")) || []
+
+liste = liste.filter(r =>
+!precedent.includes(r.name)
+)
+
+liste = shuffle(liste)
+
+const semaine = liste.slice(0,7)
+
+localStorage.setItem(
+"menu_precedent",
+JSON.stringify(semaine.map(r=>r.name))
+)
+
+const jours = [
+"Lundi","Mardi","Mercredi",
+"Jeudi","Vendredi","Samedi","Dimanche"
+]
+
+const ul = document.getElementById("menu")
+ul.innerHTML=""
+
+semaine.forEach((repas,i)=>{
+const li = document.createElement("li")
+li.textContent = jours[i] + " : " + repas.name
+ul.appendChild(li)
+})
+
+}
+
+</script>
+
+</body>
+</html>
