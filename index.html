@@ -28,6 +28,7 @@ Inclure les repas avec viande
 <br><br>
 
 <button onclick="genererMenu()">Générer le menu</button>
+<button onclick="generer4Semaines()">Générer 4 semaines</button>
 
 <h2>Résultat</h2>
 
@@ -103,6 +104,60 @@ li.textContent = jours[i] + " : " + repas.name
 ul.appendChild(li)
 })
 
+}
+
+function generer4Semaines(){
+
+    const inclureViande = document.getElementById("viande").checked;
+
+    // Filtre les repas selon le choix viande / végétarien
+    let liste = repas.filter(r => inclureViande || r.viande === false);
+
+    const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+    const ul = document.getElementById("menu");
+    ul.innerHTML = "";
+
+    let semainePrecedente = JSON.parse(localStorage.getItem("menu_precedent")) || [];
+
+    // On crée une copie de la liste pour la manipulation
+    let listeDisponible = [...liste];
+
+    for(let s=1; s<=4; s++){
+
+        // Exclure les repas de la semaine précédente
+        let listeSemaine = listeDisponible.filter(r => !semainePrecedente.includes(r.name));
+
+        // Si moins de 7 repas disponibles, on remélange la liste totale pour compléter
+        if(listeSemaine.length < 7){
+            listeSemaine = shuffle(liste).filter(r => !semainePrecedente.includes(r.name));
+        }
+
+        listeSemaine = shuffle(listeSemaine);
+
+        const semaine = listeSemaine.slice(0,7);
+
+        // Affichage
+        const titre = document.createElement("h3");
+        titre.textContent = "Semaine " + s;
+        ul.appendChild(titre);
+
+        semaine.forEach((repasChoisi, i) => {
+            const li = document.createElement("li");
+            li.textContent = jours[i] + " : " + repasChoisi.name;
+            ul.appendChild(li);
+        });
+
+        // La semaine actuelle devient la "semaine précédente" pour la suivante
+        semainePrecedente = semaine.map(r => r.name);
+    }
+
+    // On sauvegarde uniquement la dernière semaine générée
+    localStorage.setItem("menu_precedent", JSON.stringify(semainePrecedente));
+}
+
+// Fonction shuffle
+function shuffle(array){
+    return array.sort(() => Math.random() - 0.5);
 }
 
 </script>
