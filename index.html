@@ -2,146 +2,104 @@
 <html>
 
 <head>
-
 <title>Planificateur de menus</title>
-
 <style>
-
 body{
-font-family:Arial, sans-serif;
-background:#eef2f7;
-margin:0;
-padding:40px;
-display:flex;
-justify-content:center;
+    font-family:Arial, sans-serif;
+    background:#eef2f7;
+    margin:0;
+    padding:40px;
+    display:flex;
+    justify-content:center;
 }
-
 .app{
-
-width:800px;
-background:white;
-padding:30px;
-border-radius:12px;
-box-shadow:0 10px 25px rgba(0,0,0,0.1);
-
+    width:800px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
-
-h1{
-text-align:center;
-margin-top:0;
-}
-
-.controls{
-text-align:center;
-margin-bottom:20px;
-}
-
+h1{text-align:center;margin-top:0;}
+.controls{text-align:center;margin-bottom:20px;}
 button{
-
-background:#3b82f6;
-color:white;
-border:none;
-padding:12px 18px;
-margin:5px;
-border-radius:8px;
-font-size:15px;
-cursor:pointer;
-transition:0.2s;
-
+    background:#3b82f6;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    margin:5px;
+    border-radius:8px;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.2s;
 }
-
-button:hover{
-background:#2563eb;
-}
-
-.reset{
-background:#ef4444;
-}
-
-.reset:hover{
-background:#dc2626;
-}
-
+button:hover{background:#2563eb;}
+.reset{background:#ef4444;}
+.reset:hover{background:#dc2626;}
 .semaine{
-
-margin-top:20px;
-background:#f9fafc;
-padding:15px;
-border-radius:10px;
-
+    margin-top:20px;
+    background:#f9fafc;
+    padding:15px;
+    border-radius:10px;
 }
-
-.semaine h3{
-margin-top:0;
-}
-
+.semaine h3{margin-top:0;}
 .grid{
-
-display:grid;
-grid-template-columns:1fr;
-gap:8px;
-
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
 }
-
 .jour{
-
-background:white;
-padding:10px;
-border-radius:6px;
-display:flex;
-justify-content:space-between;
-border:1px solid #eee;
-
+    background:white;
+    padding:10px;
+    border-radius:6px;
+    display:flex;
+    justify-content:space-between;
+    border:1px solid #eee;
 }
-
-.nomjour{
-font-weight:bold;
-color:#555;
-}
-
-.plat{
-color:#111;
-}
-
-label{
-display:block;
-text-align:center;
-margin-bottom:15px;
-}
-
+.nomjour{font-weight:bold;color:#555;}
+.plat{color:#111;}
 .midicheck{
-  display:flex;
-  justify-content: space-between; /* répartit les cases sur toute la largeur */
-  flex-wrap: wrap; /* permet de passer à la ligne si la largeur est trop petite */
-  margin-bottom:15px;
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom:15px;
+}
+.midicheck label{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:14px;
+}
+.jour hr{
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 4px 0;
 }
 
-.midicheck label{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  font-size:14px;
+.jour button {
+    background: #f3f4f6; /* gris clair discret */
+    color: #3b82f6;      /* bleu pour rester visible */
+    border: none;
+    padding: 2px 6px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background 0.2s;
+}
+
+.jour button:hover {
+    background: #dbeafe; /* léger survol bleu clair */
 }
 
 </style>
-
 </head>
 
 <body>
-
 <div class="app">
-
 <h1>Planificateur de menus</h1>
 
-<label>
-<input type="checkbox" id="viande">
-Inclure les repas avec viande
-</label>
-
 <h3>Repas du midi</h3>
-
 <div class="midicheck">
-
 <label><input type="checkbox" id="midi_lundi"> Lundi</label>
 <label><input type="checkbox" id="midi_mardi"> Mardi</label>
 <label><input type="checkbox" id="midi_mercredi"> Mercredi</label>
@@ -149,151 +107,85 @@ Inclure les repas avec viande
 <label><input type="checkbox" id="midi_vendredi"> Vendredi</label>
 <label><input type="checkbox" id="midi_samedi" checked> Samedi</label>
 <label><input type="checkbox" id="midi_dimanche" checked> Dimanche</label>
-
 </div>
 
 <div class="controls">
-
 <button onclick="genererMenu()">Générer une semaine</button>
-
 <button onclick="generer4Semaines()">Générer 4 semaines</button>
-
-<button class="reset" onclick="resetHistorique()">
-Réinitialiser l'historique
-</button>
-
+<button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
 </div>
 
 <div id="menu"></div>
-
 </div>
 
 <script>
-
 const repas=[
-
-{name:"Lasagnes", viande:true},
-{name:"Poulet curry", viande:true},
-{name:"Burger", viande:true},
-{name:"Chili con carne", viande:true},
-{name:"Tacos", viande:true},
-
-{name:"Omelette", viande:false},
-{name:"Risotto champignons", viande:false},
-{name:"Curry légumes", viande:false},
-{name:"Salade grecque", viande:false},
-{name:"Pizza margherita", viande:false},
-{name:"Riz sauté légumes", viande:false},
-{name:"Pâtes pesto", viande:false},
-{name:"Soupe légumes", viande:false},
-{name:"Quiche légumes", viande:false},
-{name:"Gratin pommes de terre", viande:false},
-{name:"Falafel", viande:false},
-{name:"Couscous légumes", viande:false},
-{name:"Pad thai végétarien", viande:false},
-{name:"Salade quinoa", viande:false},
-{name:"Tarte tomate", viande:false}
-
+{name:"Lasagnes"},{name:"Poulet curry"},{name:"Burger"},{name:"Chili con carne"},
+{name:"Tacos"},{name:"Omelette"},{name:"Risotto champignons"},{name:"Curry légumes"},
+{name:"Salade grecque"},{name:"Pizza margherita"},{name:"Riz sauté légumes"},{name:"Pâtes pesto"},
+{name:"Soupe légumes"},{name:"Quiche légumes"},{name:"Gratin pommes de terre"},{name:"Falafel"},
+{name:"Couscous légumes"},{name:"Pad thai végétarien"},{name:"Salade quinoa"},{name:"Tarte tomate"}
 ]
 
-const jours=[
-"Lundi","Mardi","Mercredi",
-"Jeudi","Vendredi","Samedi","Dimanche"
-]
+const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
 
-function shuffle(a){
-return a.sort(()=>Math.random()-0.5)
-}
-
-function filtrer(){
-
-const inclureViande=document.getElementById("viande").checked
-
-return repas.filter(r=>inclureViande||!r.viande)
-
-}
-
-function midiActive(jour){
-
-return document.getElementById("midi_"+jour).checked
-
-}
+function shuffle(a){return a.sort(()=>Math.random()-0.5);}
+function filtrer(){return [...repas];}
+function midiActive(jour){return document.getElementById("midi_"+jour).checked;}
 
 function afficher(menus){
+    const container=document.getElementById("menu")
+    container.innerHTML=""
+    menus.forEach(semaine=>{
+        const bloc=document.createElement("div")
+        bloc.className="semaine"
+        const titre=document.createElement("h3")
+        titre.textContent=semaine.titre
+        const grid=document.createElement("div")
+        grid.className="grid"
 
-const container=document.getElementById("menu")
-container.innerHTML=""
+        semaine.repas.forEach((plat,i)=>{
+            const ligne=document.createElement("div")
+            ligne.className="jour"
 
-menus.forEach(semaine=>{
+            const j=document.createElement("span")
+            j.className="nomjour"
+            j.textContent=jours[i]
 
-const bloc=document.createElement("div")
-bloc.className="semaine"
+            const p=document.createElement("span")
+            p.className="plat"
 
-const titre=document.createElement("h3")
-titre.textContent=semaine.titre
+            const btn = document.createElement("button")
+            btn.textContent = "🔄"
+            btn.style.marginLeft = "6px"
+            btn.style.fontSize = "14px"
+            btn.onclick = ()=>regenererJour(i, menus)
 
-const grid=document.createElement("div")
-grid.className="grid"
+            if(midiActive(jours[i].toLowerCase())){
+                p.innerHTML = "Midi : "+plat.midi+"<hr>Soir : "+plat.soir
+            } else {
+                p.innerHTML = "Soir : "+plat.soir
+            }
 
-semaine.repas.forEach((plat,i)=>{
+			j.appendChild(btn)  // le bouton est à côté du nom du jour
+			ligne.appendChild(j)
+			ligne.appendChild(p)
+            grid.appendChild(ligne)
+        })
 
-const ligne=document.createElement("div")
-ligne.className="jour"
-
-const j=document.createElement("span")
-j.className="nomjour"
-j.textContent=jours[i]
-
-const p=document.createElement("span")
-p.className="plat"
-
-const jourID = jours[i].toLowerCase()
-
-if(midiActive(jourID)){
-
-p.innerHTML =
-"Midi : "+plat.midi+"<br>Soir : "+plat.soir
-
-}else{
-
-p.innerHTML =
-"Soir : "+plat.soir
-
-}
-
-ligne.appendChild(j)
-ligne.appendChild(p)
-
-grid.appendChild(ligne)
-
-})
-
-bloc.appendChild(titre)
-bloc.appendChild(grid)
-
-container.appendChild(bloc)
-
-})
-
+        bloc.appendChild(titre)
+        bloc.appendChild(grid)
+        container.appendChild(bloc)
+    })
 }
 
 function genererMenu() {
-
     let liste = shuffle(filtrer());
-
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
-
-    // Exclure les plats de la semaine précédente
     liste = liste.filter(r => !precedent.includes(r.name));
-
-    // Nombre de plats nécessaires pour la semaine
     let nbPlats = 7;
-    jours.forEach(j => { if (midiActive(j.toLowerCase())) nbPlats++; });
-
-    // Sécurité : si pas assez de plats disponibles, on prend tous les plats
-    if (liste.length < nbPlats) {
-        liste = shuffle(filtrer());
-    }
+    jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++; });
+    if(liste.length < nbPlats){ liste = shuffle(filtrer()); }
 
     const selection = liste.slice(0, nbPlats);
     let index = 0;
@@ -301,134 +193,72 @@ function genererMenu() {
     const menus = [{
         titre: "Semaine",
         repas: jours.map(jour => {
-            const jourID = jour.toLowerCase();
-            let midi = null;
-            let soir = null;
-
-            if (midiActive(jourID)) {
-                midi = selection[index]?.name || null;
-                index++;
+            let midi=null, soir=null;
+            if(midiActive(jour.toLowerCase())){
+                midi = selection[index]?.name || null; index++;
             }
-
-            soir = selection[index]?.name || null;
-            index++;
-
-            return { midi, soir };
+            soir = selection[index]?.name || null; index++;
+            return {midi, soir};
         })
     }];
 
     afficher(menus);
 
-    // Stocker la semaine pour éviter les doublons la prochaine fois
-    const dernier = menus[0].repas.flatMap(r => [r.midi, r.soir]).filter(Boolean);
-    localStorage.setItem("menu_precedent", JSON.stringify(dernier));
-    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus));
+    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
 }
 
 function generer4Semaines(){
-
-let liste = filtrer()
-
-let precedent = JSON.parse(
-localStorage.getItem("menu_precedent")
-) || []
-
-const menus = []
-
-for(let s=1; s<=4; s++){
-
-let candidats = shuffle(liste)
-.filter(r => !precedent.includes(r.name))
-
-// calcul du nombre de plats nécessaires
-let nbPlats = 7
-jours.forEach(j=>{
-if(midiActive(j.toLowerCase())) nbPlats++
-})
-
-if(candidats.length < nbPlats){
-candidats = shuffle(liste)
-}
-
-const selection = candidats.slice(0, nbPlats)
-
-let index = 0
-
-const semaine = jours.map(jour=>{
-
-const jourID = jour.toLowerCase()
-
-let midi = null
-let soir = null
-
-if(midiActive(jourID)){
-
-midi = selection[index].name
-index++
-
-}
-
-soir = selection[index].name
-index++
-
-return {midi,soir}
-
-})
-
-menus.push({
-
-titre:"Semaine "+s,
-repas:semaine
-
-})
-
-precedent = semaine
-.flatMap(r=>[r.midi,r.soir])
-.filter(Boolean)
-
-}
-
-afficher(menus)
-
-localStorage.setItem(
-"menu_precedent",
-JSON.stringify(precedent)
-)
-
-localStorage.setItem(
-"menu_derniere_generation",
-JSON.stringify(menus)
-)
-
+    let liste = filtrer()
+    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
+    const menus = []
+    for(let s=1; s<=4; s++){
+        let candidats = shuffle(liste).filter(r => !precedent.includes(r.name))
+        let nbPlats = 7; jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++ })
+        if(candidats.length < nbPlats){ candidats = shuffle(liste) }
+        const selection = candidats.slice(0, nbPlats)
+        let index=0
+        const semaine = jours.map(jour=>{
+            let midi=null, soir=null;
+            if(midiActive(jour.toLowerCase())){ midi=selection[index]?.name||null; index++; }
+            soir=selection[index]?.name||null; index++;
+            return {midi, soir}
+        })
+        menus.push({titre:"Semaine "+s, repas:semaine})
+        precedent = semaine.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+    }
+    afficher(menus)
+    localStorage.setItem("menu_precedent", JSON.stringify(precedent))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
 }
 
 function resetHistorique(){
+    localStorage.clear()
+    document.getElementById("menu").innerHTML=""
+}
 
-localStorage.clear()
-
-document.getElementById("menu").innerHTML=""
-
+function regenererJour(indexJour, menus){
+    const jourID = jours[indexJour].toLowerCase()
+    let semaine = menus[0].repas
+    let exclu = menus.flatMap(s=>s.repas).flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+    let liste = shuffle(filtrer()).filter(r=>!exclu.includes(r.name))
+    if(liste.length===0) liste = shuffle(filtrer())
+    let index=0
+    if(midiActive(jourID)){
+        semaine[indexJour].midi = liste[index]?.name || semaine[indexJour].midi; index++
+    }
+    semaine[indexJour].soir = liste[index]?.name || semaine[indexJour].soir; index++
+    afficher(menus)
+    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
 }
 
 window.onload=function(){
-
-const dernier=JSON.parse(
-localStorage.getItem("menu_derniere_generation")
-)
-
-if(dernier){
-afficher(dernier)
+    const dernier = JSON.parse(localStorage.getItem("menu_derniere_generation"))
+    if(dernier) afficher(dernier)
 }
-
-}
-
-function midiActive(jour){
-
-return document.getElementById("midi_"+jour).checked
-
-}
-
 </script>
-
 </body>
 </html>
