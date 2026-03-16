@@ -119,13 +119,23 @@ button:hover{background:#2563eb;}
 </div>
 
 <script>
-const repas=[
-{name:"Lasagnes"},{name:"Poulet curry"},{name:"Burger"},{name:"Chili con carne"},
-{name:"Tacos"},{name:"Omelette"},{name:"Risotto champignons"},{name:"Curry légumes"},
-{name:"Salade grecque"},{name:"Pizza margherita"},{name:"Riz sauté légumes"},{name:"Pâtes pesto"},
-{name:"Soupe légumes"},{name:"Quiche légumes"},{name:"Gratin pommes de terre"},{name:"Falafel"},
-{name:"Couscous légumes"},{name:"Pad thai végétarien"},{name:"Salade quinoa"},{name:"Tarte tomate"}
-]
+let repas = []
+let repasCharges = false
+
+async function chargerRepas(){
+
+    const response = await fetch("repas.csv")
+    const texte = await response.text()
+
+    repas = texte
+        .split("\n")
+        .map(r => r.trim())
+        .filter(r => r !== "")
+        .map(r => ({name:r}))
+
+    repasCharges = true
+
+}
 
 const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
 
@@ -180,6 +190,10 @@ function afficher(menus){
 }
 
 function genererMenu() {
+if(!repasCharges){
+    alert("Les repas ne sont pas encore chargés.")
+    return
+}
     let liste = shuffle(filtrer());
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
     liste = liste.filter(r => !precedent.includes(r.name));
@@ -210,6 +224,10 @@ function genererMenu() {
 }
 
 function generer4Semaines(){
+if(!repasCharges){
+    alert("Les repas ne sont pas encore chargés.")
+    return
+}
     let liste = filtrer()
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
     const menus = []
@@ -255,9 +273,14 @@ function regenererJour(indexJour, menus){
     localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
 }
 
-window.onload=function(){
+window.onload=async function(){
+
+    await chargerRepas()
+
     const dernier = JSON.parse(localStorage.getItem("menu_derniere_generation"))
+
     if(dernier) afficher(dernier)
+
 }
 </script>
 </body>
