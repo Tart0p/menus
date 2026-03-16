@@ -57,17 +57,43 @@ button:hover{background:#2563eb;}
 }
 .nomjour{font-weight:bold;color:#555;}
 .plat{color:#111;}
-.midicheck{
-    display:flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin-bottom:15px;
+.midibox-compact-responsive {
+    background: #f0f4ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    max-width: 100%;
 }
-.midicheck label{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    font-size:14px;
+
+.midibox-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.midicheck-responsive {
+    display: flex;
+    flex-wrap: wrap;        /* permet le passage à plusieurs lignes sur mobile */
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.midicheck-responsive label {
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+/* effet au survol */
+.midicheck-responsive label:hover {
+    background: #e0e7ff;
+}
+
+/* écran large : alignement sur une seule ligne si possible */
+@media (min-width: 600px) {
+    .midicheck-responsive {
+        flex-wrap: nowrap;
+    }
 }
 .jour hr{
     border: 0;
@@ -98,15 +124,17 @@ button:hover{background:#2563eb;}
 <div class="app">
 <h1>Planificateur de menus</h1>
 
-<h3>Repas du midi</h3>
-<div class="midicheck">
-<label><input type="checkbox" id="midi_lundi"> Lundi</label>
-<label><input type="checkbox" id="midi_mardi"> Mardi</label>
-<label><input type="checkbox" id="midi_mercredi"> Mercredi</label>
-<label><input type="checkbox" id="midi_jeudi"> Jeudi</label>
-<label><input type="checkbox" id="midi_vendredi"> Vendredi</label>
-<label><input type="checkbox" id="midi_samedi" checked> Samedi</label>
-<label><input type="checkbox" id="midi_dimanche" checked> Dimanche</label>
+<div class="midibox-compact-responsive">
+    <div class="midibox-title">☀️ Repas du midi</div>
+    <div class="midicheck-responsive">
+        <label><input type="checkbox" id="midi_lundi"> Lundi</label>
+        <label><input type="checkbox" id="midi_mardi"> Mardi</label>
+        <label><input type="checkbox" id="midi_mercredi"> Mercredi</label>
+        <label><input type="checkbox" id="midi_jeudi"> Jeudi</label>
+        <label><input type="checkbox" id="midi_vendredi"> Vendredi</label>
+        <label><input type="checkbox" id="midi_samedi" checked> Samedi</label>
+        <label><input type="checkbox" id="midi_dimanche" checked> Dimanche</label>
+    </div>
 </div>
 
 <div class="controls">
