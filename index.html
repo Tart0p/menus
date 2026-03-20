@@ -51,11 +51,20 @@ button:hover{background:#2563eb;}
     background:white;
     padding:10px;
     border-radius:6px;
-    display:flex;
-    justify-content:space-between;
+    display:grid;
+    grid-template-columns: 120px 1fr 1fr; /* jour | midi | soir */
+    align-items:center;
     border:1px solid #eee;
+    gap:10px;
 }
-.nomjour{font-weight:bold;color:#555;}
+.nomjour{
+    font-weight:bold;
+    color:#555;
+    min-width:90px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
 .plat{color:#111;}
 .midibox-compact-responsive {
     background: #f0f4ff;
@@ -117,6 +126,41 @@ button:hover{background:#2563eb;}
     background: #dbeafe; /* léger survol bleu clair */
 }
 
+.repas-colonnes{
+    display:flex;
+    flex:1;
+    gap:10px;
+}
+
+.repas-box{
+    background:#f9fafc;
+    border-radius:6px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+	border-left:3px solid #e5e7eb;
+}
+
+.repas-titre{
+    font-size:12px;
+    color:#6b7280;
+    margin-bottom:2px;
+}
+
+.repas-contenu{
+    font-size:14px;
+    font-weight:500;
+}
+.header{
+    background: transparent;
+    border: none;
+    font-weight: bold;
+}
+
+.header-cell{
+    font-size: 14px;
+    color: #374151;
+}
 </style>
 </head>
 
@@ -182,6 +226,7 @@ function afficher(menus){
         const grid=document.createElement("div")
         grid.className="grid"
 
+
         semaine.repas.forEach((plat,i)=>{
             const ligne=document.createElement("div")
             ligne.className="jour"
@@ -190,24 +235,57 @@ function afficher(menus){
             j.className="nomjour"
             j.textContent=jours[i]
 
-            const p=document.createElement("span")
-            p.className="plat"
+          // bouton
+const btn = document.createElement("button")
+btn.textContent = "🔄"
+btn.style.marginLeft = "6px"
+btn.style.fontSize = "14px"
+btn.onclick = ()=>regenererJour(i, menus)
 
-            const btn = document.createElement("button")
-            btn.textContent = "🔄"
-            btn.style.marginLeft = "6px"
-            btn.style.fontSize = "14px"
-            btn.onclick = ()=>regenererJour(i, menus)
+j.appendChild(btn)
 
-            if(midiActive(jours[i].toLowerCase())){
-                p.innerHTML = "Midi : "+plat.midi+"<hr>Soir : "+plat.soir
-            } else {
-                p.innerHTML = "Soir : "+plat.soir
-            }
+// === COLONNE 1 : JOUR ===
+ligne.appendChild(j)
 
-			j.appendChild(btn)  // le bouton est à côté du nom du jour
-			ligne.appendChild(j)
-			ligne.appendChild(p)
+// === COLONNE 2 : MIDI ===
+if(midiActive(jours[i].toLowerCase())){
+    const midiBox = document.createElement("div")
+    midiBox.className = "repas-box"
+
+    const midiTitre = document.createElement("div")
+    midiTitre.className = "repas-titre"
+    midiTitre.textContent = "☀️ Midi"
+
+    const midiContenu = document.createElement("div")
+    midiContenu.className = "repas-contenu"
+    midiContenu.textContent = plat.midi || "-"
+
+    midiBox.appendChild(midiTitre)
+    midiBox.appendChild(midiContenu)
+
+    ligne.appendChild(midiBox)
+} else {
+    // IMPORTANT : colonne vide pour garder l'alignement
+    const vide = document.createElement("div")
+    ligne.appendChild(vide)
+}
+
+// === COLONNE 3 : SOIR ===
+const soirBox = document.createElement("div")
+soirBox.className = "repas-box"
+
+const soirTitre = document.createElement("div")
+soirTitre.className = "repas-titre"
+soirTitre.textContent = "🌙 Soir"
+
+const soirContenu = document.createElement("div")
+soirContenu.className = "repas-contenu"
+soirContenu.textContent = plat.soir || "-"
+
+soirBox.appendChild(soirTitre)
+soirBox.appendChild(soirContenu)
+
+ligne.appendChild(soirBox)
             grid.appendChild(ligne)
         })
 
