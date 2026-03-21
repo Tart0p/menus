@@ -65,7 +65,7 @@ button:hover{background:#2563eb;}
     align-items:center;
     justify-content:space-between;
 }
-.plat{color:#111;}
+
 .midibox-compact-responsive {
     background: #f0f4ff;
     padding: 10px;
@@ -104,11 +104,7 @@ button:hover{background:#2563eb;}
         flex-wrap: nowrap;
     }
 }
-.jour hr{
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 4px 0;
-}
+
 
 .jour button {
     background: #f3f4f6; /* gris clair discret */
@@ -124,12 +120,6 @@ button:hover{background:#2563eb;}
 
 .jour button:hover {
     background: #dbeafe; /* léger survol bleu clair */
-}
-
-.repas-colonnes{
-    display:flex;
-    flex:1;
-    gap:10px;
 }
 
 .repas-box{
@@ -151,16 +141,8 @@ button:hover{background:#2563eb;}
     font-size:14px;
     font-weight:500;
 }
-.header{
-    background: transparent;
-    border: none;
-    font-weight: bold;
-}
 
-.header-cell{
-    font-size: 14px;
-    color: #374151;
-}
+
 </style>
 </head>
 
@@ -192,7 +174,6 @@ button:hover{background:#2563eb;}
 
 <script>
 let repas = []
-let repasCharges = false
 
 async function chargerRepas(){
 
@@ -204,21 +185,35 @@ async function chargerRepas(){
         .map(r => r.trim())
         .filter(r => r !== "")
         .map(r => ({name:r}))
-
-    repasCharges = true
-
 }
 
 const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
 
 function shuffle(a){return a.sort(()=>Math.random()-0.5);}
-function filtrer(){return [...repas];}
 function midiActive(jour){return document.getElementById("midi_"+jour).checked;}
+
+function calculerNbPlats(){
+    let nbPlats = 7;
+    jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++; });
+    return nbPlats;
+}
+
+function piocherRepas(exclu, nbPlats){
+    let liste = shuffle([...repas]).filter(r => !exclu.includes(r.name))
+    if(liste.length < nbPlats) liste = shuffle([...repas])
+    return liste.slice(0, nbPlats)
+}
+
+function sauvegarderMenu(menus){
+    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+}
 
 function afficher(menus){
     const container=document.getElementById("menu")
     container.innerHTML=""
-    menus.forEach(semaine=>{
+    menus.forEach((semaine, indexSemaine) => {
         const bloc=document.createElement("div")
         bloc.className="semaine"
         const titre=document.createElement("h3")
@@ -240,7 +235,7 @@ const btn = document.createElement("button")
 btn.textContent = "🔄"
 btn.style.marginLeft = "6px"
 btn.style.fontSize = "14px"
-btn.onclick = ()=>regenererJour(i, menus)
+btn.onclick = ()=>regenererJour(i, menus, indexSemaine)
 
 j.appendChild(btn)
 
@@ -296,19 +291,11 @@ ligne.appendChild(soirBox)
 }
 
 function genererMenu() {
-if(!repasCharges){
-    alert("Les repas ne sont pas encore chargés.")
-    return
-}
-    let liste = shuffle(filtrer());
-    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
-    liste = liste.filter(r => !precedent.includes(r.name));
-    let nbPlats = 7;
-    jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++; });
-    if(liste.length < nbPlats){ liste = shuffle(filtrer()); }
-
-    const selection = liste.slice(0, nbPlats);
-    let index = 0;
+let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
+let nbPlats = calculerNbPlats();
+const selection = piocherRepas(precedent, nbPlats);
+   
+   let index = 0;
 
     const menus = [{
         titre: "Semaine",
@@ -324,24 +311,16 @@ if(!repasCharges){
 
     afficher(menus);
 
-    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
-    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
-    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+sauvegarderMenu(menus)
 }
 
 function generer4Semaines(){
-if(!repasCharges){
-    alert("Les repas ne sont pas encore chargés.")
-    return
-}
-    let liste = filtrer()
+    let liste = [...repas]
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
     const menus = []
     for(let s=1; s<=4; s++){
-        let candidats = shuffle(liste).filter(r => !precedent.includes(r.name))
-        let nbPlats = 7; jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++ })
-        if(candidats.length < nbPlats){ candidats = shuffle(liste) }
-        const selection = candidats.slice(0, nbPlats)
+		let nbPlats = calculerNbPlats();
+		const selection = piocherRepas(precedent, nbPlats)
         let index=0
         const semaine = jours.map(jour=>{
             let midi=null, soir=null;
@@ -362,21 +341,18 @@ function resetHistorique(){
     document.getElementById("menu").innerHTML=""
 }
 
-function regenererJour(indexJour, menus){
+function regenererJour(indexJour, menus, indexSemaine){
     const jourID = jours[indexJour].toLowerCase()
-    let semaine = menus[0].repas
+   let semaine = menus[indexSemaine].repas
     let exclu = menus.flatMap(s=>s.repas).flatMap(r=>[r.midi,r.soir]).filter(Boolean)
-    let liste = shuffle(filtrer()).filter(r=>!exclu.includes(r.name))
-    if(liste.length===0) liste = shuffle(filtrer())
+	let liste = piocherRepas(exclu, 2)
     let index=0
     if(midiActive(jourID)){
         semaine[indexJour].midi = liste[index]?.name || semaine[indexJour].midi; index++
     }
     semaine[indexJour].soir = liste[index]?.name || semaine[indexJour].soir; index++
     afficher(menus)
-    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
-    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
-    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+sauvegarderMenu(menus)
 }
 
 window.onload=async function(){
