@@ -176,15 +176,23 @@ button:hover{background:#2563eb;}
 let repas = []
 
 async function chargerRepas(){
-
     const response = await fetch("repas.csv")
     const texte = await response.text()
 
-    repas = texte
+    const lignes = texte
         .split("\n")
-        .map(r => r.trim())
-        .filter(r => r !== "")
-        .map(r => ({name:r}))
+        .map(l => l.trim())
+        .filter(l => l !== "")
+
+    // Récupération de l'en-tête (1ère ligne) pour identifier les colonnes
+    const entete = lignes[0].split(";").map(col => col.trim().replace(/^\uFEFF/, ""))
+    const colNom = entete.indexOf("Nom complet")
+
+    // Parsing des lignes de données (à partir de la 2ème ligne)
+    repas = lignes.slice(1).map(ligne => {
+        const cols = ligne.split(";")
+        return { name: cols[colNom]?.trim() || "" }
+    }).filter(r => r.name !== "")
 }
 
 const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
