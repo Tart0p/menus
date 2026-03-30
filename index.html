@@ -165,7 +165,7 @@ button:hover{background:#2563eb;}
 
 <div class="controls">
 <button onclick="genererMenu()">Générer une semaine</button>
-<button onclick="generer4Semaines()">Générer 4 semaines</button>
+<button onclick="generer2Semaines()">Générer 2 semaines</button>
 <button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
 </div>
 
@@ -314,11 +314,11 @@ const selection = piocherRepas(precedent, nbPlats);
 sauvegarderMenu(menus)
 }
 
-function generer4Semaines(){
+function generer2Semaines(){
     let liste = [...repas]
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
     const menus = []
-    for(let s=1; s<=4; s++){
+    for(let s=1; s<=2; s++){
 		let nbPlats = calculerNbPlats();
 		const selection = piocherRepas(precedent, nbPlats)
         let index=0
