@@ -64,57 +64,78 @@ button:hover{background:#2563eb;}
     display:flex;
     align-items:center;
 }
-
-/* === BLOC PARAMÈTRES === */
 .parametres-bloc {
     background: #f0f4ff;
     padding: 14px 16px;
     border-radius: 10px;
     margin-bottom: 15px;
 }
-
 .parametres-titre {
     font-weight: bold;
     margin-bottom: 12px;
     font-size: 16px;
     color: #374151;
 }
-
 .parametres-grid {
     display: grid;
     grid-template-columns: auto repeat(7, 1fr);
     gap: 6px 10px;
     align-items: center;
 }
-
 .param-jour {
     font-weight: bold;
     font-size: 13px;
     color: #4b5563;
     text-align: center;
 }
-
 .param-row-label {
     font-size: 14px;
     color: #6b7280;
     white-space: nowrap;
     padding-right: 4px;
 }
-
 .param-check {
     display: flex;
     justify-content: center;
     cursor: pointer;
 }
-
 .param-check input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
     accent-color: #3b82f6;
 }
-
-/* Boutons de régénération dans les repas-box */
+.firebase-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
+}
+.firebase-status.ok { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; }
+.firebase-status.erreur { background:#fef2f2; border-color:#fecaca; color:#dc2626; }
+.firebase-status.chargement { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+.firebase-status .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.firebase-status .badge {
+    margin-left: auto;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.firebase-status.ok .badge { background:#dcfce7; color:#15803d; }
+.firebase-status.erreur .badge { background:#fee2e2; color:#dc2626; }
+.firebase-status.chargement .badge { background:#dbeafe; color:#1d4ed8; }
 .repas-box .regen-btn {
     background: transparent;
     color: #9ca3af;
@@ -128,12 +149,10 @@ button:hover{background:#2563eb;}
     transition: color 0.2s, background 0.2s;
     flex-shrink: 0;
 }
-
 .repas-box .regen-btn:hover {
     color: #3b82f6;
     background: #dbeafe;
 }
-
 .repas-box{
     background:#f9fafc;
     border-radius:6px;
@@ -141,25 +160,15 @@ button:hover{background:#2563eb;}
     display:flex;
     flex-direction:column;
     border-left:3px solid #e5e7eb;
-    position: relative;
 }
-
 .repas-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 2px;
 }
-
-.repas-titre{
-    font-size:12px;
-    color:#6b7280;
-}
-
-.repas-contenu{
-    font-size:14px;
-    font-weight:500;
-}
+.repas-titre{ font-size:12px; color:#6b7280; }
+.repas-contenu{ font-size:14px; font-weight:500; }
 </style>
 </head>
 
@@ -170,7 +179,6 @@ button:hover{background:#2563eb;}
 <div class="parametres-bloc">
     <div class="parametres-titre">⚙️ Paramètres</div>
     <div class="parametres-grid">
-        <!-- En-têtes jours -->
         <div></div>
         <div class="param-jour">Lundi</div>
         <div class="param-jour">Mardi</div>
@@ -179,7 +187,6 @@ button:hover{background:#2563eb;}
         <div class="param-jour">Vendredi</div>
         <div class="param-jour">Samedi</div>
         <div class="param-jour">Dimanche</div>
-        <!-- Ligne Midi -->
         <div class="param-row-label">☀️ Midi</div>
         <label class="param-check"><input type="checkbox" id="midi_lundi"></label>
         <label class="param-check"><input type="checkbox" id="midi_mardi"></label>
@@ -191,209 +198,223 @@ button:hover{background:#2563eb;}
     </div>
 </div>
 
+<div id="firebaseStatus" class="firebase-status chargement">
+    <span class="dot"></span>
+    <span id="firebaseStatusText">Connexion à Firebase…</span>
+    <span class="badge" id="firebaseBadge">chargement</span>
+</div>
+
 <div class="controls">
-<button onclick="genererMenu()">Générer une semaine</button>
-<button onclick="generer2Semaines()">Générer 2 semaines</button>
-<button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
+    <button onclick="genererMenu()">Générer une semaine</button>
+    <button onclick="generer2Semaines()">Générer 2 semaines</button>
+    <button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
 </div>
 
 <div id="menu"></div>
 </div>
 
-<script>
-let repas = []
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA7-OjvE2UEfy0DtxGuEP9kJ9iM4OslUvI",
+    authDomain: "menus-ce381.firebaseapp.com",
+    projectId: "menus-ce381",
+    storageBucket: "menus-ce381.firebasestorage.app",
+    messagingSenderId: "828215763434",
+    appId: "1:828215763434:web:d9686690f65b59c8871293"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const DOC_HISTORIQUE = doc(db, "historique", "precedent");
+const DOC_MENU = doc(db, "historique", "dernier_menu");
+
+let repas = [];
+let historique = [];
+let dernierMenu = null;
+
+const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+
+function setStatut(etat, texte, badge){
+    const el = document.getElementById("firebaseStatus");
+    el.className = "firebase-status " + etat;
+    document.getElementById("firebaseStatusText").textContent = texte;
+    document.getElementById("firebaseBadge").textContent = badge;
+}
 
 async function chargerRepas(){
-    const response = await fetch("repas.csv")
-    const texte = await response.text()
+    const response = await fetch("repas.csv");
+    const texte = await response.text();
     repas = texte
         .split("\n")
         .map(r => r.trim())
         .filter(r => r !== "")
-        .map(r => ({name: r.split(";")[0].replace(/^"/, "").replace(/"$/, "")}))
+        .map(r => ({ name: r.split(";")[0].replace(/^"/, "").replace(/"$/, "") }));
 }
 
-const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
+async function chargerDepuisFirebase(){
+    try {
+        const snapHisto = await getDoc(DOC_HISTORIQUE);
+        historique = snapHisto.exists() ? (snapHisto.data().repas || []) : [];
 
-function shuffle(a){return a.sort(()=>Math.random()-0.5);}
-function midiActive(jour){return document.getElementById("midi_"+jour).checked;}
+        const snapMenu = await getDoc(DOC_MENU);
+        dernierMenu = snapMenu.exists() ? (snapMenu.data().menus || null) : null;
+
+        setStatut("ok", "Firebase connecté — historique synchronisé sur tous vos appareils", historique.length + " repas exclus");
+        if(dernierMenu) afficher(dernierMenu);
+    } catch(e){
+        setStatut("erreur", "Erreur Firebase : " + e.message, "hors ligne");
+    }
+}
+
+async function sauvegarderDansFirebase(repasGeneres, menus){
+    historique = repasGeneres;
+    try {
+        await setDoc(DOC_HISTORIQUE, { repas: historique });
+        await setDoc(DOC_MENU, { menus: menus });
+        setStatut("ok", "Historique sauvegardé ✓ — synchronisé sur tous vos appareils", historique.length + " repas exclus");
+    } catch(e){
+        setStatut("erreur", "Sauvegarde échouée : " + e.message, "erreur");
+    }
+}
+
+window.resetHistorique = async function(){
+    historique = [];
+    dernierMenu = null;
+    try {
+        await setDoc(DOC_HISTORIQUE, { repas: [] });
+        await setDoc(DOC_MENU, { menus: null });
+        setStatut("ok", "Historique réinitialisé ✓", "0 repas exclus");
+    } catch(e){
+        setStatut("erreur", "Erreur lors de la réinitialisation", "erreur");
+    }
+    document.getElementById("menu").innerHTML = "";
+}
+
+function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
+function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
 
 function calculerNbPlats(){
-    let nbPlats = 7;
-    jours.forEach(j=>{ if(midiActive(j.toLowerCase())) nbPlats++; });
-    return nbPlats;
+    let nb = 7;
+    jours.forEach(j => { if(midiActive(j.toLowerCase())) nb++; });
+    return nb;
 }
 
 function piocherRepas(exclu, nbPlats){
-    let liste = shuffle([...repas]).filter(r => !exclu.includes(r.name))
-    if(liste.length < nbPlats) liste = shuffle([...repas])
-    return liste.slice(0, nbPlats)
+    let liste = shuffle([...repas]).filter(r => !exclu.includes(r.name));
+    if(liste.length < nbPlats) liste = shuffle([...repas]);
+    return liste.slice(0, nbPlats);
 }
 
-function sauvegarderMenu(menus){
-    const dernier = menus[0].repas.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
-    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
-    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+function creerRepasBox(label, contenu, onRegen){
+    const box = document.createElement("div");
+    box.className = "repas-box";
+    const header = document.createElement("div");
+    header.className = "repas-header";
+    const titreEl = document.createElement("div");
+    titreEl.className = "repas-titre";
+    titreEl.textContent = label;
+    const btn = document.createElement("button");
+    btn.className = "regen-btn";
+    btn.textContent = "🔄";
+    btn.title = "Régénérer";
+    btn.onclick = onRegen;
+    header.appendChild(titreEl);
+    header.appendChild(btn);
+    const contenuEl = document.createElement("div");
+    contenuEl.className = "repas-contenu";
+    contenuEl.textContent = contenu || "-";
+    box.appendChild(header);
+    box.appendChild(contenuEl);
+    return box;
 }
 
 function afficher(menus){
-    const container=document.getElementById("menu")
-    container.innerHTML=""
+    dernierMenu = menus;
+    const container = document.getElementById("menu");
+    container.innerHTML = "";
     menus.forEach((semaine, indexSemaine) => {
-        const bloc=document.createElement("div")
-        bloc.className="semaine"
-        const titre=document.createElement("h3")
-        titre.textContent=semaine.titre
-        const grid=document.createElement("div")
-        grid.className="grid"
+        const bloc = document.createElement("div");
+        bloc.className = "semaine";
+        const titre = document.createElement("h3");
+        titre.textContent = semaine.titre;
+        const grid = document.createElement("div");
+        grid.className = "grid";
 
-        semaine.repas.forEach((plat,i)=>{
-            const ligne=document.createElement("div")
-            ligne.className="jour"
+        semaine.repas.forEach((plat, i) => {
+            const ligne = document.createElement("div");
+            ligne.className = "jour";
+            const j = document.createElement("span");
+            j.className = "nomjour";
+            j.textContent = jours[i];
+            ligne.appendChild(j);
 
-            const j=document.createElement("span")
-            j.className="nomjour"
-            j.textContent=jours[i]
-
-            ligne.appendChild(j)
-
-            // === COLONNE 2 : MIDI ===
             if(midiActive(jours[i].toLowerCase())){
-                const midiBox = document.createElement("div")
-                midiBox.className = "repas-box"
-
-                const midiHeader = document.createElement("div")
-                midiHeader.className = "repas-header"
-
-                const midiTitre = document.createElement("div")
-                midiTitre.className = "repas-titre"
-                midiTitre.textContent = "☀️ Midi"
-
-                const midiBtnRegen = document.createElement("button")
-                midiBtnRegen.className = "regen-btn"
-                midiBtnRegen.textContent = "🔄"
-                midiBtnRegen.title = "Régénérer le midi"
-                midiBtnRegen.onclick = () => regenererRepas(i, "midi", menus, indexSemaine)
-
-                midiHeader.appendChild(midiTitre)
-                midiHeader.appendChild(midiBtnRegen)
-
-                const midiContenu = document.createElement("div")
-                midiContenu.className = "repas-contenu"
-                midiContenu.textContent = plat.midi || "-"
-
-                midiBox.appendChild(midiHeader)
-                midiBox.appendChild(midiContenu)
-
-                ligne.appendChild(midiBox)
+                ligne.appendChild(creerRepasBox("☀️ Midi", plat.midi, () => regenererRepas(i, "midi", menus, indexSemaine)));
             } else {
-                const vide = document.createElement("div")
-                ligne.appendChild(vide)
+                ligne.appendChild(document.createElement("div"));
             }
 
-            // === COLONNE 3 : SOIR ===
-            const soirBox = document.createElement("div")
-            soirBox.className = "repas-box"
+            ligne.appendChild(creerRepasBox("🌙 Soir", plat.soir, () => regenererRepas(i, "soir", menus, indexSemaine)));
+            grid.appendChild(ligne);
+        });
 
-            const soirHeader = document.createElement("div")
-            soirHeader.className = "repas-header"
-
-            const soirTitre = document.createElement("div")
-            soirTitre.className = "repas-titre"
-            soirTitre.textContent = "🌙 Soir"
-
-            const soirBtnRegen = document.createElement("button")
-            soirBtnRegen.className = "regen-btn"
-            soirBtnRegen.textContent = "🔄"
-            soirBtnRegen.title = "Régénérer le soir"
-            soirBtnRegen.onclick = () => regenererRepas(i, "soir", menus, indexSemaine)
-
-            soirHeader.appendChild(soirTitre)
-            soirHeader.appendChild(soirBtnRegen)
-
-            const soirContenu = document.createElement("div")
-            soirContenu.className = "repas-contenu"
-            soirContenu.textContent = plat.soir || "-"
-
-            soirBox.appendChild(soirHeader)
-            soirBox.appendChild(soirContenu)
-
-            ligne.appendChild(soirBox)
-            grid.appendChild(ligne)
-        })
-
-        bloc.appendChild(titre)
-        bloc.appendChild(grid)
-        container.appendChild(bloc)
-    })
+        bloc.appendChild(titre);
+        bloc.appendChild(grid);
+        container.appendChild(bloc);
+    });
 }
 
-function genererMenu() {
-    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
-    let nbPlats = calculerNbPlats();
-    const selection = piocherRepas(precedent, nbPlats);
-   
+window.genererMenu = async function(){
+    const selection = piocherRepas(historique, calculerNbPlats());
     let index = 0;
-
     const menus = [{
         titre: "Semaine",
         repas: jours.map(jour => {
-            let midi=null, soir=null;
-            if(midiActive(jour.toLowerCase())){
-                midi = selection[index]?.name || null; index++;
-            }
+            let midi = null, soir = null;
+            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
             soir = selection[index]?.name || null; index++;
-            return {midi, soir};
+            return { midi, soir };
         })
     }];
-
     afficher(menus);
-    sauvegarderMenu(menus)
+    await sauvegarderDansFirebase(menus[0].repas.flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
 }
 
-function generer2Semaines(){
-    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
-    const menus = []
-    for(let s=1; s<=2; s++){
-        let nbPlats = calculerNbPlats();
-        const selection = piocherRepas(precedent, nbPlats)
-        let index=0
-        const semaine = jours.map(jour=>{
-            let midi=null, soir=null;
-            if(midiActive(jour.toLowerCase())){ midi=selection[index]?.name||null; index++; }
-            soir=selection[index]?.name||null; index++;
-            return {midi, soir}
-        })
-        menus.push({titre:"Semaine "+s, repas:semaine})
-        precedent = semaine.flatMap(r=>[r.midi,r.soir]).filter(Boolean)
+window.generer2Semaines = async function(){
+    const menus = [];
+    let exclu = [...historique];
+    for(let s = 1; s <= 2; s++){
+        const selection = piocherRepas(exclu, calculerNbPlats());
+        let index = 0;
+        const semaine = jours.map(jour => {
+            let midi = null, soir = null;
+            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
+            soir = selection[index]?.name || null; index++;
+            return { midi, soir };
+        });
+        menus.push({ titre: "Semaine " + s, repas: semaine });
+        exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean)];
     }
-    afficher(menus)
-    localStorage.setItem("menu_precedent", JSON.stringify(precedent))
-    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+    afficher(menus);
+    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
 }
 
-function resetHistorique(){
-    localStorage.clear()
-    document.getElementById("menu").innerHTML=""
+async function regenererRepas(indexJour, moment, menus, indexSemaine){
+    const tousActuels = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean);
+    const liste = piocherRepas([...historique, ...tousActuels], 1);
+    if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0].name;
+    afficher(menus);
+    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
 }
 
-// Nouvelle fonction : régénère uniquement midi OU soir pour un jour donné
-function regenererRepas(indexJour, moment, menus, indexSemaine){
-    let semaine = menus[indexSemaine].repas
-    let exclu = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean)
-    let liste = piocherRepas(exclu, 1)
-    if(liste.length > 0){
-        semaine[indexJour][moment] = liste[0].name
-    }
-    afficher(menus)
-    sauvegarderMenu(menus)
-}
-
-window.onload=async function(){
-    await chargerRepas()
-    const dernier = JSON.parse(localStorage.getItem("menu_derniere_generation"))
-    if(dernier) afficher(dernier)
-}
+// Init
+(async function(){
+    await chargerRepas();
+    await chargerDepuisFirebase();
+})();
 </script>
 </body>
 </html>
