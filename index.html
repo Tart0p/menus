@@ -65,41 +65,53 @@ button:hover{background:#2563eb;}
     align-items:center;
 }
 
-.midibox-compact-responsive {
+/* === BLOC PARAMÈTRES === */
+.parametres-bloc {
     background: #f0f4ff;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 14px 16px;
+    border-radius: 10px;
     margin-bottom: 15px;
-    max-width: 100%;
 }
 
-.midibox-title {
+.parametres-titre {
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #374151;
 }
 
-.midicheck-responsive {
+.parametres-grid {
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr);
+    gap: 6px 10px;
+    align-items: center;
+}
+
+.param-jour {
+    font-weight: bold;
+    font-size: 13px;
+    color: #4b5563;
+    text-align: center;
+}
+
+.param-row-label {
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+    padding-right: 4px;
+}
+
+.param-check {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: flex-start;
-}
-
-.midicheck-responsive label {
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background 0.2s;
+    justify-content: center;
     cursor: pointer;
 }
 
-.midicheck-responsive label:hover {
-    background: #e0e7ff;
-}
-
-@media (min-width: 600px) {
-    .midicheck-responsive {
-        flex-wrap: nowrap;
-    }
+.param-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
 }
 
 /* Boutons de régénération dans les repas-box */
@@ -155,16 +167,27 @@ button:hover{background:#2563eb;}
 <div class="app">
 <h1>Planificateur de menus</h1>
 
-<div class="midibox-compact-responsive">
-    <div class="midibox-title">☀️ Repas du midi</div>
-    <div class="midicheck-responsive">
-        <label><input type="checkbox" id="midi_lundi"> Lundi</label>
-        <label><input type="checkbox" id="midi_mardi"> Mardi</label>
-        <label><input type="checkbox" id="midi_mercredi"> Mercredi</label>
-        <label><input type="checkbox" id="midi_jeudi"> Jeudi</label>
-        <label><input type="checkbox" id="midi_vendredi"> Vendredi</label>
-        <label><input type="checkbox" id="midi_samedi" checked> Samedi</label>
-        <label><input type="checkbox" id="midi_dimanche" checked> Dimanche</label>
+<div class="parametres-bloc">
+    <div class="parametres-titre">⚙️ Paramètres</div>
+    <div class="parametres-grid">
+        <!-- En-têtes jours -->
+        <div></div>
+        <div class="param-jour">Lundi</div>
+        <div class="param-jour">Mardi</div>
+        <div class="param-jour">Mercredi</div>
+        <div class="param-jour">Jeudi</div>
+        <div class="param-jour">Vendredi</div>
+        <div class="param-jour">Samedi</div>
+        <div class="param-jour">Dimanche</div>
+        <!-- Ligne Midi -->
+        <div class="param-row-label">☀️ Midi</div>
+        <label class="param-check"><input type="checkbox" id="midi_lundi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_mardi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_mercredi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_jeudi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_vendredi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_samedi" checked></label>
+        <label class="param-check"><input type="checkbox" id="midi_dimanche" checked></label>
     </div>
 </div>
 
