@@ -52,7 +52,7 @@ button:hover{background:#2563eb;}
     padding:10px;
     border-radius:6px;
     display:grid;
-    grid-template-columns: 120px 1fr 1fr; /* jour | midi | soir */
+    grid-template-columns: 120px 1fr 1fr;
     align-items:center;
     border:1px solid #eee;
     gap:10px;
@@ -63,7 +63,6 @@ button:hover{background:#2563eb;}
     min-width:90px;
     display:flex;
     align-items:center;
-    justify-content:space-between;
 }
 
 .midibox-compact-responsive {
@@ -81,7 +80,7 @@ button:hover{background:#2563eb;}
 
 .midicheck-responsive {
     display: flex;
-    flex-wrap: wrap;        /* permet le passage à plusieurs lignes sur mobile */
+    flex-wrap: wrap;
     gap: 8px;
     justify-content: flex-start;
 }
@@ -93,33 +92,34 @@ button:hover{background:#2563eb;}
     cursor: pointer;
 }
 
-/* effet au survol */
 .midicheck-responsive label:hover {
     background: #e0e7ff;
 }
 
-/* écran large : alignement sur une seule ligne si possible */
 @media (min-width: 600px) {
     .midicheck-responsive {
         flex-wrap: nowrap;
     }
 }
 
-
-.jour button {
-    background: #f3f4f6; /* gris clair discret */
-    color: #3b82f6;      /* bleu pour rester visible */
+/* Boutons de régénération dans les repas-box */
+.repas-box .regen-btn {
+    background: transparent;
+    color: #9ca3af;
     border: none;
-    padding: 2px 6px;
-    font-size: 14px;
-    border-radius: 6px;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-left: 8px;
-    transition: background 0.2s;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
 }
 
-.jour button:hover {
-    background: #dbeafe; /* léger survol bleu clair */
+.repas-box .regen-btn:hover {
+    color: #3b82f6;
+    background: #dbeafe;
 }
 
 .repas-box{
@@ -128,21 +128,26 @@ button:hover{background:#2563eb;}
     padding:8px;
     display:flex;
     flex-direction:column;
-	border-left:3px solid #e5e7eb;
+    border-left:3px solid #e5e7eb;
+    position: relative;
+}
+
+.repas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
 }
 
 .repas-titre{
     font-size:12px;
     color:#6b7280;
-    margin-bottom:2px;
 }
 
 .repas-contenu{
     font-size:14px;
     font-weight:500;
 }
-
-
 </style>
 </head>
 
@@ -178,21 +183,11 @@ let repas = []
 async function chargerRepas(){
     const response = await fetch("repas.csv")
     const texte = await response.text()
-
-    const lignes = texte
+    repas = texte
         .split("\n")
-        .map(l => l.trim())
-        .filter(l => l !== "")
-
-    // Récupération de l'en-tête (1ère ligne) pour identifier les colonnes
-    const entete = lignes[0].split(";").map(col => col.trim().replace(/^\uFEFF/, ""))
-    const colNom = entete.indexOf("Nom complet")
-
-    // Parsing des lignes de données (à partir de la 2ème ligne)
-    repas = lignes.slice(1).map(ligne => {
-        const cols = ligne.split(";")
-        return { name: cols[colNom]?.trim() || "" }
-    }).filter(r => r.name !== "")
+        .map(r => r.trim())
+        .filter(r => r !== "")
+        .map(r => ({name:r}))
 }
 
 const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
@@ -229,7 +224,6 @@ function afficher(menus){
         const grid=document.createElement("div")
         grid.className="grid"
 
-
         semaine.repas.forEach((plat,i)=>{
             const ligne=document.createElement("div")
             ligne.className="jour"
@@ -238,57 +232,70 @@ function afficher(menus){
             j.className="nomjour"
             j.textContent=jours[i]
 
-          // bouton
-const btn = document.createElement("button")
-btn.textContent = "🔄"
-btn.style.marginLeft = "6px"
-btn.style.fontSize = "14px"
-btn.onclick = ()=>regenererJour(i, menus, indexSemaine)
+            ligne.appendChild(j)
 
-j.appendChild(btn)
+            // === COLONNE 2 : MIDI ===
+            if(midiActive(jours[i].toLowerCase())){
+                const midiBox = document.createElement("div")
+                midiBox.className = "repas-box"
 
-// === COLONNE 1 : JOUR ===
-ligne.appendChild(j)
+                const midiHeader = document.createElement("div")
+                midiHeader.className = "repas-header"
 
-// === COLONNE 2 : MIDI ===
-if(midiActive(jours[i].toLowerCase())){
-    const midiBox = document.createElement("div")
-    midiBox.className = "repas-box"
+                const midiTitre = document.createElement("div")
+                midiTitre.className = "repas-titre"
+                midiTitre.textContent = "☀️ Midi"
 
-    const midiTitre = document.createElement("div")
-    midiTitre.className = "repas-titre"
-    midiTitre.textContent = "☀️ Midi"
+                const midiBtnRegen = document.createElement("button")
+                midiBtnRegen.className = "regen-btn"
+                midiBtnRegen.textContent = "🔄"
+                midiBtnRegen.title = "Régénérer le midi"
+                midiBtnRegen.onclick = () => regenererRepas(i, "midi", menus, indexSemaine)
 
-    const midiContenu = document.createElement("div")
-    midiContenu.className = "repas-contenu"
-    midiContenu.textContent = plat.midi || "-"
+                midiHeader.appendChild(midiTitre)
+                midiHeader.appendChild(midiBtnRegen)
 
-    midiBox.appendChild(midiTitre)
-    midiBox.appendChild(midiContenu)
+                const midiContenu = document.createElement("div")
+                midiContenu.className = "repas-contenu"
+                midiContenu.textContent = plat.midi || "-"
 
-    ligne.appendChild(midiBox)
-} else {
-    // IMPORTANT : colonne vide pour garder l'alignement
-    const vide = document.createElement("div")
-    ligne.appendChild(vide)
-}
+                midiBox.appendChild(midiHeader)
+                midiBox.appendChild(midiContenu)
 
-// === COLONNE 3 : SOIR ===
-const soirBox = document.createElement("div")
-soirBox.className = "repas-box"
+                ligne.appendChild(midiBox)
+            } else {
+                const vide = document.createElement("div")
+                ligne.appendChild(vide)
+            }
 
-const soirTitre = document.createElement("div")
-soirTitre.className = "repas-titre"
-soirTitre.textContent = "🌙 Soir"
+            // === COLONNE 3 : SOIR ===
+            const soirBox = document.createElement("div")
+            soirBox.className = "repas-box"
 
-const soirContenu = document.createElement("div")
-soirContenu.className = "repas-contenu"
-soirContenu.textContent = plat.soir || "-"
+            const soirHeader = document.createElement("div")
+            soirHeader.className = "repas-header"
 
-soirBox.appendChild(soirTitre)
-soirBox.appendChild(soirContenu)
+            const soirTitre = document.createElement("div")
+            soirTitre.className = "repas-titre"
+            soirTitre.textContent = "🌙 Soir"
 
-ligne.appendChild(soirBox)
+            const soirBtnRegen = document.createElement("button")
+            soirBtnRegen.className = "regen-btn"
+            soirBtnRegen.textContent = "🔄"
+            soirBtnRegen.title = "Régénérer le soir"
+            soirBtnRegen.onclick = () => regenererRepas(i, "soir", menus, indexSemaine)
+
+            soirHeader.appendChild(soirTitre)
+            soirHeader.appendChild(soirBtnRegen)
+
+            const soirContenu = document.createElement("div")
+            soirContenu.className = "repas-contenu"
+            soirContenu.textContent = plat.soir || "-"
+
+            soirBox.appendChild(soirHeader)
+            soirBox.appendChild(soirContenu)
+
+            ligne.appendChild(soirBox)
             grid.appendChild(ligne)
         })
 
@@ -299,11 +306,11 @@ ligne.appendChild(soirBox)
 }
 
 function genererMenu() {
-let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
-let nbPlats = calculerNbPlats();
-const selection = piocherRepas(precedent, nbPlats);
+    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || [];
+    let nbPlats = calculerNbPlats();
+    const selection = piocherRepas(precedent, nbPlats);
    
-   let index = 0;
+    let index = 0;
 
     const menus = [{
         titre: "Semaine",
@@ -318,17 +325,15 @@ const selection = piocherRepas(precedent, nbPlats);
     }];
 
     afficher(menus);
-
-sauvegarderMenu(menus)
+    sauvegarderMenu(menus)
 }
 
 function generer2Semaines(){
-    let liste = [...repas]
     let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
     const menus = []
     for(let s=1; s<=2; s++){
-		let nbPlats = calculerNbPlats();
-		const selection = piocherRepas(precedent, nbPlats)
+        let nbPlats = calculerNbPlats();
+        const selection = piocherRepas(precedent, nbPlats)
         let index=0
         const semaine = jours.map(jour=>{
             let midi=null, soir=null;
@@ -349,28 +354,22 @@ function resetHistorique(){
     document.getElementById("menu").innerHTML=""
 }
 
-function regenererJour(indexJour, menus, indexSemaine){
-    const jourID = jours[indexJour].toLowerCase()
-   let semaine = menus[indexSemaine].repas
-    let exclu = menus.flatMap(s=>s.repas).flatMap(r=>[r.midi,r.soir]).filter(Boolean)
-	let liste = piocherRepas(exclu, 2)
-    let index=0
-    if(midiActive(jourID)){
-        semaine[indexJour].midi = liste[index]?.name || semaine[indexJour].midi; index++
+// Nouvelle fonction : régénère uniquement midi OU soir pour un jour donné
+function regenererRepas(indexJour, moment, menus, indexSemaine){
+    let semaine = menus[indexSemaine].repas
+    let exclu = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean)
+    let liste = piocherRepas(exclu, 1)
+    if(liste.length > 0){
+        semaine[indexJour][moment] = liste[0].name
     }
-    semaine[indexJour].soir = liste[index]?.name || semaine[indexJour].soir; index++
     afficher(menus)
-sauvegarderMenu(menus)
+    sauvegarderMenu(menus)
 }
 
 window.onload=async function(){
-
     await chargerRepas()
-
     const dernier = JSON.parse(localStorage.getItem("menu_derniere_generation"))
-
     if(dernier) afficher(dernier)
-
 }
 </script>
 </body>
