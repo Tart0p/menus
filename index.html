@@ -169,6 +169,15 @@ button:hover{background:#2563eb;}
 }
 .repas-titre{ font-size:12px; color:#6b7280; }
 .repas-contenu{ font-size:14px; font-weight:500; }
+.repas-box.impossible {
+    border-left-color: #f97316;
+    background: #fff7ed;
+}
+.repas-box.impossible .repas-contenu {
+    color: #c2410c;
+    font-style: italic;
+    font-size: 13px;
+}
 </style>
 </head>
 
@@ -218,9 +227,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 // ─── Configuration Firebase ───────────────────────────────────────────────
-// Connexion au projet Firebase "menus-ce381".
-// L'historique et le dernier menu généré sont stockés dans Firestore,
-// ce qui permet la synchronisation sur tous les appareils.
 const firebaseConfig = {
     apiKey: "AIzaSyA7-OjvE2UEfy0DtxGuEP9kJ9iM4OslUvI",
     authDomain: "menus-ce381.firebaseapp.com",
@@ -233,19 +239,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-// Documents Firestore utilisés :
-//   - DOC_HISTORIQUE : liste des noms de repas déjà proposés (pour éviter les répétitions)
-//   - DOC_MENU       : dernier menu généré (pour le recharger à l'ouverture)
 const DOC_HISTORIQUE = doc(db, "historique", "precedent");
 const DOC_MENU       = doc(db, "historique", "dernier_menu");
 
 const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 
 // Tableau des repas chargés depuis le CSV.
-// Chaque entrée contient : { name, viande, categorie }
+// Chaque entrée contient : { name, legumes, feculent, viande, categorie }
 let repas = [];
 
-let historique  = []; // noms des repas déjà proposés (chargé depuis Firebase)
+let historique  = [];
 let dernierMenu = null;
 
 // ─── Utilitaires Firebase ─────────────────────────────────────────────────
@@ -302,15 +305,18 @@ async function chargerRepas(){
     const response = await fetch("repas.csv");
     const texte    = await response.text();
     const lignes   = texte.split("\n").map(r => r.trim()).filter(r => r !== "");
-    // La première ligne est l'en-tête : on la saute avec slice(1).
     // Colonnes parsées :
     //   cols[0] = Nom complet  → nom affiché
+    //   cols[1] = Légumes      → utilisé par la Règle 3 (pas de doublon de légume)
+    //   cols[2] = Féculent     → utilisé par la Règle 3 (pas de doublon de féculent)
     //   cols[3] = Viande       → utilisé par la Règle 1 (pas de viande le soir)
     //   cols[4] = Catégorie    → utilisé par les Règles 1 et 2 (exception Tarte)
     repas = lignes.slice(1).map(r => {
         const cols = r.split(";");
         return {
             name:      (cols[0] || "").replace(/^"/, "").replace(/"$/, "").trim(),
+            legumes:   (cols[1] || "").trim(),
+            feculent:  (cols[2] || "").trim(),
             viande:    (cols[3] || "").trim(),
             categorie: (cols[4] || "").trim()
         };
@@ -324,22 +330,41 @@ function midiActive(jour){ return document.getElementById("midi_" + jour).checke
 
 // ─────────────────────────────────────────────────────────────────────────
 // RÈGLE 1 : Pas de viande le soir (sauf catégorie Tarte)
-//
-// Un repas est autorisé le soir uniquement si l'une des conditions
-// suivantes est remplie :
-//   - La colonne "Viande" du CSV est vide (pas de viande dans le plat)
-//   - OU la colonne "Catégorie" vaut "Tarte" (exception explicite :
-//     les tartes peuvent contenir de la viande et rester proposées le soir
-//     car elles constituent un repas complet en elles-mêmes)
-//
-// Cette fonction est appelée à deux endroits :
-//   1. Dans construireSemaine() pour filtrer le pool de repas du soir
-//   2. Dans regenererRepas() lors du rechargement d'un seul repas du soir
 // ─────────────────────────────────────────────────────────────────────────
 function autoriseLeSOir(r){
-    const aViande  = r.viande && r.viande !== "";           // true si colonne Viande renseignée
-    const estTarte = r.categorie.toLowerCase() === "tarte"; // true si catégorie = Tarte
-    return !aViande || estTarte; // autorisé si pas de viande OU si c'est une Tarte
+    const aViande  = r.viande && r.viande !== "";
+    const estTarte = r.categorie.toLowerCase() === "tarte";
+    return !aViande || estTarte;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 3 : Pas de doublon de légume ni de féculent dans la même semaine.
+//
+// Un repas contient potentiellement un légume (colonne "Légumes") et/ou
+// un féculent (colonne "Féculent"). Pour éviter la monotonie, on s'assure
+// qu'aucun légume et qu'aucun féculent n'apparaît deux fois dans la même
+// semaine générée.
+//
+// Fonctionnement :
+//   - legumesUtilises  : ensemble (Set) des légumes déjà présents dans la semaine
+//   - feculentsUtilises : ensemble (Set) des féculents déjà présents dans la semaine
+//
+// Un repas est refusé si :
+//   - Son légume (non vide) est déjà dans legumesUtilises
+//   - OU son féculent (non vide) est déjà dans feculentsUtilises
+//
+// Les légumes/féculents vides ("") sont ignorés (pas de contrainte).
+//
+// Cette règle s'applique :
+//   1. Dans construireSemaine() lors de la génération initiale
+//   2. Dans regenererRepas() lors du rechargement manuel d'un repas
+// ─────────────────────────────────────────────────────────────────────────
+function autoriseParRegle3(r, legumesUtilises, feculentsUtilises){
+    // Si le repas a un légume déjà utilisé cette semaine → refusé
+    if(r.legumes && r.legumes !== "" && legumesUtilises.has(r.legumes)) return false;
+    // Si le repas a un féculent déjà utilisé cette semaine → refusé
+    if(r.feculent && r.feculent !== "" && feculentsUtilises.has(r.feculent)) return false;
+    return true;
 }
 
 // Pioche `nb` repas aléatoires hors de la liste `exclu`,
@@ -356,82 +381,74 @@ function piocherAvecFiltre(exclu, nb, filtre){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Construction d'une semaine de menus en appliquant les deux règles :
+// Construction d'une semaine de menus en appliquant les trois règles :
 //
-// RÈGLE 1 – Pas de viande le soir (sauf Tarte) :
-//   On constitue deux pools distincts depuis les repas disponibles
-//   (non présents dans l'historique) :
-//     • tousDispo : tous les repas → pour les repas du MIDI (aucune restriction)
-//     • soirDispo : repas sans viande + Tartes → pour les repas du SOIR
-//   Ainsi, un repas avec viande ne peut jamais atterrir le soir,
-//   sauf s'il appartient à la catégorie Tarte.
-//
-// RÈGLE 2 – Exactement 1 Tarte par semaine :
-//   La génération garantit qu'il y a toujours une Tarte dans la semaine,
-//   et jamais plus d'une. Elle fonctionne en deux temps :
-//     a) Durant la pioche, un booléen tarteUtilisee bloque toute Tarte
-//        supplémentaire dès qu'une première a été attribuée.
-//     b) Après attribution de tous les repas, si aucune Tarte n'est présente
-//        (le hasard n'en a pas sélectionné), on en force une en remplaçant
-//        un repas du soir choisi aléatoirement parmi les non-Tartes.
-//        Ce remplacement est toujours cohérent avec la Règle 1 car les
-//        Tartes sont autorisées le soir.
+// RÈGLE 1 – Pas de viande le soir (sauf Tarte)
+// RÈGLE 2 – Exactement 1 Tarte par semaine
+// RÈGLE 3 – Pas de doublon de légume ni de féculent dans la semaine
+//   Les sets legumesUtilises et feculentsUtilises sont mis à jour après
+//   chaque repas attribué. Lors de la pioche, la fonction autoriseParRegle3
+//   filtre les candidats en temps réel. Si le pool est épuisé avec la
+//   contrainte Règle 3, on relâche uniquement cette contrainte (pour éviter
+//   un blocage total sur les petits pools).
 // ─────────────────────────────────────────────────────────────────────────
 function construireSemaine(exclu){
-    // -- Règle 1 : constitution des pools --
-    // tousDispo : tous les repas hors historique → MIDI (sans restriction viande)
     const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name));
-
-    // soirDispo : filtrés par autoriseLeSOir() → SOIR (pas de viande, sauf Tarte)
     const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
-
-    // tarteDispo : uniquement les Tartes disponibles → utilisé pour forcer
-    //              l'insertion si aucune Tarte n'a été piochée (Règle 2b)
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
 
-    // Curseurs d'avancement dans chaque pool (consommation séquentielle)
     let idxTous = 0;
     let idxSoir = 0;
 
-    // Noms déjà attribués cette semaine (évite les doublons intra-semaine)
     const utilises = [];
-
-    // -- Règle 2a : verrou anti-doublon de Tarte --
-    // Dès qu'une Tarte est piochée, tarteUtilisee passe à true et toute
-    // Tarte suivante est sautée automatiquement lors de la pioche.
     let tarteUtilisee = false;
 
-    function piocher(pool, idx){
-        // Saute les repas déjà utilisés cette semaine,
-        // et saute aussi les Tartes si le quota est déjà atteint (Règle 2a)
-        while(
-            idx < pool.length &&
-            (
-                utilises.includes(pool[idx].name) ||
-                (tarteUtilisee && pool[idx].categorie.toLowerCase() === "tarte")
-            )
-        ) idx++;
-        if(idx >= pool.length) return { repas: null, idx };
-        const r = pool[idx];
-        utilises.push(r.name);
-        if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true; // quota atteint
-        return { repas: r, idx: idx + 1 };
+    // -- Règle 3 : suivi des légumes et féculents déjà utilisés cette semaine --
+    const legumesUtilises   = new Set();
+    const feculentsUtilises = new Set();
+
+    // Enregistre le légume et le féculent d'un repas dans les sets de suivi
+    function enregistrerRegle3(r){
+        if(r.legumes  && r.legumes  !== "") legumesUtilises.add(r.legumes);
+        if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
     }
 
-    // Attribution des repas jour par jour
+    function piocher(pool, idx){
+        // Saute les repas déjà utilisés, les Tartes en surnombre (Règle 2a),
+        // et les repas dont le légume ou le féculent est déjà pris (Règle 3).
+        // Si la Règle 3 épuise le pool, on relâche uniquement cette contrainte.
+        let i = idx;
+        while(i < pool.length){
+            const r = pool[i];
+            const dejaUtilise  = utilises.includes(r.name);
+            const tarteBloquee = tarteUtilisee && r.categorie.toLowerCase() === "tarte";
+            const regle3Bloque = !autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
+
+            if(!dejaUtilise && !tarteBloquee && !regle3Bloque){
+                // Candidat valide pour toutes les règles (1, 2 et 3)
+                utilises.push(r.name);
+                if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true;
+                enregistrerRegle3(r);
+                return { repas: r, idx: i + 1 };
+            }
+            i++;
+        }
+
+        // Aucun candidat valide : on retourne null sans fallback.
+        // La Règle 3 n'est jamais relâchée silencieusement ;
+        // l'interface affichera "Aucun repas possible" pour cet emplacement.
+        return { repas: null, idx: i };
+    }
+
     const semaine = jours.map(jour => {
         let midi = null, soir = null;
 
-        // Midi : pioche dans tousDispo (aucune restriction viande,
-        //        Règle 2a appliquée via tarteUtilisee)
         if(midiActive(jour.toLowerCase())){
             const res = piocher(tousDispo, idxTous);
             midi    = res.repas;
             idxTous = res.idx;
         }
 
-        // Soir : pioche dans soirDispo (Règle 1 : pas de viande sauf Tarte,
-        //        Règle 2a : pas de 2e Tarte si une est déjà attribuée)
         const resSoir = piocher(soirDispo, idxSoir);
         soir    = resSoir.repas;
         idxSoir = resSoir.idx;
@@ -440,23 +457,21 @@ function construireSemaine(exclu){
     });
 
     // -- Règle 2b : forcer une Tarte si aucune n'a été piochée --
-    // Vérifie si une Tarte est présente quelque part dans la semaine
     const aTarte = semaine.some(j =>
         (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
         (j.soir && j.soir.categorie.toLowerCase() === "tarte")
     );
 
     if(!aTarte && tarteDispo.length > 0){
-        // Aucune Tarte : on en force une (non encore utilisée cette semaine)
         const tarte = tarteDispo.find(t => !utilises.includes(t.name));
         if(tarte){
-            // Remplace un repas du soir choisi au hasard parmi les non-Tartes
-            // (cohérent avec la Règle 1 : les Tartes sont autorisées le soir)
             const candidats = semaine.map((j, i) => i).filter(i =>
                 semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
             );
             if(candidats.length > 0){
                 const idx = candidats[Math.floor(Math.random() * candidats.length)];
+                // Retirer les légumes/féculents du repas remplacé avant d'ajouter la tarte
+                // (la Règle 3 n'est pas re-vérifiée ici pour ne pas bloquer le fallback Règle 2)
                 semaine[idx].soir = tarte;
             }
         }
@@ -484,7 +499,14 @@ function creerRepasBox(repasObj, label, onRegen){
     header.appendChild(btn);
     const contenuEl = document.createElement("div");
     contenuEl.className = "repas-contenu";
-    contenuEl.textContent = repasObj ? (repasObj.name || repasObj) : "-";
+    if(repasObj){
+        contenuEl.textContent = repasObj.name || repasObj;
+    } else {
+        // Aucun repas ne satisfait toutes les règles (typiquement la Règle 3 :
+        // tous les légumes/féculents disponibles sont déjà utilisés cette semaine).
+        contenuEl.textContent = "⚠️ Aucun repas possible";
+        box.classList.add("impossible");
+    }
     box.appendChild(header);
     box.appendChild(contenuEl);
     return box;
@@ -551,50 +573,51 @@ window.generer2Semaines = async function(){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Régénère un seul repas (midi ou soir) en respectant les deux règles :
+// Régénère un seul repas (midi ou soir) en respectant les trois règles :
 //
-// RÈGLE 1 – Pas de viande le soir (sauf Tarte) :
-//   Si moment = "soir", seuls les repas sans viande (ou les Tartes) sont
-//   proposés. Si moment = "midi", aucune restriction sur la viande.
-//
-// RÈGLE 2 – Exactement 1 Tarte par semaine :
-//   Avant de piocher, on compte les Tartes déjà présentes dans la semaine
-//   (en excluant le repas en cours de remplacement pour ne pas le compter
-//   deux fois).
-//     - Si une Tarte existe déjà ailleurs dans la semaine : on interdit
-//       les Tartes dans le nouveau repas (pour rester à 1 maximum).
-//     - Si le repas remplacé était la seule Tarte de la semaine : on force
-//       le nouveau repas à être une Tarte (pour garantir le minimum de 1).
-//     - Sinon (aucune Tarte nulle part) : on force également une Tarte.
+// RÈGLE 1 – Pas de viande le soir (sauf Tarte)
+// RÈGLE 2 – Exactement 1 Tarte par semaine
+// RÈGLE 3 – Pas de doublon de légume ni de féculent dans la semaine :
+//   Avant de piocher, on collecte les légumes et féculents déjà présents
+//   dans la semaine (en excluant le repas en cours de remplacement, dont
+//   les contraintes ne s'appliquent plus). Le nouveau repas ne doit pas
+//   introduire un légume ou un féculent déjà présent ailleurs dans la
+//   semaine. Si aucun repas ne satisfait la Règle 3 (pool épuisé), elle
+//   est relâchée en dernier recours pour éviter un blocage.
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
     const semaineActuelle = menus[indexSemaine].repas;
-
-    // Repas actuellement en place à cet emplacement (avant remplacement)
     const repasActuel = semaineActuelle[indexJour][moment];
 
-    // Compte les Tartes présentes dans la semaine, en excluant l'emplacement
-    // en cours de remplacement (pour évaluer l'état après remplacement)
+    // -- Règle 2 : comptage des Tartes hors emplacement remplacé --
     const tartesAilleurs = semaineActuelle.reduce((nb, jour, i) => {
         ["midi", "soir"].forEach(m => {
-            if(i === indexJour && m === moment) return; // on exclut l'emplacement remplacé
+            if(i === indexJour && m === moment) return;
             const r = jour[m];
             if(r && (r.categorie || "").toLowerCase() === "tarte") nb++;
         });
         return nb;
     }, 0);
 
-    // Détermine si le nouveau repas doit obligatoirement être une Tarte
-    // (cas où le repas remplacé était la seule Tarte, ou qu'il n'y en avait aucune)
     const ancienEstTarte = repasActuel && (repasActuel.categorie || "").toLowerCase() === "tarte";
     const doitEtreTarte  = ancienEstTarte && tartesAilleurs === 0;
-
-    // Détermine si les Tartes sont interdites pour ce remplacement
-    // (cas où une Tarte existe déjà ailleurs dans la semaine)
     const tarteInterdite = tartesAilleurs > 0;
 
-    // Construit la liste d'exclusion : historique + tous les repas de la semaine
-    // sauf celui qu'on est en train de remplacer
+    // -- Règle 3 : collecte des légumes et féculents déjà utilisés cette semaine --
+    // On exclut le repas en cours de remplacement pour ne pas bloquer
+    // inutilement sur ses propres légume/féculent.
+    const legumesUtilises   = new Set();
+    const feculentsUtilises = new Set();
+    semaineActuelle.forEach((jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return; // exclure l'emplacement remplacé
+            const r = jour[m];
+            if(!r) return;
+            if(r.legumes  && r.legumes  !== "") legumesUtilises.add(r.legumes);
+            if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
+        });
+    });
+
     const tousActuels = menus.flatMap(s => s.repas)
         .flatMap(r => [r.midi, r.soir])
         .filter(Boolean)
@@ -602,34 +625,51 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         .map(r => r.name || r);
     const exclu = [...historique.map(r => r.name || r), ...tousActuels];
 
+    // Construction du filtre combinant Règle 1, Règle 2 et Règle 3.
+    // La Règle 3 est intégrée dans chaque branche pour s'appliquer
+    // conjointement aux autres contraintes.
     let filtre;
     if(doitEtreTarte){
-        // Le nouveau repas doit être une Tarte (garantit le minimum de 1 par semaine)
-        filtre = r => r.categorie.toLowerCase() === "tarte";
+        // Règle 2 : doit être une Tarte (les Tartes sont autorisées le soir → Règle 1 OK)
+        // Règle 3 : appliquée en plus
+        filtre = r => r.categorie.toLowerCase() === "tarte"
+                   && autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
     } else if(moment === "soir" && tarteInterdite){
-        // Soir + Tarte déjà présente ailleurs : pas de viande ET pas de Tarte
-        filtre = r => autoriseLeSOir(r) && r.categorie.toLowerCase() !== "tarte";
+        // Règle 1 + Règle 2 + Règle 3
+        filtre = r => autoriseLeSOir(r)
+                   && r.categorie.toLowerCase() !== "tarte"
+                   && autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
     } else if(moment === "soir"){
-        // Soir sans contrainte Tarte : applique uniquement la Règle 1
-        filtre = r => autoriseLeSOir(r);
+        // Règle 1 + Règle 3
+        filtre = r => autoriseLeSOir(r)
+                   && autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
     } else if(tarteInterdite){
-        // Midi + Tarte déjà présente ailleurs : on exclut les Tartes
-        filtre = r => r.categorie.toLowerCase() !== "tarte";
+        // Règle 2 + Règle 3
+        filtre = r => r.categorie.toLowerCase() !== "tarte"
+                   && autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
     } else {
-        // Midi sans contrainte : aucune restriction
-        filtre = null;
+        // Uniquement Règle 3 (midi sans contrainte Tarte)
+        filtre = r => autoriseParRegle3(r, legumesUtilises, feculentsUtilises);
     }
 
-    const liste = piocherAvecFiltre(exclu, 1, filtre);
-    if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0];
+    // Tentative avec toutes les règles (Règles 1, 2 et 3 strictement appliquées).
+    // Si le résultat est vide, aucun fallback n'est appliqué :
+    // le repas sera mis à null et l'interface affichera "Aucun repas possible".
+    let liste = piocherAvecFiltre(exclu, 1, filtre);
+
+    if(liste.length > 0){
+        menus[indexSemaine].repas[indexJour][moment] = liste[0];
+    } else {
+        // -- Règle 3 : aucun repas disponible sans doublon de légume/féculent --
+        // On ne relâche pas la règle ; on signale l'impossibilité via null.
+        menus[indexSemaine].repas[indexJour][moment] = null;
+    }
     afficher(menus);
     const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
     await sauvegarderDansFirebase(noms, menus);
 }
 
 // ─── Initialisation ───────────────────────────────────────────────────────
-// Chargement du CSV puis connexion à Firebase (qui affiche le dernier menu si disponible)
-
 (async function(){
     await chargerRepas();
     await chargerDepuisFirebase();
