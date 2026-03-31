@@ -217,6 +217,10 @@ button:hover{background:#2563eb;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+// ─── Configuration Firebase ───────────────────────────────────────────────
+// Connexion au projet Firebase "menus-ce381".
+// L'historique et le dernier menu généré sont stockés dans Firestore,
+// ce qui permet la synchronisation sur tous les appareils.
 const firebaseConfig = {
     apiKey: "AIzaSyA7-OjvE2UEfy0DtxGuEP9kJ9iM4OslUvI",
     authDomain: "menus-ce381.firebaseapp.com",
@@ -227,31 +231,30 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const DOC_HISTORIQUE = doc(db, "historique", "precedent");
-const DOC_MENU = doc(db, "historique", "dernier_menu");
+const db  = getFirestore(app);
 
-let repas = [];
-let historique = [];
-let dernierMenu = null;
+// Documents Firestore utilisés :
+//   - DOC_HISTORIQUE : liste des noms de repas déjà proposés (pour éviter les répétitions)
+//   - DOC_MENU       : dernier menu généré (pour le recharger à l'ouverture)
+const DOC_HISTORIQUE = doc(db, "historique", "precedent");
+const DOC_MENU       = doc(db, "historique", "dernier_menu");
 
 const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+
+// Tableau des repas chargés depuis le CSV.
+// Chaque entrée contient : { name, viande, categorie }
+let repas = [];
+
+let historique  = []; // noms des repas déjà proposés (chargé depuis Firebase)
+let dernierMenu = null;
+
+// ─── Utilitaires Firebase ─────────────────────────────────────────────────
 
 function setStatut(etat, texte, badge){
     const el = document.getElementById("firebaseStatus");
     el.className = "firebase-status " + etat;
     document.getElementById("firebaseStatusText").textContent = texte;
     document.getElementById("firebaseBadge").textContent = badge;
-}
-
-async function chargerRepas(){
-    const response = await fetch("repas.csv");
-    const texte = await response.text();
-    repas = texte
-        .split("\n")
-        .map(r => r.trim())
-        .filter(r => r !== "")
-        .map(r => ({ name: r.split(";")[0].replace(/^"/, "").replace(/"$/, "") }));
 }
 
 async function chargerDepuisFirebase(){
@@ -281,7 +284,7 @@ async function sauvegarderDansFirebase(repasGeneres, menus){
 }
 
 window.resetHistorique = async function(){
-    historique = [];
+    historique  = [];
     dernierMenu = null;
     try {
         await setDoc(DOC_HISTORIQUE, { repas: [] });
@@ -293,22 +296,153 @@ window.resetHistorique = async function(){
     document.getElementById("menu").innerHTML = "";
 }
 
+// ─── Chargement du CSV ────────────────────────────────────────────────────
+
+async function chargerRepas(){
+    const response = await fetch("repas.csv");
+    const texte    = await response.text();
+    const lignes   = texte.split("\n").map(r => r.trim()).filter(r => r !== "");
+    // La première ligne est l'en-tête : on la saute avec slice(1).
+    // Colonnes parsées :
+    //   cols[0] = Nom complet  → nom affiché
+    //   cols[3] = Viande       → utilisé par la Règle 1 (pas de viande le soir)
+    //   cols[4] = Catégorie    → utilisé par les Règles 1 et 2 (exception Tarte)
+    repas = lignes.slice(1).map(r => {
+        const cols = r.split(";");
+        return {
+            name:      (cols[0] || "").replace(/^"/, "").replace(/"$/, "").trim(),
+            viande:    (cols[3] || "").trim(),
+            categorie: (cols[4] || "").trim()
+        };
+    }).filter(r => r.name !== "");
+}
+
+// ─── Utilitaires généraux ─────────────────────────────────────────────────
+
 function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
 
-function calculerNbPlats(){
-    let nb = 7;
-    jours.forEach(j => { if(midiActive(j.toLowerCase())) nb++; });
-    return nb;
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 1 : Pas de viande le soir (sauf catégorie Tarte)
+//
+// Un repas est autorisé le soir uniquement si l'une des conditions
+// suivantes est remplie :
+//   - La colonne "Viande" du CSV est vide (pas de viande dans le plat)
+//   - OU la colonne "Catégorie" vaut "Tarte" (exception explicite :
+//     les tartes peuvent contenir de la viande et rester proposées le soir
+//     car elles constituent un repas complet en elles-mêmes)
+//
+// Cette fonction est appelée à deux endroits :
+//   1. Dans construireSemaine() pour filtrer le pool de repas du soir
+//   2. Dans regenererRepas() lors du rechargement d'un seul repas du soir
+// ─────────────────────────────────────────────────────────────────────────
+function autoriseLeSOir(r){
+    const aViande  = r.viande && r.viande !== "";           // true si colonne Viande renseignée
+    const estTarte = r.categorie.toLowerCase() === "tarte"; // true si catégorie = Tarte
+    return !aViande || estTarte; // autorisé si pas de viande OU si c'est une Tarte
 }
 
-function piocherRepas(exclu, nbPlats){
-    let liste = shuffle([...repas]).filter(r => !exclu.includes(r.name));
-    if(liste.length < nbPlats) liste = shuffle([...repas]);
-    return liste.slice(0, nbPlats);
+// Pioche `nb` repas aléatoires hors de la liste `exclu`,
+// avec un filtre optionnel (ex. : autoriseLeSOir).
+// Si pas assez de repas disponibles après exclusion, on relâche l'historique.
+function piocherAvecFiltre(exclu, nb, filtre){
+    let liste = shuffle([...repas])
+        .filter(r => !exclu.includes(r.name))
+        .filter(filtre || (() => true));
+    if(liste.length < nb){
+        liste = shuffle([...repas]).filter(filtre || (() => true));
+    }
+    return liste.slice(0, nb);
 }
 
-function creerRepasBox(label, contenu, onRegen){
+// ─────────────────────────────────────────────────────────────────────────
+// Construction d'une semaine de menus en appliquant les deux règles :
+//
+// RÈGLE 1 – Pas de viande le soir (sauf Tarte) :
+//   On constitue deux pools distincts depuis les repas disponibles
+//   (non présents dans l'historique) :
+//     • tousDispo : tous les repas → pour les repas du MIDI (aucune restriction)
+//     • soirDispo : repas sans viande + Tartes → pour les repas du SOIR
+//   Ainsi, un repas avec viande ne peut jamais atterrir le soir,
+//   sauf s'il appartient à la catégorie Tarte.
+//
+// RÈGLE 2 – Au moins une Tarte par semaine :
+//   Après attribution de tous les repas, on vérifie si au moins un repas
+//   (midi ou soir) est de catégorie Tarte. Si non, on force l'insertion
+//   d'une Tarte en remplaçant un repas du soir choisi aléatoirement
+//   (cohérent avec la Règle 1 : les Tartes sont toujours autorisées le soir).
+// ─────────────────────────────────────────────────────────────────────────
+function construireSemaine(exclu){
+    // -- Règle 1 : constitution des pools --
+    // tousDispo : tous les repas hors historique → MIDI (sans restriction viande)
+    const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name));
+
+    // soirDispo : filtrés par autoriseLeSOir() → SOIR (pas de viande, sauf Tarte)
+    const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
+
+    // tarteDispo : uniquement les Tartes → garantit la Règle 2
+    const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
+
+    // Curseurs d'avancement dans chaque pool (consommation séquentielle)
+    let idxTous = 0;
+    let idxSoir = 0;
+
+    // Noms déjà attribués cette semaine (évite les doublons intra-semaine)
+    const utilises = [];
+
+    function piocher(pool, idx){
+        while(idx < pool.length && utilises.includes(pool[idx].name)) idx++;
+        if(idx >= pool.length) return { repas: null, idx };
+        const r = pool[idx];
+        utilises.push(r.name);
+        return { repas: r, idx: idx + 1 };
+    }
+
+    // Attribution des repas jour par jour
+    const semaine = jours.map(jour => {
+        let midi = null, soir = null;
+
+        // Midi : pioche dans tousDispo (aucune restriction sur la viande)
+        if(midiActive(jour.toLowerCase())){
+            const res = piocher(tousDispo, idxTous);
+            midi    = res.repas;
+            idxTous = res.idx;
+        }
+
+        // Soir : pioche dans soirDispo (Règle 1 : pas de viande sauf Tarte)
+        const resSoir = piocher(soirDispo, idxSoir);
+        soir    = resSoir.repas;
+        idxSoir = resSoir.idx;
+
+        return { midi, soir };
+    });
+
+    // -- Règle 2 : garantir au moins une Tarte dans la semaine --
+    const aTarte = semaine.some(j =>
+        (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
+        (j.soir && j.soir.categorie.toLowerCase() === "tarte")
+    );
+
+    if(!aTarte && tarteDispo.length > 0){
+        // Aucune Tarte : on en force une en remplaçant un soir au hasard
+        const tarte = tarteDispo.find(t => !utilises.includes(t.name));
+        if(tarte){
+            const candidats = semaine.map((j, i) => i).filter(i =>
+                semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
+            );
+            if(candidats.length > 0){
+                const idx = candidats[Math.floor(Math.random() * candidats.length)];
+                semaine[idx].soir = tarte; // remplacement par la Tarte forcée
+            }
+        }
+    }
+
+    return semaine.map(j => ({ midi: j.midi || null, soir: j.soir || null }));
+}
+
+// ─── Affichage ────────────────────────────────────────────────────────────
+
+function creerRepasBox(repasObj, label, onRegen){
     const box = document.createElement("div");
     box.className = "repas-box";
     const header = document.createElement("div");
@@ -325,7 +459,7 @@ function creerRepasBox(label, contenu, onRegen){
     header.appendChild(btn);
     const contenuEl = document.createElement("div");
     contenuEl.className = "repas-contenu";
-    contenuEl.textContent = contenu || "-";
+    contenuEl.textContent = repasObj ? (repasObj.name || repasObj) : "-";
     box.appendChild(header);
     box.appendChild(contenuEl);
     return box;
@@ -352,12 +486,12 @@ function afficher(menus){
             ligne.appendChild(j);
 
             if(midiActive(jours[i].toLowerCase())){
-                ligne.appendChild(creerRepasBox("☀️ Midi", plat.midi, () => regenererRepas(i, "midi", menus, indexSemaine)));
+                ligne.appendChild(creerRepasBox(plat.midi, "☀️ Midi", () => regenererRepas(i, "midi", menus, indexSemaine)));
             } else {
                 ligne.appendChild(document.createElement("div"));
             }
 
-            ligne.appendChild(creerRepasBox("🌙 Soir", plat.soir, () => regenererRepas(i, "soir", menus, indexSemaine)));
+            ligne.appendChild(creerRepasBox(plat.soir, "🌙 Soir", () => regenererRepas(i, "soir", menus, indexSemaine)));
             grid.appendChild(ligne);
         });
 
@@ -367,54 +501,68 @@ function afficher(menus){
     });
 }
 
+// ─── Génération ───────────────────────────────────────────────────────────
+
 window.genererMenu = async function(){
-    const selection = piocherRepas(historique, calculerNbPlats());
-    let index = 0;
-    const menus = [{
-        titre: "Semaine",
-        repas: jours.map(jour => {
-            let midi = null, soir = null;
-            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
-            soir = selection[index]?.name || null; index++;
-            return { midi, soir };
-        })
-    }];
+    const exclu   = historique.map(r => r.name || r);
+    const semaine = construireSemaine(exclu);
+    const menus   = [{ titre: "Semaine", repas: semaine }];
     afficher(menus);
-    await sauvegarderDansFirebase(menus[0].repas.flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+    const noms = semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
 }
 
 window.generer2Semaines = async function(){
     const menus = [];
-    let exclu = [...historique];
+    let exclu = historique.map(r => r.name || r);
     for(let s = 1; s <= 2; s++){
-        const selection = piocherRepas(exclu, calculerNbPlats());
-        let index = 0;
-        const semaine = jours.map(jour => {
-            let midi = null, soir = null;
-            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
-            soir = selection[index]?.name || null; index++;
-            return { midi, soir };
-        });
+        const semaine = construireSemaine(exclu);
         menus.push({ titre: "Semaine " + s, repas: semaine });
-        exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean)];
+        exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r)];
     }
     afficher(menus);
-    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Régénère un seul repas (midi ou soir) en respectant les règles :
+//   - moment = "soir" : applique la Règle 1 (filtre autoriseLeSOir)
+//     → uniquement repas sans viande ou Tartes
+//   - moment = "midi" : aucune restriction, tous les repas sont éligibles
+// Note : la Règle 2 (au moins 1 Tarte) n'est pas re-vérifiée ici ;
+//        elle s'applique uniquement lors de la génération initiale.
+// ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
-    const tousActuels = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean);
-    const liste = piocherRepas([...historique, ...tousActuels], 1);
-    if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0].name;
+    const tousActuels = menus.flatMap(s => s.repas)
+        .flatMap(r => [r.midi, r.soir])
+        .filter(Boolean)
+        .map(r => r.name || r);
+    const exclu = [...historique.map(r => r.name || r), ...tousActuels];
+
+    let liste;
+    if(moment === "soir"){
+        // Règle 1 : soir → pas de viande, sauf Tarte
+        liste = piocherAvecFiltre(exclu, 1, r => autoriseLeSOir(r));
+    } else {
+        // Midi → aucune restriction
+        liste = piocherAvecFiltre(exclu, 1, null);
+    }
+
+    if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0];
     afficher(menus);
-    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
 }
 
-// Init
+// ─── Initialisation ───────────────────────────────────────────────────────
+// Chargement du CSV puis connexion à Firebase (qui affiche le dernier menu si disponible)
+
 (async function(){
     await chargerRepas();
     await chargerDepuisFirebase();
 })();
+
 </script>
 </body>
 </html>
