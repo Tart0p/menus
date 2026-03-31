@@ -366,11 +366,16 @@ function piocherAvecFiltre(exclu, nb, filtre){
 //   Ainsi, un repas avec viande ne peut jamais atterrir le soir,
 //   sauf s'il appartient à la catégorie Tarte.
 //
-// RÈGLE 2 – Au moins une Tarte par semaine :
-//   Après attribution de tous les repas, on vérifie si au moins un repas
-//   (midi ou soir) est de catégorie Tarte. Si non, on force l'insertion
-//   d'une Tarte en remplaçant un repas du soir choisi aléatoirement
-//   (cohérent avec la Règle 1 : les Tartes sont toujours autorisées le soir).
+// RÈGLE 2 – Exactement 1 Tarte par semaine :
+//   La génération garantit qu'il y a toujours une Tarte dans la semaine,
+//   et jamais plus d'une. Elle fonctionne en deux temps :
+//     a) Durant la pioche, un booléen tarteUtilisee bloque toute Tarte
+//        supplémentaire dès qu'une première a été attribuée.
+//     b) Après attribution de tous les repas, si aucune Tarte n'est présente
+//        (le hasard n'en a pas sélectionné), on en force une en remplaçant
+//        un repas du soir choisi aléatoirement parmi les non-Tartes.
+//        Ce remplacement est toujours cohérent avec la Règle 1 car les
+//        Tartes sont autorisées le soir.
 // ─────────────────────────────────────────────────────────────────────────
 function construireSemaine(exclu){
     // -- Règle 1 : constitution des pools --
@@ -380,7 +385,8 @@ function construireSemaine(exclu){
     // soirDispo : filtrés par autoriseLeSOir() → SOIR (pas de viande, sauf Tarte)
     const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
 
-    // tarteDispo : uniquement les Tartes → garantit la Règle 2
+    // tarteDispo : uniquement les Tartes disponibles → utilisé pour forcer
+    //              l'insertion si aucune Tarte n'a été piochée (Règle 2b)
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
 
     // Curseurs d'avancement dans chaque pool (consommation séquentielle)
@@ -390,11 +396,25 @@ function construireSemaine(exclu){
     // Noms déjà attribués cette semaine (évite les doublons intra-semaine)
     const utilises = [];
 
+    // -- Règle 2a : verrou anti-doublon de Tarte --
+    // Dès qu'une Tarte est piochée, tarteUtilisee passe à true et toute
+    // Tarte suivante est sautée automatiquement lors de la pioche.
+    let tarteUtilisee = false;
+
     function piocher(pool, idx){
-        while(idx < pool.length && utilises.includes(pool[idx].name)) idx++;
+        // Saute les repas déjà utilisés cette semaine,
+        // et saute aussi les Tartes si le quota est déjà atteint (Règle 2a)
+        while(
+            idx < pool.length &&
+            (
+                utilises.includes(pool[idx].name) ||
+                (tarteUtilisee && pool[idx].categorie.toLowerCase() === "tarte")
+            )
+        ) idx++;
         if(idx >= pool.length) return { repas: null, idx };
         const r = pool[idx];
         utilises.push(r.name);
+        if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true; // quota atteint
         return { repas: r, idx: idx + 1 };
     }
 
@@ -402,14 +422,16 @@ function construireSemaine(exclu){
     const semaine = jours.map(jour => {
         let midi = null, soir = null;
 
-        // Midi : pioche dans tousDispo (aucune restriction sur la viande)
+        // Midi : pioche dans tousDispo (aucune restriction viande,
+        //        Règle 2a appliquée via tarteUtilisee)
         if(midiActive(jour.toLowerCase())){
             const res = piocher(tousDispo, idxTous);
             midi    = res.repas;
             idxTous = res.idx;
         }
 
-        // Soir : pioche dans soirDispo (Règle 1 : pas de viande sauf Tarte)
+        // Soir : pioche dans soirDispo (Règle 1 : pas de viande sauf Tarte,
+        //        Règle 2a : pas de 2e Tarte si une est déjà attribuée)
         const resSoir = piocher(soirDispo, idxSoir);
         soir    = resSoir.repas;
         idxSoir = resSoir.idx;
@@ -417,22 +439,25 @@ function construireSemaine(exclu){
         return { midi, soir };
     });
 
-    // -- Règle 2 : garantir au moins une Tarte dans la semaine --
+    // -- Règle 2b : forcer une Tarte si aucune n'a été piochée --
+    // Vérifie si une Tarte est présente quelque part dans la semaine
     const aTarte = semaine.some(j =>
         (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
         (j.soir && j.soir.categorie.toLowerCase() === "tarte")
     );
 
     if(!aTarte && tarteDispo.length > 0){
-        // Aucune Tarte : on en force une en remplaçant un soir au hasard
+        // Aucune Tarte : on en force une (non encore utilisée cette semaine)
         const tarte = tarteDispo.find(t => !utilises.includes(t.name));
         if(tarte){
+            // Remplace un repas du soir choisi au hasard parmi les non-Tartes
+            // (cohérent avec la Règle 1 : les Tartes sont autorisées le soir)
             const candidats = semaine.map((j, i) => i).filter(i =>
                 semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
             );
             if(candidats.length > 0){
                 const idx = candidats[Math.floor(Math.random() * candidats.length)];
-                semaine[idx].soir = tarte; // remplacement par la Tarte forcée
+                semaine[idx].soir = tarte;
             }
         }
     }
@@ -526,29 +551,76 @@ window.generer2Semaines = async function(){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Régénère un seul repas (midi ou soir) en respectant les règles :
-//   - moment = "soir" : applique la Règle 1 (filtre autoriseLeSOir)
-//     → uniquement repas sans viande ou Tartes
-//   - moment = "midi" : aucune restriction, tous les repas sont éligibles
-// Note : la Règle 2 (au moins 1 Tarte) n'est pas re-vérifiée ici ;
-//        elle s'applique uniquement lors de la génération initiale.
+// Régénère un seul repas (midi ou soir) en respectant les deux règles :
+//
+// RÈGLE 1 – Pas de viande le soir (sauf Tarte) :
+//   Si moment = "soir", seuls les repas sans viande (ou les Tartes) sont
+//   proposés. Si moment = "midi", aucune restriction sur la viande.
+//
+// RÈGLE 2 – Exactement 1 Tarte par semaine :
+//   Avant de piocher, on compte les Tartes déjà présentes dans la semaine
+//   (en excluant le repas en cours de remplacement pour ne pas le compter
+//   deux fois).
+//     - Si une Tarte existe déjà ailleurs dans la semaine : on interdit
+//       les Tartes dans le nouveau repas (pour rester à 1 maximum).
+//     - Si le repas remplacé était la seule Tarte de la semaine : on force
+//       le nouveau repas à être une Tarte (pour garantir le minimum de 1).
+//     - Sinon (aucune Tarte nulle part) : on force également une Tarte.
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
+    const semaineActuelle = menus[indexSemaine].repas;
+
+    // Repas actuellement en place à cet emplacement (avant remplacement)
+    const repasActuel = semaineActuelle[indexJour][moment];
+
+    // Compte les Tartes présentes dans la semaine, en excluant l'emplacement
+    // en cours de remplacement (pour évaluer l'état après remplacement)
+    const tartesAilleurs = semaineActuelle.reduce((nb, jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return; // on exclut l'emplacement remplacé
+            const r = jour[m];
+            if(r && (r.categorie || "").toLowerCase() === "tarte") nb++;
+        });
+        return nb;
+    }, 0);
+
+    // Détermine si le nouveau repas doit obligatoirement être une Tarte
+    // (cas où le repas remplacé était la seule Tarte, ou qu'il n'y en avait aucune)
+    const ancienEstTarte = repasActuel && (repasActuel.categorie || "").toLowerCase() === "tarte";
+    const doitEtreTarte  = ancienEstTarte && tartesAilleurs === 0;
+
+    // Détermine si les Tartes sont interdites pour ce remplacement
+    // (cas où une Tarte existe déjà ailleurs dans la semaine)
+    const tarteInterdite = tartesAilleurs > 0;
+
+    // Construit la liste d'exclusion : historique + tous les repas de la semaine
+    // sauf celui qu'on est en train de remplacer
     const tousActuels = menus.flatMap(s => s.repas)
         .flatMap(r => [r.midi, r.soir])
         .filter(Boolean)
+        .filter(r => r !== repasActuel)
         .map(r => r.name || r);
     const exclu = [...historique.map(r => r.name || r), ...tousActuels];
 
-    let liste;
-    if(moment === "soir"){
-        // Règle 1 : soir → pas de viande, sauf Tarte
-        liste = piocherAvecFiltre(exclu, 1, r => autoriseLeSOir(r));
+    let filtre;
+    if(doitEtreTarte){
+        // Le nouveau repas doit être une Tarte (garantit le minimum de 1 par semaine)
+        filtre = r => r.categorie.toLowerCase() === "tarte";
+    } else if(moment === "soir" && tarteInterdite){
+        // Soir + Tarte déjà présente ailleurs : pas de viande ET pas de Tarte
+        filtre = r => autoriseLeSOir(r) && r.categorie.toLowerCase() !== "tarte";
+    } else if(moment === "soir"){
+        // Soir sans contrainte Tarte : applique uniquement la Règle 1
+        filtre = r => autoriseLeSOir(r);
+    } else if(tarteInterdite){
+        // Midi + Tarte déjà présente ailleurs : on exclut les Tartes
+        filtre = r => r.categorie.toLowerCase() !== "tarte";
     } else {
-        // Midi → aucune restriction
-        liste = piocherAvecFiltre(exclu, 1, null);
+        // Midi sans contrainte : aucune restriction
+        filtre = null;
     }
 
+    const liste = piocherAvecFiltre(exclu, 1, filtre);
     if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0];
     afficher(menus);
     const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
