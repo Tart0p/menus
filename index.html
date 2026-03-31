@@ -64,78 +64,57 @@ button:hover{background:#2563eb;}
     display:flex;
     align-items:center;
 }
+
+/* === BLOC PARAMÈTRES === */
 .parametres-bloc {
     background: #f0f4ff;
     padding: 14px 16px;
     border-radius: 10px;
     margin-bottom: 15px;
 }
+
 .parametres-titre {
     font-weight: bold;
     margin-bottom: 12px;
     font-size: 16px;
     color: #374151;
 }
+
 .parametres-grid {
     display: grid;
     grid-template-columns: auto repeat(7, 1fr);
     gap: 6px 10px;
     align-items: center;
 }
+
 .param-jour {
     font-weight: bold;
     font-size: 13px;
     color: #4b5563;
     text-align: center;
 }
+
 .param-row-label {
     font-size: 14px;
     color: #6b7280;
     white-space: nowrap;
     padding-right: 4px;
 }
+
 .param-check {
     display: flex;
     justify-content: center;
     cursor: pointer;
 }
+
 .param-check input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
     accent-color: #3b82f6;
 }
-.firebase-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 14px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    color: #6b7280;
-}
-.firebase-status.ok { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; }
-.firebase-status.erreur { background:#fef2f2; border-color:#fecaca; color:#dc2626; }
-.firebase-status.chargement { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
-.firebase-status .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-    flex-shrink: 0;
-}
-.firebase-status .badge {
-    margin-left: auto;
-    border-radius: 999px;
-    padding: 2px 10px;
-    font-weight: bold;
-    white-space: nowrap;
-}
-.firebase-status.ok .badge { background:#dcfce7; color:#15803d; }
-.firebase-status.erreur .badge { background:#fee2e2; color:#dc2626; }
-.firebase-status.chargement .badge { background:#dbeafe; color:#1d4ed8; }
+
+/* Boutons de régénération dans les repas-box */
 .repas-box .regen-btn {
     background: transparent;
     color: #9ca3af;
@@ -149,10 +128,12 @@ button:hover{background:#2563eb;}
     transition: color 0.2s, background 0.2s;
     flex-shrink: 0;
 }
+
 .repas-box .regen-btn:hover {
     color: #3b82f6;
     background: #dbeafe;
 }
+
 .repas-box{
     background:#f9fafc;
     border-radius:6px;
@@ -160,15 +141,26 @@ button:hover{background:#2563eb;}
     display:flex;
     flex-direction:column;
     border-left:3px solid #e5e7eb;
+    position: relative;
 }
+
+
 .repas-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 2px;
 }
-.repas-titre{ font-size:12px; color:#6b7280; }
-.repas-contenu{ font-size:14px; font-weight:500; }
+
+.repas-titre{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.repas-contenu{
+    font-size:14px;
+    font-weight:500;
+}
 </style>
 </head>
 
@@ -179,6 +171,7 @@ button:hover{background:#2563eb;}
 <div class="parametres-bloc">
     <div class="parametres-titre">⚙️ Paramètres</div>
     <div class="parametres-grid">
+        <!-- En-têtes jours -->
         <div></div>
         <div class="param-jour">Lundi</div>
         <div class="param-jour">Mardi</div>
@@ -187,6 +180,7 @@ button:hover{background:#2563eb;}
         <div class="param-jour">Vendredi</div>
         <div class="param-jour">Samedi</div>
         <div class="param-jour">Dimanche</div>
+        <!-- Ligne Midi -->
         <div class="param-row-label">☀️ Midi</div>
         <label class="param-check"><input type="checkbox" id="midi_lundi"></label>
         <label class="param-check"><input type="checkbox" id="midi_mardi"></label>
@@ -198,100 +192,35 @@ button:hover{background:#2563eb;}
     </div>
 </div>
 
-<div id="firebaseStatus" class="firebase-status chargement">
-    <span class="dot"></span>
-    <span id="firebaseStatusText">Connexion à Firebase…</span>
-    <span class="badge" id="firebaseBadge">chargement</span>
-</div>
-
 <div class="controls">
-    <button onclick="genererMenu()">Générer une semaine</button>
-    <button onclick="generer2Semaines()">Générer 2 semaines</button>
-    <button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
+<button onclick="genererMenu()">Générer une semaine</button>
+<button onclick="generer2Semaines()">Générer 2 semaines</button>
+<button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
 </div>
 
 <div id="menu"></div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyA7-OjvE2UEfy0DtxGuEP9kJ9iM4OslUvI",
-    authDomain: "menus-ce381.firebaseapp.com",
-    projectId: "menus-ce381",
-    storageBucket: "menus-ce381.firebasestorage.app",
-    messagingSenderId: "828215763434",
-    appId: "1:828215763434:web:d9686690f65b59c8871293"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const DOC_HISTORIQUE = doc(db, "historique", "precedent");
-const DOC_MENU = doc(db, "historique", "dernier_menu");
-
-let repas = [];
-let historique = [];
-let dernierMenu = null;
-
-const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
-
-function setStatut(etat, texte, badge){
-    const el = document.getElementById("firebaseStatus");
-    el.className = "firebase-status " + etat;
-    document.getElementById("firebaseStatusText").textContent = texte;
-    document.getElementById("firebaseBadge").textContent = badge;
-}
+<script>
+// Chaque repas stocke : name, viande, categorie
+let repas = []
 
 async function chargerRepas(){
-    const response = await fetch("repas.csv");
-    const texte = await response.text();
-    repas = texte
-        .split("\n")
-        .map(r => r.trim())
-        .filter(r => r !== "")
-        .map(r => ({ name: r.split(";")[0].replace(/^"/, "").replace(/"$/, "") }));
+    const response = await fetch("repas.csv")
+    const texte = await response.text()
+    const lignes = texte.split("\n").map(r => r.trim()).filter(r => r !== "")
+    // Ignorer la première ligne (en-tête)
+    repas = lignes.slice(1).map(r => {
+        const cols = r.split(";")
+        return {
+            name:      (cols[0] || "").replace(/^"/, "").replace(/"$/, "").trim(),
+            viande:    (cols[3] || "").trim(),   // colonne Viande
+            categorie: (cols[4] || "").trim()    // colonne Catégorie
+        }
+    }).filter(r => r.name !== "")
 }
 
-async function chargerDepuisFirebase(){
-    try {
-        const snapHisto = await getDoc(DOC_HISTORIQUE);
-        historique = snapHisto.exists() ? (snapHisto.data().repas || []) : [];
-
-        const snapMenu = await getDoc(DOC_MENU);
-        dernierMenu = snapMenu.exists() ? (snapMenu.data().menus || null) : null;
-
-        setStatut("ok", "Firebase connecté — historique synchronisé sur tous vos appareils", historique.length + " repas exclus");
-        if(dernierMenu) afficher(dernierMenu);
-    } catch(e){
-        setStatut("erreur", "Erreur Firebase : " + e.message, "hors ligne");
-    }
-}
-
-async function sauvegarderDansFirebase(repasGeneres, menus){
-    historique = repasGeneres;
-    try {
-        await setDoc(DOC_HISTORIQUE, { repas: historique });
-        await setDoc(DOC_MENU, { menus: menus });
-        setStatut("ok", "Historique sauvegardé ✓ — synchronisé sur tous vos appareils", historique.length + " repas exclus");
-    } catch(e){
-        setStatut("erreur", "Sauvegarde échouée : " + e.message, "erreur");
-    }
-}
-
-window.resetHistorique = async function(){
-    historique = [];
-    dernierMenu = null;
-    try {
-        await setDoc(DOC_HISTORIQUE, { repas: [] });
-        await setDoc(DOC_MENU, { menus: null });
-        setStatut("ok", "Historique réinitialisé ✓", "0 repas exclus");
-    } catch(e){
-        setStatut("erreur", "Erreur lors de la réinitialisation", "erreur");
-    }
-    document.getElementById("menu").innerHTML = "";
-}
+const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
 
 function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
@@ -302,119 +231,272 @@ function calculerNbPlats(){
     return nb;
 }
 
-function piocherRepas(exclu, nbPlats){
-    let liste = shuffle([...repas]).filter(r => !exclu.includes(r.name));
-    if(liste.length < nbPlats) liste = shuffle([...repas]);
-    return liste.slice(0, nbPlats);
+// ─────────────────────────────────────────────────────────────────
+// RÈGLE 1 : Pas de viande le soir (sauf catégorie Tarte)
+//
+// Un repas est autorisé le soir uniquement si l'une des conditions
+// suivantes est remplie :
+//   - La colonne "Viande" du CSV est vide (pas de viande dans le plat)
+//   - OU la colonne "Catégorie" vaut "Tarte" (exception explicite :
+//     les tartes peuvent contenir de la viande et rester proposées le soir
+//     car elles constituent un repas complet en elles-mêmes)
+//
+// Cette fonction est utilisée à deux endroits :
+//   1. Dans construireSemaine() pour filtrer le pool de repas du soir
+//   2. Dans regenererRepas() lors du rechargement d'un seul repas du soir
+// ─────────────────────────────────────────────────────────────────
+function autoriseLeSOir(r){
+    const aViande = r.viande && r.viande !== ""   // true si la colonne Viande est renseignée
+    const estTarte = r.categorie.toLowerCase() === "tarte"  // true si catégorie = Tarte
+    return !aViande || estTarte  // autorisé si pas de viande OU si c'est une Tarte
 }
 
-function creerRepasBox(label, contenu, onRegen){
-    const box = document.createElement("div");
-    box.className = "repas-box";
-    const header = document.createElement("div");
-    header.className = "repas-header";
-    const titreEl = document.createElement("div");
-    titreEl.className = "repas-titre";
-    titreEl.textContent = label;
-    const btn = document.createElement("button");
-    btn.className = "regen-btn";
-    btn.textContent = "🔄";
-    btn.title = "Régénérer";
-    btn.onclick = onRegen;
-    header.appendChild(titreEl);
-    header.appendChild(btn);
-    const contenuEl = document.createElement("div");
-    contenuEl.className = "repas-contenu";
-    contenuEl.textContent = contenu || "-";
-    box.appendChild(header);
-    box.appendChild(contenuEl);
-    return box;
+// Pioche des repas en respectant une liste d'exclusion et un filtre optionnel
+function piocherAvecFiltre(exclu, nb, filtre){
+    let liste = shuffle([...repas])
+        .filter(r => !exclu.includes(r.name))
+        .filter(filtre || (() => true))
+    if(liste.length < nb){
+        // Relâche l'exclusion historique si pas assez
+        liste = shuffle([...repas]).filter(filtre || (() => true))
+    }
+    return liste.slice(0, nb)
+}
+
+function sauvegarderMenu(menus){
+    const dernier = menus[0].repas.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(n => n.name || n)
+    localStorage.setItem("menu_precedent", JSON.stringify(dernier))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Construction d'une semaine de menus en appliquant les deux règles :
+//
+// RÈGLE 1 – Pas de viande le soir (sauf Tarte) :
+//   On constitue deux pools distincts depuis la liste des repas disponibles
+//   (c'est-à-dire non présents dans l'historique) :
+//     • tousDispo : tous les repas → utilisé pour les repas du midi
+//     • soirDispo : uniquement les repas sans viande + les Tartes → utilisé
+//       pour les repas du soir
+//   Ainsi, un repas avec viande ne peut jamais atterrir le soir,
+//   sauf s'il appartient à la catégorie Tarte.
+//
+// RÈGLE 2 – Au moins une Tarte par semaine :
+//   Après avoir attribué tous les repas de la semaine, on vérifie si au
+//   moins un repas (midi ou soir) appartient à la catégorie Tarte.
+//   Si ce n'est pas le cas, on force l'insertion d'une Tarte en remplaçant
+//   un repas du soir choisi aléatoirement (les Tartes sont toujours
+//   autorisées le soir, cf. Règle 1, donc ce remplacement est cohérent).
+// ─────────────────────────────────────────────────────────────────
+function construireSemaine(exclu){
+    // -- Règle 1 : constitution des pools --
+    // tousDispo : tous les repas non présents dans l'historique, mélangés aléatoirement
+    //             → sera utilisé pour piocher les repas du MIDI (aucune restriction)
+    const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name))
+
+    // soirDispo : sous-ensemble de tousDispo filtré par autoriseLeSOir()
+    //             → sera utilisé pour piocher les repas du SOIR (pas de viande, sauf Tarte)
+    const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r))
+
+    // tarteDispo : sous-ensemble de tousDispo contenant uniquement les Tartes
+    //              → servira à garantir la Règle 2 (au moins 1 Tarte par semaine)
+    const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte")
+
+    // Curseurs d'avancement dans chaque pool (on consomme séquentiellement)
+    let idxTous = 0
+    let idxSoir = 0
+
+    // Liste des noms déjà attribués cette semaine (évite les doublons intra-semaine)
+    const utilises = []
+
+    // Pioche le prochain repas disponible dans un pool en sautant les déjà utilisés
+    function piocher(pool, idx){
+        while(idx < pool.length && utilises.includes(pool[idx].name)) idx++
+        if(idx >= pool.length) return { repas: null, idx }
+        const r = pool[idx]
+        utilises.push(r.name)
+        return { repas: r, idx: idx + 1 }
+    }
+
+    // Attribution des repas jour par jour
+    const semaine = jours.map(jour => {
+        let midi = null, soir = null
+
+        // Midi : pioche dans tousDispo (tous les repas autorisés, pas de restriction viande)
+        if(midiActive(jour.toLowerCase())){
+            const res = piocher(tousDispo, idxTous)
+            midi = res.repas
+            idxTous = res.idx
+        }
+
+        // Soir : pioche dans soirDispo (Règle 1 : pas de viande sauf Tarte)
+        const resSoir = piocher(soirDispo, idxSoir)
+        soir = resSoir.repas
+        idxSoir = resSoir.idx
+
+        return { midi, soir }
+    })
+
+    // -- Règle 2 : garantir au moins une Tarte dans la semaine --
+    // On vérifie si une Tarte est déjà présente (midi ou soir) dans la semaine générée
+    const aTarte = semaine.some(j =>
+        (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
+        (j.soir && j.soir.categorie.toLowerCase() === "tarte")
+    )
+
+    if(!aTarte && tarteDispo.length > 0){
+        // Aucune Tarte trouvée : on force son insertion
+        // On cherche une Tarte non encore utilisée cette semaine
+        const tarte = tarteDispo.find(t => !utilises.includes(t.name))
+        if(tarte){
+            // On choisit aléatoirement un soir dont le repas n'est pas déjà une Tarte
+            // (les Tartes sont toujours autorisées le soir, cf. Règle 1)
+            const candidats = semaine.map((j, i) => i).filter(i =>
+                semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
+            )
+            if(candidats.length > 0){
+                const idx = candidats[Math.floor(Math.random() * candidats.length)]
+                semaine[idx].soir = tarte  // remplacement du repas du soir par la Tarte
+            }
+        }
+    }
+
+    return semaine.map(j => ({
+        midi: j.midi ? j.midi : null,
+        soir: j.soir ? j.soir : null
+    }))
 }
 
 function afficher(menus){
-    dernierMenu = menus;
-    const container = document.getElementById("menu");
-    container.innerHTML = "";
+    const container = document.getElementById("menu")
+    container.innerHTML = ""
     menus.forEach((semaine, indexSemaine) => {
-        const bloc = document.createElement("div");
-        bloc.className = "semaine";
-        const titre = document.createElement("h3");
-        titre.textContent = semaine.titre;
-        const grid = document.createElement("div");
-        grid.className = "grid";
+        const bloc = document.createElement("div")
+        bloc.className = "semaine"
+        const titre = document.createElement("h3")
+        titre.textContent = semaine.titre
+        const grid = document.createElement("div")
+        grid.className = "grid"
 
         semaine.repas.forEach((plat, i) => {
-            const ligne = document.createElement("div");
-            ligne.className = "jour";
-            const j = document.createElement("span");
-            j.className = "nomjour";
-            j.textContent = jours[i];
-            ligne.appendChild(j);
+            const ligne = document.createElement("div")
+            ligne.className = "jour"
 
+            const j = document.createElement("span")
+            j.className = "nomjour"
+            j.textContent = jours[i]
+            ligne.appendChild(j)
+
+            // === COLONNE MIDI ===
             if(midiActive(jours[i].toLowerCase())){
-                ligne.appendChild(creerRepasBox("☀️ Midi", plat.midi, () => regenererRepas(i, "midi", menus, indexSemaine)));
+                ligne.appendChild(creerRepasBox(plat.midi, "☀️ Midi", () => regenererRepas(i, "midi", menus, indexSemaine)))
             } else {
-                ligne.appendChild(document.createElement("div"));
+                ligne.appendChild(document.createElement("div"))
             }
 
-            ligne.appendChild(creerRepasBox("🌙 Soir", plat.soir, () => regenererRepas(i, "soir", menus, indexSemaine)));
-            grid.appendChild(ligne);
-        });
+            // === COLONNE SOIR ===
+            ligne.appendChild(creerRepasBox(plat.soir, "🌙 Soir", () => regenererRepas(i, "soir", menus, indexSemaine)))
 
-        bloc.appendChild(titre);
-        bloc.appendChild(grid);
-        container.appendChild(bloc);
-    });
-}
-
-window.genererMenu = async function(){
-    const selection = piocherRepas(historique, calculerNbPlats());
-    let index = 0;
-    const menus = [{
-        titre: "Semaine",
-        repas: jours.map(jour => {
-            let midi = null, soir = null;
-            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
-            soir = selection[index]?.name || null; index++;
-            return { midi, soir };
+            grid.appendChild(ligne)
         })
-    }];
-    afficher(menus);
-    await sauvegarderDansFirebase(menus[0].repas.flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+
+        bloc.appendChild(titre)
+        bloc.appendChild(grid)
+        container.appendChild(bloc)
+    })
 }
 
-window.generer2Semaines = async function(){
-    const menus = [];
-    let exclu = [...historique];
+function creerRepasBox(repasObj, labelTitre, onRegen){
+    const box = document.createElement("div")
+    box.className = "repas-box"
+
+    const header = document.createElement("div")
+    header.className = "repas-header"
+
+    const titre = document.createElement("div")
+    titre.className = "repas-titre"
+    titre.textContent = labelTitre
+
+    const btnRegen = document.createElement("button")
+    btnRegen.className = "regen-btn"
+    btnRegen.textContent = "🔄"
+    btnRegen.title = "Régénérer"
+    btnRegen.onclick = onRegen
+
+    header.appendChild(titre)
+    header.appendChild(btnRegen)
+
+    const contenu = document.createElement("div")
+    contenu.className = "repas-contenu"
+    contenu.textContent = repasObj ? (repasObj.name || repasObj) : "-"
+
+    box.appendChild(header)
+    box.appendChild(contenu)
+    return box
+}
+
+function getNoms(menus){
+    return menus.flatMap(s => s.repas).flatMap(r => [
+        r.midi ? (r.midi.name || r.midi) : null,
+        r.soir ? (r.soir.name || r.soir) : null
+    ]).filter(Boolean)
+}
+
+function genererMenu(){
+    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
+    const semaine = construireSemaine(precedent)
+    const menus = [{ titre: "Semaine", repas: semaine }]
+    afficher(menus)
+    sauvegarderMenu(menus)
+}
+
+function generer2Semaines(){
+    let precedent = JSON.parse(localStorage.getItem("menu_precedent")) || []
+    const menus = []
     for(let s = 1; s <= 2; s++){
-        const selection = piocherRepas(exclu, calculerNbPlats());
-        let index = 0;
-        const semaine = jours.map(jour => {
-            let midi = null, soir = null;
-            if(midiActive(jour.toLowerCase())){ midi = selection[index]?.name || null; index++; }
-            soir = selection[index]?.name || null; index++;
-            return { midi, soir };
-        });
-        menus.push({ titre: "Semaine " + s, repas: semaine });
-        exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean)];
+        const semaine = construireSemaine(precedent)
+        menus.push({ titre: "Semaine " + s, repas: semaine })
+        precedent = semaine.flatMap(r => [
+            r.midi ? (r.midi.name || r.midi) : null,
+            r.soir ? (r.soir.name || r.soir) : null
+        ]).filter(Boolean)
     }
-    afficher(menus);
-    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+    afficher(menus)
+    localStorage.setItem("menu_precedent", JSON.stringify(precedent))
+    localStorage.setItem("menu_derniere_generation", JSON.stringify(menus))
 }
 
-async function regenererRepas(indexJour, moment, menus, indexSemaine){
-    const tousActuels = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean);
-    const liste = piocherRepas([...historique, ...tousActuels], 1);
-    if(liste.length > 0) menus[indexSemaine].repas[indexJour][moment] = liste[0].name;
-    afficher(menus);
-    await sauvegarderDansFirebase(menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean), menus);
+function resetHistorique(){
+    localStorage.clear()
+    document.getElementById("menu").innerHTML = ""
 }
 
-// Init
-(async function(){
-    await chargerRepas();
-    await chargerDepuisFirebase();
-})();
+// Régénère un seul repas (midi ou soir) en respectant les règles :
+//   - Si moment = "soir" : applique la Règle 1 (filtre autoriseLeSOir)
+//     pour ne proposer que des repas sans viande ou des Tartes
+//   - Si moment = "midi" : aucune restriction, tous les repas sont éligibles
+// Note : la Règle 2 (au moins 1 Tarte) n'est pas re-vérifiée ici ;
+//        elle s'applique uniquement lors de la génération initiale.
+function regenererRepas(indexJour, moment, menus, indexSemaine){
+    const exclu = getNoms(menus)
+    let liste
+    if(moment === "soir"){
+        liste = piocherAvecFiltre(exclu, 1, r => autoriseLeSOir(r))
+    } else {
+        liste = piocherAvecFiltre(exclu, 1, null)
+    }
+    if(liste.length > 0){
+        menus[indexSemaine].repas[indexJour][moment] = liste[0]
+    }
+    afficher(menus)
+    sauvegarderMenu(menus)
+}
+
+window.onload = async function(){
+    await chargerRepas()
+    const dernier = JSON.parse(localStorage.getItem("menu_derniere_generation"))
+    if(dernier) afficher(dernier)
+}
 </script>
 </body>
 </html>
