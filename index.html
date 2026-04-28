@@ -533,6 +533,11 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     const poissonsUtilises  = new Set();
     const feculentsUtilises = new Set();
 
+    // -- Règle 5 : féculents du lundi (index 0) et du samedi (index 5) uniquement --
+    // Alimenté au fil du traitement de chaque jour ; disponible quand on atteint
+    // le dimanche (index 6), puisque le tableau est parcouru dans l'ordre.
+    const feculentsSamediLundi = new Set();
+
     // -- Règle 6 : suivi du dernier jour d'utilisation de chaque légume --
     // Clé : nom du légume (normalisé lowercase), Valeur : dernier indexJour où il apparaît.
     const dernierUsageLegume = new Map();
