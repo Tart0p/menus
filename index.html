@@ -178,6 +178,18 @@ button:hover{background:#2563eb;}
     font-style: italic;
     font-size: 13px;
 }
+/* Box affichée quand une case midi est cochée après coup mais qu'aucun repas
+   n'avait été stocké pour ce jour (génération initiale faite sans ce jour coché).
+   Ton neutre pour indiquer une action à effectuer (🔄), sans signaler d'erreur. */
+.repas-box.non-stocke {
+    border-left-color: #d1d5db;
+    background: #f3f4f6;
+}
+.repas-box.non-stocke .repas-contenu {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 13px;
+}
 </style>
 </head>
 
@@ -568,7 +580,14 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
 
 // ─── Affichage ────────────────────────────────────────────────────────────
 
-function creerRepasBox(repasObj, label, onRegen){
+// Crée une box repas.
+// repasObj  : objet repas, ou null si aucun repas n'est disponible/stocké
+// label     : libellé affiché ("☀️ Midi" / "🌙 Soir")
+// onRegen   : callback du bouton 🔄
+// nonStocke : true si le jour était non coché lors de la génération
+//             → message distinct "➕ Cliquer sur 🔄 pour générer"
+//             → false (défaut) = "⚠️ Aucun repas possible" (pool épuisé, Règles 3/4)
+function creerRepasBox(repasObj, label, onRegen, nonStocke = false){
     const box = document.createElement("div");
     box.className = "repas-box";
     const header = document.createElement("div");
@@ -587,9 +606,14 @@ function creerRepasBox(repasObj, label, onRegen){
     contenuEl.className = "repas-contenu";
     if(repasObj){
         contenuEl.textContent = repasObj.name || repasObj;
+    } else if(nonStocke){
+        // Le jour midi n'était pas coché lors de la génération : aucun repas
+        // n'a été stocké pour cet emplacement. L'utilisateur peut en générer
+        // un à la demande via le bouton 🔄.
+        contenuEl.textContent = "Cliquer sur 🔄 pour générer";
+        box.classList.add("non-stocke");
     } else {
-        // Aucun repas ne satisfait toutes les règles (typiquement la Règle 3 :
-        // toutes les viandes/féculents disponibles sont déjà utilisés cette semaine).
+        // Aucun repas ne satisfait toutes les règles (Règles 3 ou 4 épuisées).
         contenuEl.textContent = "⚠️ Aucun repas possible";
         box.classList.add("impossible");
     }
@@ -619,7 +643,11 @@ function afficher(menus){
             ligne.appendChild(j);
 
             if(midiActive(jours[i].toLowerCase())){
-                ligne.appendChild(creerRepasBox(plat.midi, "☀️ Midi", () => regenererRepas(i, "midi", menus, indexSemaine)));
+                // nonStocke = true si la case midi est désormais cochée mais que ce jour
+                // n'avait pas de midi lors de la génération (plat.midi === null).
+                // L'utilisateur peut alors utiliser 🔄 pour générer un repas à la demande.
+                const nonStocke = !plat.midi;
+                ligne.appendChild(creerRepasBox(plat.midi, "☀️ Midi", () => regenererRepas(i, "midi", menus, indexSemaine), nonStocke));
             } else {
                 ligne.appendChild(document.createElement("div"));
             }
@@ -782,6 +810,24 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
 (async function(){
     await chargerRepas();
     await chargerDepuisFirebase();
+
+    // ── Listeners sur les cases à cocher Midi ────────────────────────────
+    // Quand l'utilisateur coche ou décoche un jour midi APRÈS le chargement,
+    // on re-rend le dernier menu connu sans regénérer.
+    //
+    // Cas possibles selon l'état de midi dans le menu stocké :
+    //   • midi présent (objet repas)  → affichage normal du repas
+    //   • midi null (jour non coché lors de la génération) → box "⚠️ Aucun repas stocké"
+    //     (l'utilisateur peut utiliser 🔄 pour en générer un à la demande)
+    //   • case décochée → la colonne midi disparaît (comportement existant)
+    jours.forEach(jour => {
+        const cb = document.getElementById("midi_" + jour.toLowerCase());
+        if(cb){
+            cb.addEventListener("change", () => {
+                if(dernierMenu) afficher(dernierMenu);
+            });
+        }
+    });
 })();
 
 </script>
