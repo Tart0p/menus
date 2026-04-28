@@ -330,7 +330,8 @@ async function chargerRepas(){
     //                            et par la Règle 3 (pas de doublon de viande)
     //   cols[4] = Poisson      → utilisé par la Règle 1 (pas de poisson le soir, sauf Tarte)
     //                            et par la Règle 3 (pas de doublon de poisson)
-    //   cols[5] = Pâtes        → indicateur booléen (non utilisé par les règles actuelles)
+    //   cols[5] = Pâtes        → utilisé par la Règle 5 (pâtes forcées le dimanche soir)
+    //                            Booléen : "Oui" → true, vide → false
     //   cols[6] = Purée        → indicateur booléen (non utilisé par les règles actuelles)
     //   cols[7] = Catégorie    → utilisé par les Règles 1 et 2 (exception/quota Tarte)
     //   cols[8] = Saison       → non utilisé par les règles actuelles
@@ -343,6 +344,7 @@ async function chargerRepas(){
             feculent:  (cols[2] || "").trim(),
             viande:    (cols[3] || "").trim(),
             poisson:   (cols[4] || "").trim(),
+            pates:     (cols[5] || "").trim().toLowerCase() === "oui",
             categorie: (cols[7] || "").trim()
         };
     }).filter(r => r.name !== "");
@@ -470,10 +472,12 @@ function piocherAvecFiltre(exclu, nb, filtre){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Construction d'une semaine de menus en appliquant les quatre règles :
+// Construction d'une semaine de menus en appliquant les cinq règles :
 //
 // RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
 // RÈGLE 2 – Exactement 1 Tarte par semaine
+//   (le dimanche soir est exclu des candidats du fallback Règle 2b, car réservé
+//    par la Règle 5)
 // RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
 //   Les sets viandesUtilises, poissonsUtilises et feculentsUtilises sont mis à jour après
 //   chaque repas attribué. Lors de la pioche, la fonction autoriseParRegle3
@@ -484,11 +488,24 @@ function piocherAvecFiltre(exclu, nb, filtre){
 //   Les signatures à exclure sont passées en paramètre par les fonctions de
 //   génération (genererMenu → 1 semaine, generer2Semaines → 2 semaines).
 //   Si le Set est vide (première génération), la règle ne bloque rien.
+// RÈGLE 5 – Dimanche soir = plat de pâtes forcé (colonne Pâtes = Oui)
+//   La Règle 3 est allégée pour le féculent : le plat du dimanche soir peut
+//   dupliquer un féculent déjà utilisé en semaine, SAUF ceux du lundi
+//   (midi + soir) et du samedi (midi + soir). La viande et le poisson restent
+//   soumis à la Règle 3 complète. La Règle 1 s'applique normalement (pas de
+//   viande ni de poisson le soir).
 // ─────────────────────────────────────────────────────────────────────────
 function construireSemaine(exclu, signaturesExclues = new Set()){
     const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name));
     const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
+
+    // -- Règle 5 : pool des plats de pâtes pour le dimanche soir --
+    // Filtre : Pâtes=Oui + autorisé le soir (Règle 1 : pas de viande ni poisson)
+    // Ce pool est mélangé indépendamment pour éviter les biais de tri.
+    const patesSoirDispo = shuffle([...repas]).filter(r =>
+        !exclu.includes(r.name) && r.pates && autoriseLeSOir(r)
+    );
 
     let idxTous = 0;
     let idxSoir = 0;
@@ -500,6 +517,11 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     const viandesUtilises   = new Set();
     const poissonsUtilises  = new Set();
     const feculentsUtilises = new Set();
+
+    // -- Règle 5 : féculents du lundi (index 0) et du samedi (index 5) uniquement --
+    // Alimenté au fil du traitement de chaque jour ; disponible quand on atteint
+    // le dimanche (index 6), puisque le tableau est parcouru dans l'ordre.
+    const feculentsSamediLundi = new Set();
 
     // Enregistre la viande, le poisson et le féculent d'un repas dans les sets de suivi
     function enregistrerRegle3(r){
@@ -538,7 +560,34 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
         return { repas: null, idx: i };
     }
 
-    const semaine = jours.map(jour => {
+    // ── Règle 5 : pioche spéciale pour le dimanche soir ───────────────────
+    // Conditions :
+    //   - Pâtes = Oui  (obligatoire)
+    //   - Règle 1      : pas de viande ni de poisson (autoriseLeSOir)
+    //   - Règle 3 allégée pour le féculent : conflit uniquement avec Lundi et Samedi
+    //   - Règle 3 complète pour viande et poisson (toute la semaine)
+    //   - Règle 4      : pas de signature présente dans les semaines précédentes
+    // Si le pool est épuisé, retourne null → "Aucun repas possible".
+    function piocherPates(){
+        for(let i = 0; i < patesSoirDispo.length; i++){
+            const r = patesSoirDispo[i];
+            if(utilises.includes(r.name)) continue;
+            // Règle 4
+            if(signaturesExclues.has(signature(r))) continue;
+            // Règle 3 allégée : féculent vérifié uniquement contre Lundi et Samedi
+            if(r.feculent && r.feculent !== "" && feculentsSamediLundi.has(r.feculent)) continue;
+            // Règle 3 normale : viande et poisson vérifiés sur toute la semaine
+            if(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))  continue;
+            if(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson)) continue;
+
+            utilises.push(r.name);
+            enregistrerRegle3(r);
+            return r;
+        }
+        return null; // Aucun plat de pâtes valide disponible
+    }
+
+    const semaine = jours.map((jour, indexJour) => {
         let midi = null, soir = null;
 
         if(midiActive(jour.toLowerCase())){
@@ -547,9 +596,22 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
             idxTous = res.idx;
         }
 
-        const resSoir = piocher(soirDispo, idxSoir);
-        soir    = resSoir.repas;
-        idxSoir = resSoir.idx;
+        if(indexJour === 6){
+            // -- Règle 5 : dimanche soir = pâtes forcé --
+            soir = piocherPates();
+        } else {
+            const resSoir = piocher(soirDispo, idxSoir);
+            soir    = resSoir.repas;
+            idxSoir = resSoir.idx;
+        }
+
+        // -- Règle 5 : enregistrer les féculents de Lundi (0) et Samedi (5) --
+        // Ces féculents seront utilisés pour le check restreint du dimanche soir.
+        if(indexJour === 0 || indexJour === 5){
+            [midi, soir].forEach(r => {
+                if(r && r.feculent && r.feculent !== "") feculentsSamediLundi.add(r.feculent);
+            });
+        }
 
         return { midi, soir };
     });
@@ -564,6 +626,7 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
         const tarte = tarteDispo.find(t => !utilises.includes(t.name));
         if(tarte){
             const candidats = semaine.map((j, i) => i).filter(i =>
+                i !== 6 && // Règle 5 : dimanche soir réservé aux pâtes, pas de Tarte
                 semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
             );
             if(candidats.length > 0){
@@ -695,23 +758,17 @@ window.generer2Semaines = async function(){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Régénère un seul repas (midi ou soir) en respectant les quatre règles :
+// Régénère un seul repas (midi ou soir) en respectant les cinq règles :
 //
 // RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
 // RÈGLE 2 – Exactement 1 Tarte par semaine
-// RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine :
-//   Avant de piocher, on collecte les viandes, poissons et féculents déjà présents
-//   dans la semaine (en excluant le repas en cours de remplacement, dont
-//   les contraintes ne s'appliquent plus). Le nouveau repas ne doit pas
-//   introduire une viande, un poisson ou un féculent déjà présent ailleurs dans la
-//   semaine. Si aucun repas ne satisfait la Règle 3 (pool épuisé),
-//   l'emplacement affiche "Aucun repas possible" sans contournement silencieux.
-// RÈGLE 4 – Pas de repas dont l'empreinte correspond aux semaines précédentes :
-//   On utilise menuAvantGeneration (capturé juste avant la génération initiale)
-//   pour reconstituer le Set de signatures à exclure. Le nombre de semaines
-//   remontées (n) est déduit de menus.length (1 ou 2).
-//   Note : le repas actuellement en cours de remplacement est exclu du check
-//   de signature (inutile de se bloquer sur son propre profil).
+// RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
+// RÈGLE 4 – Pas de repas dont l'empreinte correspond aux semaines précédentes
+// RÈGLE 5 – Dimanche soir = plat de pâtes forcé (Pâtes = Oui) :
+//   Si l'emplacement régénéré est le dimanche soir (indexJour === 6, moment === "soir"),
+//   le filtre force Pâtes=Oui et applique la Règle 3 allégée pour le féculent
+//   (vérification uniquement contre Lundi et Samedi). Viande et poisson restent
+//   soumis à la Règle 3 complète.
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
     const semaineActuelle = menus[indexSemaine].repas;
@@ -748,6 +805,19 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         });
     });
 
+    // -- Règle 5 : féculents de Lundi (index 0) et Samedi (index 5) uniquement --
+    // Utilisé si l'emplacement régénéré est le dimanche soir.
+    const estDimancheSoir = (indexJour === 6 && moment === "soir");
+    const feculentsSamediLundi = new Set();
+    if(estDimancheSoir){
+        [0, 5].forEach(idx => {
+            ["midi", "soir"].forEach(m => {
+                const r = semaineActuelle[idx] && semaineActuelle[idx][m];
+                if(r && r.feculent && r.feculent !== "") feculentsSamediLundi.add(r.feculent);
+            });
+        });
+    }
+
     // -- Règle 4 : reconstituer les signatures des semaines précédentes --
     // menus.length indique si on est dans un contexte 1 semaine ou 2 semaines,
     // ce qui détermine combien de semaines précédentes on remonte (même logique
@@ -764,10 +834,19 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         .map(r => r.name || r);
     const exclu = [...historique.map(r => r.name || r), ...tousActuels];
 
-    // Construction du filtre combinant Règles 1, 2, 3 et 4.
-    // Chaque branche intègre les quatre contraintes conjointement.
+    // Construction du filtre combinant Règles 1, 2, 3, 4 et 5.
+    // La branche Règle 5 (dimanche soir) est évaluée en premier car elle
+    // prime sur toutes les autres contraintes pour cet emplacement.
     let filtre;
-    if(doitEtreTarte){
+    if(estDimancheSoir){
+        // Règle 5 : pâtes forcées ; Règle 3 allégée sur le féculent (Lundi+Samedi seulement)
+        filtre = r => r.pates
+                   && autoriseLeSOir(r)
+                   && !(r.feculent && r.feculent !== "" && feculentsSamediLundi.has(r.feculent))
+                   && !(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))
+                   && !(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson))
+                   && !signaturesExclues.has(signature(r));
+    } else if(doitEtreTarte){
         filtre = r => r.categorie.toLowerCase() === "tarte"
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r));
