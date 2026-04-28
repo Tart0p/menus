@@ -355,6 +355,17 @@ async function chargerRepas(){
 function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
 
+// Découpe la chaîne de légumes du CSV (séparés par des virgules) en un tableau
+// de chaînes normalisées (trim + lowercase). Retourne [] si la chaîne est vide.
+// Exemples :
+//   "Carotte"                      → ["carotte"]
+//   "Tomate, Courgette, Aubergine" → ["tomate", "courgette", "aubergine"]
+//   "Haricot vert,tomates"         → ["haricot vert", "tomates"]
+function parseLegumes(str){
+    if(!str || str.trim() === "") return [];
+    return str.split(",").map(l => l.trim().toLowerCase()).filter(l => l !== "");
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // RÈGLE 4 – Utilitaires : empreinte de repas et extraction des signatures
 //           des semaines précédentes
@@ -488,7 +499,11 @@ function piocherAvecFiltre(exclu, nb, filtre){
 //   Les signatures à exclure sont passées en paramètre par les fonctions de
 //   génération (genererMenu → 1 semaine, generer2Semaines → 2 semaines).
 //   Si le Set est vide (première génération), la règle ne bloque rien.
-// RÈGLE 5 – Dimanche soir = plat de pâtes forcé (colonne Pâtes = Oui)
+// RÈGLE 6 – Au moins 3 jours d'écart entre deux repas partageant le même légume.
+//   Un légume ne peut réapparaître qu'à partir du jour indexJour + 3 (inclus).
+//   Midi et soir du même jour sont autorisés à partager le même légume (écart = 0).
+//   Le Map dernierUsageLegume { légume → dernier indexJour } est mis à jour après
+//   attribution des deux repas de chaque journée.
 //   La Règle 3 est allégée pour le féculent : le plat du dimanche soir peut
 //   dupliquer un féculent déjà utilisé en semaine, SAUF ceux du lundi
 //   (midi + soir) et du samedi (midi + soir). La viande et le poisson restent
@@ -518,10 +533,32 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     const poissonsUtilises  = new Set();
     const feculentsUtilises = new Set();
 
-    // -- Règle 5 : féculents du lundi (index 0) et du samedi (index 5) uniquement --
-    // Alimenté au fil du traitement de chaque jour ; disponible quand on atteint
-    // le dimanche (index 6), puisque le tableau est parcouru dans l'ordre.
-    const feculentsSamediLundi = new Set();
+    // -- Règle 6 : suivi du dernier jour d'utilisation de chaque légume --
+    // Clé : nom du légume (normalisé lowercase), Valeur : dernier indexJour où il apparaît.
+    const dernierUsageLegume = new Map();
+    // Index du jour en cours de traitement — mis à jour avant chaque appel à piocher()
+    // et piocherPates() pour que ces fonctions puissent vérifier la Règle 6.
+    let currentDayIndex = 0;
+
+    // Retourne true si aucun légume du repas r ne viole la Règle 6 pour currentDayIndex.
+    // Un légume est refusé si son dernier jour d'usage est différent du jour courant
+    // ET que l'écart (currentDayIndex - dernierJour) est inférieur à 3.
+    function autoriseParRegle6(r){
+        const legumes = parseLegumes(r.legumes);
+        for(const legume of legumes){
+            if(dernierUsageLegume.has(legume)){
+                const dernierJour = dernierUsageLegume.get(legume);
+                // Même jour autorisé (midi + soir peuvent partager le même légume)
+                if(dernierJour !== currentDayIndex && currentDayIndex - dernierJour < 3) return false;
+            }
+        }
+        return true;
+    }
+
+    // Enregistre les légumes d'un repas dans dernierUsageLegume pour indexJour.
+    function enregistrerRegle6(r, indexJour){
+        parseLegumes(r.legumes).forEach(l => dernierUsageLegume.set(l, indexJour));
+    }
 
     // Enregistre la viande, le poisson et le féculent d'un repas dans les sets de suivi
     function enregistrerRegle3(r){
@@ -533,7 +570,8 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     function piocher(pool, idx){
         // Saute les repas déjà utilisés, les Tartes en surnombre (Règle 2a),
         // les repas dont la viande/poisson/féculent est déjà pris (Règle 3),
-        // et les repas dont l'empreinte correspond aux semaines précédentes (Règle 4).
+        // les repas dont l'empreinte correspond aux semaines précédentes (Règle 4),
+        // et les repas dont un légume est réapparu trop tôt dans la semaine (Règle 6).
         // Si toutes les règles épuisent le pool, on retourne null sans fallback.
         let i = idx;
         while(i < pool.length){
@@ -541,11 +579,12 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
             const dejaUtilise  = utilises.includes(r.name);
             const tarteBloquee = tarteUtilisee && r.categorie.toLowerCase() === "tarte";
             const regle3Bloque = !autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
-            // Règle 4 : bloquer si l'empreinte du repas est présente dans les semaines précédentes
             const regle4Bloque = signaturesExclues.has(signature(r));
+            // Règle 6 : bloquer si un légume du repas est réapparu moins de 3 jours après
+            const regle6Bloque = !autoriseParRegle6(r);
 
-            if(!dejaUtilise && !tarteBloquee && !regle3Bloque && !regle4Bloque){
-                // Candidat valide pour toutes les règles (1, 2, 3 et 4)
+            if(!dejaUtilise && !tarteBloquee && !regle3Bloque && !regle4Bloque && !regle6Bloque){
+                // Candidat valide pour toutes les règles (1, 2, 3, 4 et 6)
                 utilises.push(r.name);
                 if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true;
                 enregistrerRegle3(r);
@@ -567,6 +606,7 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     //   - Règle 3 allégée pour le féculent : conflit uniquement avec Lundi et Samedi
     //   - Règle 3 complète pour viande et poisson (toute la semaine)
     //   - Règle 4      : pas de signature présente dans les semaines précédentes
+    //   - Règle 6      : écart légumes ≥ 3 jours (même logique que piocher)
     // Si le pool est épuisé, retourne null → "Aucun repas possible".
     function piocherPates(){
         for(let i = 0; i < patesSoirDispo.length; i++){
@@ -579,6 +619,8 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
             // Règle 3 normale : viande et poisson vérifiés sur toute la semaine
             if(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))  continue;
             if(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson)) continue;
+            // Règle 6 : écart légumes ≥ 3 jours
+            if(!autoriseParRegle6(r)) continue;
 
             utilises.push(r.name);
             enregistrerRegle3(r);
@@ -589,6 +631,9 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
 
     const semaine = jours.map((jour, indexJour) => {
         let midi = null, soir = null;
+
+        // -- Règle 6 : indiquer le jour courant aux fonctions piocher/piocherPates --
+        currentDayIndex = indexJour;
 
         if(midiActive(jour.toLowerCase())){
             const res = piocher(tousDispo, idxTous);
@@ -604,6 +649,11 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
             soir    = resSoir.repas;
             idxSoir = resSoir.idx;
         }
+
+        // -- Règle 6 : enregistrer les légumes de midi ET soir après attribution --
+        // Les deux repas du même jour sont enregistrés avec le même indexJour,
+        // ce qui permet à autoriseParRegle6() de les autoriser mutuellement.
+        [midi, soir].forEach(r => { if(r) enregistrerRegle6(r, indexJour); });
 
         // -- Règle 5 : enregistrer les féculents de Lundi (0) et Samedi (5) --
         // Ces féculents seront utilisés pour le check restreint du dimanche soir.
@@ -818,6 +868,37 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         });
     }
 
+    // -- Règle 6 : map légume → Set d'indices de jours (semaine courante) --
+    // Construit à partir de tous les repas de la semaine, en excluant l'emplacement
+    // en cours de remplacement (dont les contraintes ne s'appliquent plus).
+    // La vérification est bidirectionnelle : on contrôle les jours avant ET après
+    // indexJour (|jourVoisin - indexJour| < 3, et jourVoisin ≠ indexJour).
+    const legumesDays = new Map();
+    semaineActuelle.forEach((jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return; // exclure l'emplacement remplacé
+            const r = jour[m];
+            if(!r) return;
+            parseLegumes(r.legumes).forEach(legume => {
+                if(!legumesDays.has(legume)) legumesDays.set(legume, new Set());
+                legumesDays.get(legume).add(i);
+            });
+        });
+    });
+
+    function autoriseParRegle6Regen(r){
+        const legumes = parseLegumes(r.legumes);
+        for(const legume of legumes){
+            if(legumesDays.has(legume)){
+                for(const jourIdx of legumesDays.get(legume)){
+                    // Même jour autorisé ; jours à moins de 3 de distance = refusé
+                    if(jourIdx !== indexJour && Math.abs(jourIdx - indexJour) < 3) return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // -- Règle 4 : reconstituer les signatures des semaines précédentes --
     // menus.length indique si on est dans un contexte 1 semaine ou 2 semaines,
     // ce qui détermine combien de semaines précédentes on remonte (même logique
@@ -834,7 +915,7 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         .map(r => r.name || r);
     const exclu = [...historique.map(r => r.name || r), ...tousActuels];
 
-    // Construction du filtre combinant Règles 1, 2, 3, 4 et 5.
+    // Construction du filtre combinant Règles 1, 2, 3, 4, 5 et 6.
     // La branche Règle 5 (dimanche soir) est évaluée en premier car elle
     // prime sur toutes les autres contraintes pour cet emplacement.
     let filtre;
@@ -845,27 +926,33 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
                    && !(r.feculent && r.feculent !== "" && feculentsSamediLundi.has(r.feculent))
                    && !(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))
                    && !(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson))
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     } else if(doitEtreTarte){
         filtre = r => r.categorie.toLowerCase() === "tarte"
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     } else if(moment === "soir" && tarteInterdite){
         filtre = r => autoriseLeSOir(r)
                    && r.categorie.toLowerCase() !== "tarte"
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     } else if(moment === "soir"){
         filtre = r => autoriseLeSOir(r)
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     } else if(tarteInterdite){
         filtre = r => r.categorie.toLowerCase() !== "tarte"
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     } else {
         filtre = r => autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
-                   && !signaturesExclues.has(signature(r));
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
     }
 
     // Tentative avec toutes les règles (1, 2, 3 et 4 strictement appliquées).
