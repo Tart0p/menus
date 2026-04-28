@@ -250,6 +250,11 @@ let repas = [];
 
 let historique  = [];
 let dernierMenu = null;
+// Capture du menu stocké AVANT la génération en cours.
+// Utilisé par regenererRepas() pour appliquer la Règle 4 :
+// après une génération, dernierMenu est écrasé par le menu courant,
+// donc on ne peut plus l'utiliser pour retrouver les semaines précédentes.
+let menuAvantGeneration = null;
 
 // ─── Utilitaires Firebase ─────────────────────────────────────────────────
 
@@ -337,6 +342,58 @@ function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
 
 // ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 4 – Utilitaires : empreinte de repas et extraction des signatures
+//           des semaines précédentes
+//
+// Deux repas sont considérés comme "identiques" si leurs 5 colonnes clés
+// (Légumes, Féculent, Viande, Poisson, Catégorie) sont identiques.
+// Le nom affiché n'entre PAS en compte : ainsi "Riz + Poulet" et
+// "Commande Thaï" (même profil) seront tous deux bloqués si l'un d'eux
+// a été servi la semaine précédente.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Calcule une empreinte unique pour un repas à partir des 5 colonnes pertinentes.
+// Les valeurs sont normalisées (trim + lowercase) pour éviter les faux négatifs
+// dus aux espaces ou à la casse.
+function signature(r){
+    return [
+        (r.legumes   || "").trim().toLowerCase(),
+        (r.feculent  || "").trim().toLowerCase(),
+        (r.viande    || "").trim().toLowerCase(),
+        (r.poisson   || "").trim().toLowerCase(),
+        (r.categorie || "").trim().toLowerCase()
+    ].join("|");
+}
+
+// Construit un Set des signatures des repas présents dans les `n` dernières
+// semaines du menu stocké (dernierMenu). Utilisé par construireSemaine() pour
+// appliquer la Règle 4.
+//
+// Paramètres :
+//   menusPrecedents : tableau de semaines issu de dernierMenu (peut être null)
+//   n               : nombre de semaines à remonter (1 pour genererMenu,
+//                     2 pour generer2Semaines)
+//
+// Retourne un Set vide si menusPrecedents est null ou vide (première génération).
+function extraireSignaturesPrecedentes(menusPrecedents, n){
+    if(!menusPrecedents || menusPrecedents.length === 0) return new Set();
+    // slice(-n) prend les `n` dernières semaines ; si le menu en contient moins,
+    // il prend toutes celles disponibles (comportement natif de slice).
+    const dernieres = menusPrecedents.slice(-n);
+    const sigs = new Set();
+    dernieres.forEach(s => {
+        (s.repas || []).forEach(jour => {
+            ["midi", "soir"].forEach(m => {
+                const r = jour[m];
+                // On ignore les emplacements vides ("Aucun repas possible")
+                if(r && r.name) sigs.add(signature(r));
+            });
+        });
+    });
+    return sigs;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // RÈGLE 1 : Pas de viande NI de poisson le soir (sauf catégorie Tarte)
 //
 // Un repas contenant une viande (colonne "Viande") ou un poisson (colonne
@@ -401,17 +458,22 @@ function piocherAvecFiltre(exclu, nb, filtre){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Construction d'une semaine de menus en appliquant les trois règles :
+// Construction d'une semaine de menus en appliquant les quatre règles :
 //
-// RÈGLE 1 – Pas de viande le soir (sauf Tarte)
+// RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
 // RÈGLE 2 – Exactement 1 Tarte par semaine
 // RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
 //   Les sets viandesUtilises, poissonsUtilises et feculentsUtilises sont mis à jour après
 //   chaque repas attribué. Lors de la pioche, la fonction autoriseParRegle3
 //   filtre les candidats en temps réel. Si le pool est épuisé, l'emplacement
 //   affichera "Aucun repas possible" sans contournement silencieux.
+// RÈGLE 4 – Pas de repas dont l'empreinte (Légumes+Féculent+Viande+Poisson+Catégorie)
+//   correspond à un repas des semaines précédentes stockées.
+//   Les signatures à exclure sont passées en paramètre par les fonctions de
+//   génération (genererMenu → 1 semaine, generer2Semaines → 2 semaines).
+//   Si le Set est vide (première génération), la règle ne bloque rien.
 // ─────────────────────────────────────────────────────────────────────────
-function construireSemaine(exclu){
+function construireSemaine(exclu, signaturesExclues = new Set()){
     const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name));
     const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
@@ -436,17 +498,20 @@ function construireSemaine(exclu){
 
     function piocher(pool, idx){
         // Saute les repas déjà utilisés, les Tartes en surnombre (Règle 2a),
-        // et les repas dont le légume ou le féculent est déjà pris (Règle 3).
-        // Si la Règle 3 épuise le pool, on relâche uniquement cette contrainte.
+        // les repas dont la viande/poisson/féculent est déjà pris (Règle 3),
+        // et les repas dont l'empreinte correspond aux semaines précédentes (Règle 4).
+        // Si toutes les règles épuisent le pool, on retourne null sans fallback.
         let i = idx;
         while(i < pool.length){
             const r = pool[i];
             const dejaUtilise  = utilises.includes(r.name);
             const tarteBloquee = tarteUtilisee && r.categorie.toLowerCase() === "tarte";
             const regle3Bloque = !autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+            // Règle 4 : bloquer si l'empreinte du repas est présente dans les semaines précédentes
+            const regle4Bloque = signaturesExclues.has(signature(r));
 
-            if(!dejaUtilise && !tarteBloquee && !regle3Bloque){
-                // Candidat valide pour toutes les règles (1, 2 et 3)
+            if(!dejaUtilise && !tarteBloquee && !regle3Bloque && !regle4Bloque){
+                // Candidat valide pour toutes les règles (1, 2, 3 et 4)
                 utilises.push(r.name);
                 if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true;
                 enregistrerRegle3(r);
@@ -456,7 +521,7 @@ function construireSemaine(exclu){
         }
 
         // Aucun candidat valide : on retourne null sans fallback.
-        // La Règle 3 n'est jamais relâchée silencieusement ;
+        // Aucune règle n'est jamais relâchée silencieusement ;
         // l'interface affichera "Aucun repas possible" pour cet emplacement.
         return { repas: null, idx: i };
     }
@@ -572,8 +637,13 @@ function afficher(menus){
 // ─── Génération ───────────────────────────────────────────────────────────
 
 window.genererMenu = async function(){
-    const exclu   = historique.map(r => r.name || r);
-    const semaine = construireSemaine(exclu);
+    const exclu = historique.map(r => r.name || r);
+    // -- Règle 4 : capturer le menu précédent AVANT génération --
+    // dernierMenu sera écrasé par afficher() ; on le sauvegarde ici
+    // pour que regenererRepas() puisse s'y référer via menuAvantGeneration.
+    menuAvantGeneration = dernierMenu;
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 1);
+    const semaine = construireSemaine(exclu, signaturesExclues);
     const menus   = [{ titre: "Semaine", repas: semaine }];
     afficher(menus);
     const noms = semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
@@ -583,8 +653,11 @@ window.genererMenu = async function(){
 window.generer2Semaines = async function(){
     const menus = [];
     let exclu = historique.map(r => r.name || r);
+    // -- Règle 4 : capturer le menu précédent AVANT génération --
+    menuAvantGeneration = dernierMenu;
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 2);
     for(let s = 1; s <= 2; s++){
-        const semaine = construireSemaine(exclu);
+        const semaine = construireSemaine(exclu, signaturesExclues);
         menus.push({ titre: "Semaine " + s, repas: semaine });
         exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r)];
     }
@@ -594,9 +667,9 @@ window.generer2Semaines = async function(){
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Régénère un seul repas (midi ou soir) en respectant les trois règles :
+// Régénère un seul repas (midi ou soir) en respectant les quatre règles :
 //
-// RÈGLE 1 – Pas de viande le soir (sauf Tarte)
+// RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
 // RÈGLE 2 – Exactement 1 Tarte par semaine
 // RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine :
 //   Avant de piocher, on collecte les viandes, poissons et féculents déjà présents
@@ -605,6 +678,12 @@ window.generer2Semaines = async function(){
 //   introduire une viande, un poisson ou un féculent déjà présent ailleurs dans la
 //   semaine. Si aucun repas ne satisfait la Règle 3 (pool épuisé),
 //   l'emplacement affiche "Aucun repas possible" sans contournement silencieux.
+// RÈGLE 4 – Pas de repas dont l'empreinte correspond aux semaines précédentes :
+//   On utilise menuAvantGeneration (capturé juste avant la génération initiale)
+//   pour reconstituer le Set de signatures à exclure. Le nombre de semaines
+//   remontées (n) est déduit de menus.length (1 ou 2).
+//   Note : le repas actuellement en cours de remplacement est exclu du check
+//   de signature (inutile de se bloquer sur son propre profil).
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
     const semaineActuelle = menus[indexSemaine].repas;
@@ -641,6 +720,15 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         });
     });
 
+    // -- Règle 4 : reconstituer les signatures des semaines précédentes --
+    // menus.length indique si on est dans un contexte 1 semaine ou 2 semaines,
+    // ce qui détermine combien de semaines précédentes on remonte (même logique
+    // que lors de la génération initiale).
+    // La signature du repas actuel (en cours de remplacement) est retirée du Set
+    // pour ne pas bloquer inutilement la recherche d'un repas de même profil.
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, menus.length);
+    if(repasActuel && repasActuel.name) signaturesExclues.delete(signature(repasActuel));
+
     const tousActuels = menus.flatMap(s => s.repas)
         .flatMap(r => [r.midi, r.soir])
         .filter(Boolean)
@@ -648,28 +736,32 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         .map(r => r.name || r);
     const exclu = [...historique.map(r => r.name || r), ...tousActuels];
 
-    // Construction du filtre combinant Règle 1, Règle 2 et Règle 3.
-    // La Règle 3 est intégrée dans chaque branche pour s'appliquer
-    // conjointement aux autres contraintes.
+    // Construction du filtre combinant Règles 1, 2, 3 et 4.
+    // Chaque branche intègre les quatre contraintes conjointement.
     let filtre;
     if(doitEtreTarte){
         filtre = r => r.categorie.toLowerCase() === "tarte"
-                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r));
     } else if(moment === "soir" && tarteInterdite){
         filtre = r => autoriseLeSOir(r)
                    && r.categorie.toLowerCase() !== "tarte"
-                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r));
     } else if(moment === "soir"){
         filtre = r => autoriseLeSOir(r)
-                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r));
     } else if(tarteInterdite){
         filtre = r => r.categorie.toLowerCase() !== "tarte"
-                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r));
     } else {
-        filtre = r => autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+        filtre = r => autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r));
     }
 
-    // Tentative avec toutes les règles (Règles 1, 2 et 3 strictement appliquées).
+    // Tentative avec toutes les règles (1, 2, 3 et 4 strictement appliquées).
     // Si le résultat est vide, aucun fallback n'est appliqué :
     // le repas sera mis à null et l'interface affichera "Aucun repas possible".
     let liste = piocherAvecFiltre(exclu, 1, filtre);
@@ -677,8 +769,8 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
     if(liste.length > 0){
         menus[indexSemaine].repas[indexJour][moment] = liste[0];
     } else {
-        // -- Règle 3 : aucun repas disponible sans doublon de viande/féculent --
-        // On ne relâche pas la règle ; on signale l'impossibilité via null.
+        // Aucun repas disponible sans violer au moins une règle.
+        // On ne relâche aucune règle ; on signale l'impossibilité via null.
         menus[indexSemaine].repas[indexJour][moment] = null;
     }
     afficher(menus);
