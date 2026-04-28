@@ -1,235 +1,1139 @@
-﻿Nom complet;Légumes;Féculent;Viande;Catégorie;Saison;Repas facile;Repas de fête
-Crumble courgette saumon;Courgette;;Saumon;Gratin;Eté;Non;Non
-Crumble courgette chèvre;Courgette;;;Gratin;Tout;Non;Non
-Rumsteak + Pdt;;Pomme de terre;Rumsteak;Plat;Tout;Non;Non
-Semoule + Carottes à la crème;Carottes;Semoule;;Plat;Tout;Oui;Non
-Semoule + Haricot vert + Jambon;Haricot vert;Semoule;jambon;Plat;Tout;Oui;Non
-Semoule + Haricot vert + Knacki;Haricot vert;Semoule;knacki;Plat;Tout;Oui;Non
-Semoule + Tomates farcies;Tomates;Semoule;Farce;Plat;Tout;Non;Non
-Semoule + Haricot vert + Aiguillettes de poulet;Haricot vert;Semoule;Aiguillettes de poulet;Plat;Tout;Oui;Non
-Semoule + Haricot vert + Boulettes de viande;Haricot vert;Semoule;Boulettes de viande;Plat;Tout;Oui;Non
-Semoule + Carottes + Poulet à la crème;Carottes;Semoule;Poulet;Plat;Tout;Oui;Non
-Semoule + Ratatouille;Ratatouille;Semoule;;Plat;Tout;Oui;Non
-Semoule + Haricot vert + Saucisses;Haricot vert;Semoule;Saucisses;Plat;Tout;Oui;Non
-Semoule + Poêlée d'aubergines;Aubergines;Semoule;;Plat;Tout;Non;Non
-Semoule + Poisson;;Semoule;Poisson;Plat;Tout;Oui;Non
-Soupe;;;;Soupe;Hiver;Non;Non
-Velouté de butternut et lards;Butternut;Pomme de terre;Lard;Soupe;Hiver;Non;Non
-Tourte aux épinards;Epinard;Tarte;;Tarte;Tout;Non;Non
-Tarte tomates/thon;Tomate;Tarte;Thon;Tarte;Tout;Non;Non
-Tarte riste d'aubergines;Riste d'aubergine;Tarte;;Tarte;Tout;Non;Non
-Tarte au thon;;Tarte;Thon;Tarte;Tout;Non;Non
-Tarte potimarron;Potimarron;Tarte;;Tarte;Tout;Non;Non
-Tarte tomates cerises;Tomates cerises;Tarte;;Tarte;Tout;Non;Non
-Tarte aux poivrons;poivrons;Tarte;;Tarte;Tout;Non;Non
-Tarte raclette;;Tarte;;Tarte;Tout;Non;Non
-Tarte à la tomate;Tomate;Tarte;;Tarte;Tout;Non;Non
-Tarte chèvre / figue;Figue;Tarte;;Tarte;Tout;Non;Non
-Tarte tomate cheddar;Tomate;Tarte;;Tarte;Tout;Non;Non
-Tarte ratatouille;Ratatouille;Tarte;;Tarte;Tout;Non;Non
-Tarte poireaux;Poireaux;Tarte;;Tarte;Tout;Non;Non
-Tarte poivrons;Poivrons;Tarte;;Tarte;Tout;Non;Non
-Tatin courgettes;Courgette;Tarte;;Tarte;Tout;Non;Non
-Pizza maison;;Tarte;Jambon;Tarte;Tout;Oui;Non
-Pizza patate douce;Patate douce;Tarte;;Tarte;Tout;Non;Non
-Flammkueche;;Tarte;Lardons;Tarte;Tout;Oui;Non
-Quiche lorraine;;;Lardons;Tarte;Tout;Non;Non
-Quiche aux poireaux;Poireaux;Tarte;;Tarte;Hiver;Non;Non
-Gratin de ravioles + Courgettes;Courgette;Ravioles;;Gratin;Tout;Non;Non
-Gratin de ravioles + Courgettes + Cuisse de poulet;Courgette;Ravioles;Cuisse de poulet;Gratin;Tout;Non;Non
-Gratin de ravioles;;Ravioles;;Gratin;Tout;Oui;Non
-Gratin patate douce + Reblochon;Patate douce;;;Gratin;Hiver;Non;Non
-Gratin de macaroni;;Macaroni;;Gratin;Tout;Oui;Non
-Gratin de macaroni Delphine;;Macaroni;;Gratin;Tout;Non;Non
-Gratin de St Paul;Courgette;Riz;;Gratin;Eté;Non;Non
-Gratin de chou-fleur;Chou-fleur;;;Gratin;Hiver;Non;Non
-Gratin dauphinois;Pomme de terre;;;Gratin;Hiver;Non;Non
-Gratin de potimarron;Potimarron;;;Gratin;Hiver;Non;Non
-Gratin de courgettes;Courgette;;;Gratin;Tout;Non;Non
-Gratin de semoule;;Semoule;;Gratin;Tout;Non;Non
-Gratin de crozet;;Crozet;;Gratin;Tout;Non;Non
-Timbale de macaroni;;Macaroni;Saucisse;Pâtes;Tout;Non;Non
-Pdt Sautées + Nuggets;;Pomme de terre;Nuggets;Plat;Tout;Oui;Non
-Pdt Sautées + Paupiettes + Carottes;Carottes;Pomme de terre;Paupiettes;Plat;Tout;Non;Non
-Pdt Sautées + Poulet du marché;;Pomme de terre;Poulet du marché;Plat;Tout;Non;Non
-Pdt Sautées + Saucisson chaud;;Pomme de terre;Saucisson Chaud;Plat;Tout;Non;Non
-Pdt Sautées + Carottes + Magret de canard;Carottes;Pomme de terre;Magret de canard;Plat;Tout;Non;Non
-Pdt Sautées + Saucisses;;Pomme de terre;Saucisses;Plat;Tout;Oui;Non
-Pdt Sautées + Lard;;Pomme de terre;Lard;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Lardons;Haricot vert;Pomme de terre;Lardons;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Magret de canard;Haricot vert;Pomme de terre;Magret de canard;Plat;Tout;Non;Non
-Pdt Sautées + Haricot vert + Blanc de poulet à la crème;Haricot vert;Pomme de terre;Blanc de poulet;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Aiguillettes de poulet;Haricot vert;Pomme de terre;Aiguillettes de poulet;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Steak haché;Haricot vert;Pomme de terre;Steak haché;Plat;Tout;Oui;Non
-Pdt Sautées + Haricot vert + Saucisses;Haricot vert;Pomme de terre;Saucisses;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Magret de canard;Haricot vert;Pomme de terre;Magret de canard;Plat;Tout;Non;Non
-Pdt Sarladaise + Haricot vert + Blanc de poulet à la crème;Haricot vert;Pomme de terre;Blanc de poulet;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Aiguillettes de poulet;Haricot vert;Pomme de terre;Aiguillettes de poulet;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;Plat;Tout;Oui;Non
-Pdt Sarladaise + Haricot vert + Steak Haché;Haricot vert;Pomme de terre;Steak haché;Plat;Tout;Oui;Non
-Pdt Dauphine + Nuggets;;Pomme de terre;Nuggets;Plat;Tout;Oui;Non
-Pdt Dauphine + Steak;;Pomme de terre;Steak;Plat;Tout;Oui;Non
-Pdt Dauphine + Steak haché;;Pomme de terre;Steak haché;Plat;Tout;Oui;Non
-Pdt Dauphine + Jambon;;Pomme de terre;Jambon;Plat;Tout;Oui;Non
-Pdt Dauphine + Boulettes de viande;;Pomme de terre;Boulettes de viande;Plat;Tout;Oui;Non
-Pdt Dauphine + Saucisses;;Pomme de terre;Saucisses;Plat;Tout;Oui;Non
-Pdt Dauphine + Poulet du marché;;Pomme de terre;Poulet du marché;Plat;Tout;Non;Non
-Pdt Dauphine + Haricot vert + Nuggets;Haricot vert;Pomme de terre;Nuggets;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Steak haché;Haricot vert;Pomme de terre;Steak haché;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Jambon;Haricot vert;Pomme de terre;Jambon;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Saucisses;Haricot vert;Pomme de terre;Saucisses;Plat;Tout;Oui;Non
-Pdt Dauphine + Haricot vert + Poulet du marché;Haricot vert;Pomme de terre;Poulet du marché;Plat;Tout;Non;Non
-Purée de patate douce + Knachi;;Patate douce;knacki;Plat;Tout;Non;Non
-Purée de patate douce + Jambon;;Patate douce;jambon;Plat;Tout;Non;Non
-Purée de patate douce + Steak Haché;;Patate douce;Steak Haché;Plat;Tout;Non;Non
-Purée de patate douce + Steak;;Patate douce;Steak;Plat;Tout;Non;Non
-Purée de patate douce + Aiguillettes de poulet;;Patate douce;Aiguillettes de poulet;Plat;Tout;Non;Non
-Purée de patate douce + Boulettes de viande;;Patate douce;Boulettes de viande;Plat;Tout;Non;Non
-Purée de patate douce + Blé;;Patate douce;;Plat;Tout;Non;Non
-Purée de patate douce + Boudin blanc;;Patate douce;Boudin blanc;Plat;Tout;Non;Non
-Purée de carottes + Jambon;Carottes;;jambon;Plat;Tout;Oui;Non
-Purée de carottes + Steak Haché;Carottes;;Steak Haché;Plat;Tout;Oui;Non
-Purée de carottes + Knacki;Carottes;;knacki;Plat;Tout;Oui;Non
-Purée de carottes + Steak;Carottes;;Steak;Plat;Tout;Oui;Non
-Purée de carottes + Aiguillettes de poulet;Carottes;;Aiguillettes de poulet;Plat;Tout;Oui;Non
-Purée de carottes + Boulettes de viande;Carottes;;Boulettes de viande;Plat;Tout;Oui;Non
-Purée de carottes + Cordon bleu;Carottes;;Cordon bleu;Plat;Tout;Oui;Non
-Purée de carottes + Boudin blanc;Carottes;;Boudin blanc;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Jambon;Haricot vert;Pomme de terre;jambon;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Steak Haché;Haricot vert;Pomme de terre;Steak Haché;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Knacki;Haricot vert;Pomme de terre;knacki;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;Plat;Tout;Oui;Non
-Purée de Pdt + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;Plat;Tout;Oui;Non
-Riz + Poisson pané;;Riz;poisson pané;Plat;Tout;Oui;Non
-Riz pilaf + Poivron + Boeuf;Poivrons;Riz;Boeuf;Plat;Tout;Non;Non
-Riz + Saumon soja;;Riz;Saumon;Plat;Tout;Non;Non
-Riz cantonais + Nems;;Riz;Nems;Plat;Tout;Oui;Non
-Riz + Nuggets de poisson;;Riz;Nuggets de poisson;Plat;Tout;Oui;Non
-Riz + Poissons;;Riz;Poissons;Plat;Tout;Oui;Non
-Riz + Poissons + Haricot vert;Haricot vert;Riz;Poissons;Plat;Tout;Oui;Non
-Riz + Poulet au lard;;Riz;Poulet, Lard;Plat;Tout;Oui;Non
-Riz + Poulet au lard + Haricot vert;Haricot vert;Riz;Poulet, Lard;Plat;Tout;Oui;Non
-Riz + Haricot vert;Haricot vert;Riz;;Plat;Tout;Oui;Non
-Riz + Riste d'Aubergines;Aubergines;Riz;;Plat;Tout;Oui;Non
-Riz + Steack Haché;;Riz;Steak Haché;Plat;Tout;Oui;Non
-Riz + Cordon bleu;;Riz;Cordon bleu;Plat;Tout;Oui;Non
-Riz + Tomates Farcies;Tomates;Riz;Farce;Plat;Tout;Non;Non
-Riz + Jambon;;Riz;Jambon;Plat;Tout;Oui;Non
-Riz + Rougail Saucisses;Tomates;Riz;Saucisses;Plat;Tout;Non;Non
-Riz + Ratatouille;Ratatouille;Riz;;Plat;Tout;Oui;Non
-Riz + Ratatouille + Poulet;Ratatouille;Riz;Poulet;Plat;Tout;Oui;Non
-Riz + Courgettes + Poulet;Courgettes;Riz;Poulet;Plat;Tout;Non;Non
-Riz + Boulettes de viande;;Riz;Boulettes de viande;Plat;Tout;Oui;Non
-Riz + Poulet;;Riz;Poulet;Plat;Tout;Oui;Non
-Crozet + Riste d'Aubergines;Riste d'Aubergines;Crozet;;Plat;Tout;Oui;Non
-Crozet + Carottes à la crème;Carottes;Crozet;;Plat;Tout;Oui;Non
-Crozet à la butternut;Butternut;Crozet;;Plat;Tout;Non;Non
-Crozet + Jambon;;Crozet;Jambon;Plat;Tout;Oui;Non
-Crozet + Haricot vert;Haricot vert;Crozet;;Plat;Tout;Oui;Non
-Crozet + Ratatouille;Ratatouille;Crozet;;Plat;Tout;Oui;Non
-Crozet + Poulet;;Crozet;Poulet;Plat;Tout;Oui;Non
-Crozet + Boulettes de viande;;Crozet;Boulettes de viande;Plat;Tout;Oui;Non
-Crozet + Steack Haché;;Crozet;Steak Haché;Plat;Tout;Oui;Non
-Crozet + Cordon bleu;;Crozet;Cordon bleu;Plat;Tout;Oui;Non
-Crozet + Nuggets de poisson;;Crozet;Nuggets de poisson;Plat;Tout;Oui;Non
-Crozet + Poissons;;Crozet;Poissons;Plat;Tout;Oui;Non
-Crozet + Knacki;;Crozet;Knacki;Plat;Tout;Oui;Non
-Petit pois carottes + Jambon;Petit pois carottes;;jambon;Plat;Tout;Oui;Non
-Petit pois carottes + Steak Haché;Petit pois carottes;;Steak Haché;Plat;Tout;Oui;Non
-Petit pois carottes + Knacki;Petit pois carottes;;knacki;Plat;Tout;Oui;Non
-Petit pois carottes + Steak;Petit pois carottes;;Steak;Plat;Tout;Oui;Non
-Petit pois carottes + Boulettes de viande;Petit pois carottes;;Boulettes de viande;Plat;Tout;Oui;Non
-Petit pois carottes + Cordon bleu;Petit pois carottes;;Cordon bleu;Plat;Tout;Oui;Non
-Petit pois carottes + Boudin blanc;Petit pois carottes;;Boudin blanc;Plat;Tout;Oui;Non
-Petit pois carottes + Poulet;Petit pois carottes;;Poulet;Plat;Tout;Oui;Non
-Haricot vert + Jambon;Haricot vert;;jambon;Plat;Tout;Oui;Non
-Haricot vert + Steak Haché;Haricot vert;;Steak Haché;Plat;Tout;Oui;Non
-Haricot vert + Knacki;Haricot vert;;knacki;Plat;Tout;Oui;Non
-Haricot vert + Steak;Haricot vert;;Steak;Plat;Tout;Oui;Non
-Haricot vert + Boulettes de viande;Haricot vert;;Boulettes de viande;Plat;Tout;Oui;Non
-Haricot vert + Cordon bleu;Haricot vert;;Cordon bleu;Plat;Tout;Oui;Non
-Haricot vert + Blé;Haricot vert;;;Plat;Tout;Oui;Non
-Haricot vert + Boudin blanc;Haricot vert;;Boudin blanc;Plat;Tout;Oui;Non
-Haricot vert + Poulet;Haricot vert;;Poulet;Plat;Tout;Oui;Non
-Haricot vert + Rougail saucisses;Haricot vert;;Saucisses;Plat;Tout;Non;Non
-Haricot vert + Lardons;Haricot vert;;Lardons;Plat;Tout;Oui;Non
-Haricot vert + Escalope milanaise;Haricot vert;;Escalope;Plat;Tout;Oui;Non
-Lentilles + Saucisses;Lentilles;;Saucisses;Plat;Tout;Non;Non
-Lentilles + Dhal Patate douce;Lentilles;Patate douce;;Plat;Tout;Non;Non
-Carottes + Chipolatas;Carottes;;Chipolatas;Plat;Tout;Oui;Non
-Carottes + Blanc de poulet à la crème;Carottes;;Poulet;Plat;Tout;Oui;Non
-Fajitas Poule;;;Poulet;Plat;Tout;Oui;Non
-Fajitas VG;Poivrons,Courgettes;;;Plat;Tout;Non;Non
-Salade verte + Tomates + Brochettes;Salade, tomate;;Brochette;Plat;Eté;Non;Non
-Omelette;;;Œuf;Plat;Tout;Non;Non
-Omelette + Pdt;;Pomme de terre;Œuf;Plat;Tout;Non;Non
-Pdt au lard;;Pomme de terre;Lard;Plat;Tout;Oui;Non
-Ravioles + Blanc de poulet à la crème;;Ravioles;Blanc de poulet;Plat;Tout;Oui;Non
-Spaghetti + Escalope milanaise;;Pâtes;escalope milanaise;Plat;Tout;Oui;Non
-Spaghetti Carbo;;Pâtes;Lardons;Plat;Tout;Oui;Non
-Spaghetti Bolognaise;;Pâtes;Boeuf;Plat;Tout;Oui;Non
-Pâtes + Jambon;;Pâtes;jambon;Plat;Tout;Oui;Non
-Pâtes + Steak Haché;;Pâtes;Steak Haché;Plat;Tout;Oui;Non
-Pâtes + Knacki;;Pâtes;knacki;Plat;Tout;Oui;Non
-Pâtes + Steak;;Pâtes;Steak;Plat;Tout;Oui;Non
-Pâtes + Boulettes de viande;;Pâtes;Boulettes de viande;Plat;Tout;Oui;Non
-Pâtes + Cordon bleu;;Pâtes;Cordon bleu;Plat;Tout;Oui;Non
-Pâtes + Boudin blanc;;Pâtes;Boudin blanc;Plat;Tout;Oui;Non
-Pâtes + Poulet;;Pâtes;Poulet;Plat;Tout;Oui;Non
-Risotto + Chèvre;;Riz;;Plat;Tout;Oui;Non
-Risotto + Poulet;;Riz;Poulet;Plat;Tout;Oui;Non
-Risotto + Jambon;;Riz;Jambon;Plat;Tout;Oui;Non
-Risotto + Champignons;Champignons;Riz;;Plat;Tout;Non;Non
-Risotto + Quinoa butternut + Poulet;Butternut;Riz;Poulet;Plat;Tout;Non;Non
-Risotto + Potiron;Potiron;Riz;;Plat;Tout;Non;Non
-Feuilletté épinard chèvre;Epinard;;;Tarte;Tout;Oui;Non
-Feuilletté fromage;;;;Tarte;Tout;Oui;Non
-Gnocchi;;Pomme de terre;;Plat;Tout;Oui;Non
-Gnocchi + Jambon;;Pomme de terre;Jambon;Plat;Tout;Oui;Non
-Gnocchi + Haricot vert;Haricot vert;Pomme de terre;;Plat;Tout;Oui;Non
-Gnocchi + Petit pois carottes;Petit pois carottes;Pomme de terre;;Plat;Tout;Oui;Non
-Blé + Ratatouille;Ratatouille;;;Plat;Tout;Oui;Non
-Blé + Tian de légumes;Tomates, Courgettes, Aubergines;;;Plat;Tout;Non;Non
-Blé + Carottes à la crème;Carottes;;;Plat;Tout;Oui;Non
-Blé + Poivrons + Sauce tomate;Poivrons;;;Plat;Tout;Oui;Non
-Boulgour + Poivrons farcis;Poivrons;Boulgour;Farce;Plat;Tout;Non;Non
-Cake;;;;Plat;Tout;Oui;Non
-Croque monsieur;;;Jambon;Plat;Tout;Oui;Non
-Quenelles Bechamelle;;;Quenelles;Plat;Tout;Oui;Non
-Quenelle Sauce tomate;;;Quenelles;Plat;Tout;Oui;Non
-Canelloni bolognaise + Ratatouille;Ratatouille;Canelloni;Bolognaise;Plat;Tout;Non;Non
-Taboulet + Poulet;;;Poulet;Plat;Été;Non;Non
-Dino picard + Poulet;Dino picard;;Poulet;Plat;Tout;Oui;Non
-Tartiflette;;Pomme de terre;Lardons;Plat;Hiver;Non;Non
-Raclette;;Pomme de terre;Charcuterie;Plat;Hiver;Oui;Oui
-Raviolis;;Pâtes;Boeuf;Plat;Tout;Oui;Non
-Lasagnes;;Lasagne;Boeuf;Plat;Tout;Non;Oui
-Lasagnes + Ratatouille;Ratatouille;Lasagne;;Plat;Tout;Non;Non
-Lasagnes + Butternut;Butternut;Lasagne;;Plat;Tout;Non;Non
-Commande Thaï;;Riz;Poulet;Plat;Tout;Non;Non
-Carpacio + Salade;Salade;;Carpacio;Plat;Été;Oui;Non
-Carpacio + Salade de tomates;Tomates;;Carpacio;Plat;Été;Non;Non
-Crêpes;;;;Plat;Tout;Non;Non
-Salade de pâtes;Salade;Pâtes;;Plat;Été;Non;Non
-Soufflé au fromage;;;;Plat;Tout;Non;Non
-Taboulet + Boulettes de viande;;Taboulet;Boulettes de viande;Plat;Été;Non;Non
-Taboulet + Chipolatas;;Taboulet;Chipolatas;Plat;Été;Non;Non
-Gauffre patate douce;;Patate douce;;Plat;Tout;Non;Non
-Hachi Parmentier;;Pomme de terre;Boeuf;Plat;Tout;Oui;Non
-Hache Parmentier VG;;Pomme de terre;;Plat;Tout;Non;Non
-Feuilleté au fromage;;;;Plat;Tout;Oui;Non
-Feuilleté chêvre épinard;Epinard;;;Plat;Tout;Oui;Non
-Poêlée de Courgettes;Courgettes;;;Plat;Tout;Non;Non
-Oeuf + Haricot vert + Tomates;Haricot vert;;Œuf;Plat;Tout;Non;Non
-Oeuf + Riste d'Aubergines;Riste d'Aubergines;;Œuf;Plat;Tout;Non;Non
-Dino picard + Steack Haché;Carottes;Pomme de terre;Steak Haché;Plat;Tout;Oui;Non
-Dino picard + Jambon;Carottes;Pomme de terre;Jambon;Plat;Tout;Oui;Non
-Dino picard + Knacki;Carottes;Pomme de terre;Knacki;Plat;Tout;Oui;Non
+﻿Nom complet;Légumes;Féculent;Viande;Poisson;Pâtes;Purée;Catégorie;Saison;Repas facile
+Blé + Carottes à la crème;Carotte;Blé;;;;;Plat VG;Tout;Oui
+Blé + Haricot vert;Haricot vert;Blé;;;;;Plat VG;Tout;Oui
+Blé + Poivrons + Sauce tomate;Poivrons;Blé;;;;;Plat VG;Été;Oui
+Blé + Ratatouille;Ratatouille;Blé;;;;;Plat VG;Tout;Oui
+Blé + Tian de légumes;Tomate, Courgette, Aubergine;;;;;;Plat VG;Été;Non
+Boulgour + poêlée de légumes;Aubergine, courgette;Boulgour;;;;;Plat VF;Été;Non
+Boulgour + Poivrons farcis;Poivrons;Boulgour;Farce de boeuf;;;;Plat;Été;Non
+Cake Jambon / Emmental;;;Jambon;;;;Tarte;Tout;Oui
+Cake Jambon / Olive;Olive;;Jambon;;;;Tarte;Tout;Oui
+Cake VG;Tomate;;Oeufs;;;;Tarte;Tout;Oui
+Canelloni bolognaise + Ratatouille;Ratatouille;Canelloni;Bolognaise;;Oui;;Plat;Tout;Non
+Canelloni épinard - ricotta;Epinards;Canelloni;;;Oui;;Plat;Tout;Non
+Carottes + Blanc de poulet à la crème;Carotte;;Blanc de poulet;;;;Plat;Tout;Oui
+Carottes + Chipolatas;Carotte;;Chipolatas;;;;Plat;Tout;Oui
+Carpacio + Salade;Salade;;Carpacio;;;;Plat;Été;Oui
+Carpacio + Salade de tomates;Tomate;;Carpacio;;;;Plat;Été;Non
+Commande Thaï;;Riz;Poulet;;;;Plat;Tout;Non
+Crêpes;;;;;;;Plat;Tout;Non
+Croque monsieur;;;Jambon;;;;Plat;Tout;Oui
+Crozet + Boulettes de viande;;Crozet;Boulettes de viande;;Oui;;Plat;Tout;Oui
+Crozet + Carottes à la crème;Carotte;Crozet;;;Oui;;Plat VG;Tout;Oui
+Crozet + Cordon bleu;;Crozet;Cordon bleu;;Oui;;Plat;Tout;Oui
+Crozet + Haricot vert;Haricot vert;Crozet;;;Oui;;Plat VG;Tout;Oui
+Crozet + Jambon;;Crozet;Jambon;;Oui;;Plat;Tout;Oui
+Crozet + Knacki;;Crozet;Knacki;;Oui;;Plat;Tout;Oui
+Crozet + Nuggets de poisson;;Crozet;;Nuggets de poisson;Oui;;Plat;Tout;Oui
+Crozet + Poissons;;Crozet;;Poisson;Oui;;Plat;Tout;Oui
+Crozet + Poulet;;Crozet;Poulet;;Oui;;Plat;Tout;Oui
+Crozet + Ratatouille;Ratatouille;Crozet;;;Oui;;Plat VG;Été;Oui
+Crozet + Riste d'Aubergines;Riste d'Aubergines;Crozet;;;Oui;;Plat VG;Tout;Oui
+Crozet + Steack Haché;;Crozet;Steak Haché;;Oui;;Plat;Tout;Oui
+Crozet à la butternut;Butternut;Crozet;;;Oui;;Plat VG;Hiver;Non
+Crumble courgette chèvre;Courgette;;;;;;Gratin VG;Tout;Non
+Crumble courgette saumon;Courgette;;;Saumon;;;Gratin;Été;Non
+Dino picard + Jambon;Carotte;Pomme de terre;Jambon;;;;Plat;Tout;Oui
+Dino picard + Knacki;Carotte;Pomme de terre;Knacki;;;;Plat;Tout;Oui
+Dino picard + Poulet;Dino picard;;Poulet;;;;Plat;Tout;Oui
+Dino picard + Steack Haché;Carotte;Pomme de terre;Steak Haché;;;;Plat;Tout;Oui
+Epinard + saumon en papillotte;Epinard;;;Saumon;;;Plat;Hiver;Non
+Fajitas Poulet;;;Poulet;;;;Plat;Tout;Oui
+Fajitas VG été;Poivrons,Courgettes;;;;;;Plat VG;Été;Non
+Fajitas VG hiver;Courgettes, champignons;;;;;;Plat VG;Hiver;Non
+Feuilleté au fromage;;;;;;;Tarte;Tout;Oui
+Feuilleté chêvre épinard;Epinard;;;;;;Tarte;Hiver;Oui
+Feuilletté épinard chèvre;Epinard;;;;;;Tarte;Hiver;Oui
+Feuilletté fromage;;;;;;;Tarte;Tout;Oui
+Flammkueche;;Tarte;Lardons;;;;Tarte;Tout;Oui
+Galette de sarrasin;;Galette;Jambon;;;;Plat;Tout;Non
+Gauffre patate douce;;Patate douce;;;;;Plat VG;Tout;Non
+Gnocchi;;Pomme de terre;;;;;Plat VG;Tout;Oui
+Gnocchi + Haricot vert;Haricot vert;Pomme de terre;;;;;Plat VG;Tout;Oui
+Gnocchi + Jambon;;Pomme de terre;Jambon;;;;Plat;Tout;Oui
+Gnocchi + Petit pois carottes;Petit pois carottes;Pomme de terre;;;;;Plat VG;Tout;Oui
+Gratin dauphinois;;Pomme de terre;;;;;Gratin;Hiver;Non
+Gratin de chou-fleur;Chou-fleur;;;;;;Gratin;Hiver;Non
+Gratin de courgettes;Courgette;;;;;;Gratin;Été;Non
+Gratin de crozet;;Crozet;;;Oui;;Gratin;Tout;Non
+Gratin de macaroni;;Macaroni;;;Oui;;Gratin;Tout;Oui
+Gratin de macaroni Delphine;;Macaroni;;;Oui;;Gratin;Tout;Non
+Gratin de potimarron;Potimarron;;;;;;Gratin;Hiver;Non
+Gratin de ravioles;;Ravioles;;;Oui;;Gratin;Tout;Oui
+Gratin de ravioles + Courgettes;Courgette;Ravioles;;;Oui;;Gratin;Été;Non
+Gratin de ravioles + Courgettes + Cuisse de poulet;Courgette;Ravioles;Cuisse de poulet;;Oui;;Gratin;Été;Non
+Gratin de semoule;;Semoule;;;;;Gratin;Tout;Non
+Gratin de St Paul;Courgette;Riz;;;;;Gratin;Été;Non
+Gratin patate douce + Reblochon;Patate douce;;;;;;Gratin;Hiver;Non
+Hachi Parmentier;;Pomme de terre;Boeuf;;;;Gratin;Tout;Oui
+Hachi Parmentier VG;Carotte;Pomme de terre;;;;;Plat VG;Tout;Non
+Haricot vert + Boudin blanc;Haricot vert;;Boudin blanc;;;;Plat;Tout;Oui
+Haricot vert + Boulettes de viande;Haricot vert;;Boulettes de viande;;;;Plat;Tout;Oui
+Haricot vert + Cordon bleu;Haricot vert;;Cordon bleu;;;;Plat;Tout;Oui
+"Haricot vert + Escalope milanaise	";Haricot vert;;Escalope;;;;Plat;Tout;Oui
+Haricot vert + Jambon;Haricot vert;;Jambon;;;;Plat;Tout;Oui
+Haricot vert + Knacki;Haricot vert;;Knacki;;;;Plat;Tout;Oui
+Haricot vert + Lardons;Haricot vert;;Lardons;;;;Plat;Tout;Oui
+Haricot vert + Poulet;Haricot vert;;Poulet;;;;Plat;Tout;Oui
+Haricot vert + Rougail saucisses;Haricot vert;;Saucisses;;;;Plat;Tout;Non
+Haricot vert + Steak;Haricot vert;;Steak;;;;Plat;Tout;Oui
+Haricot vert + Steak Haché;Haricot vert;;Steak Haché;;;;Plat;Tout;Oui
+Haricot vert + Tomates + Lardons;Haricot vert, tomates;;Lardons;;;;Plat;Été;Non
+Lasagnes;Tomate, carotte;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
+Lasagnes + Butternut;Butternut;Lasagne;Boeuf;;Oui;;Hiver;Tout;Non
+Lasagnes + Ratatouille;Ratatouille;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
+Lasagnes VG;Ratatouille;Lasagne;;;Oui;;Plat VG;Tout;Non
+Lasagnes riste d'aubergine;Riste d'aubergines;Lasagne;;;Oui;;Plat VG;Tout;Non
+Lentilles + Dhal Patate douce;Patate douce;Lentilles;;;;;Plat VG;Tout;Non
+Lentilles + Saucisses;;Lentilles;Saucisses;;;;Plat;Tout;Non
+Moussaka;Aubergine;Pomme de terre;Boeuf;;;;Gratin;Été;Non
+Moussaka VG;Aubergine;Pomme de terre;;;;;Gratin;Été;Non
+Oeuf + Haricot vert + Tomates;Haricot vert, tomates;;Œuf;;;;Plat;Été;Non
+Oeuf + Riste d'Aubergines;Riste d'Aubergines;;Œuf;;;;Plat;Tout;Non
+Omelette;;;Œuf;;;;Plat;Tout;Non
+Omelette + Pdt;;Pomme de terre;Œuf;;;;Plat;Tout;Non
+Patate douce sautées + steak;Patate douce;;Steak;;;;Plat;Tout;Non
+Pâtes + Boudin blanc;;Pâtes;Boudin blanc;;Oui;;Plat;Tout;Oui
+Pâtes + Boulettes de viande;;Pâtes;Boulettes de viande;;Oui;;Plat;Tout;Oui
+Pâtes + Cordon bleu;;Pâtes;Cordon bleu;;Oui;;Plat;Tout;Oui
+Pâtes + Jambon;;Pâtes;Jambon;;Oui;;Plat;Tout;Oui
+Pâtes + Knacki;;Pâtes;Knacki;;Oui;;Plat;Tout;Oui
+Pâtes + Poulet;;Pâtes;Poulet;;Oui;;Plat;Tout;Oui
+Pâtes + Steak;;Pâtes;Steak;;Oui;;Plat;Tout;Oui
+Pâtes + Steak Haché;;Pâtes;Steak Haché;;Oui;;Plat;Tout;Oui
+Pdt + Carottes + Paupiettes;Carotte;Pomme de terre;Paupiettes de veau;;;;Plat;Tout;Non
+Pdt au lard;;Pomme de terre;Lard;;;;Plat;Tout;Oui
+Pdt Dauphine + Boulettes de viande;;Pomme de terre;Boulettes de viande;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Jambon;Haricot vert;Pomme de terre;Jambon;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Nuggets;Haricot vert;Pomme de terre;Nuggets;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Poulet du marché;Haricot vert;Pomme de terre;Poulet du marché;;;;Plat;Tout;Non
+Pdt Dauphine + Haricot vert + Saucisses;Haricot vert;Pomme de terre;Saucisses;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;;;;Plat;Tout;Oui
+Pdt Dauphine + Haricot vert + Steak haché;Haricot vert;Pomme de terre;Steak haché;;;;Plat;Tout;Oui
+Pdt Dauphine + Jambon;;Pomme de terre;Jambon;;;;Plat;Tout;Oui
+Pdt Dauphine + Nuggets;;Pomme de terre;Nuggets;;;;Plat;Tout;Oui
+Pdt Dauphine + Poulet du marché;;Pomme de terre;Poulet du marché;;;;Plat;Tout;Non
+Pdt Dauphine + Saucisses;;Pomme de terre;Saucisses;;;;Plat;Tout;Oui
+Pdt Dauphine + Steak;;Pomme de terre;Steak;;;;Plat;Tout;Oui
+Pdt Dauphine + Steak haché;;Pomme de terre;Steak haché;;;;Plat;Tout;Oui
+Pdt du marché + Haricot vert + Poulet du marché;Haricot vert;Pomme de terre;Poulet du marché;;;;Plat;Tout;Non
+Pdt du marché + Poulet du marché;;Pomme de terre;Poulet du marché;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Aiguillettes de poulet;Haricot vert;Pomme de terre;Aiguillettes de poulet;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Blanc de poulet à la crème;Haricot vert;Pomme de terre;Blanc de poulet;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Magret de canard;Haricot vert;Pomme de terre;Magret de canard;;;;Plat;Tout;Non
+Pdt Sarladaise + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;;;;Plat;Tout;Oui
+Pdt Sarladaise + Haricot vert + Steak Haché;Haricot vert;Pomme de terre;Steak haché;;;;Plat;Tout;Oui
+Pdt Sautées + Carottes + Magret de canard;Carotte;Pomme de terre;Magret de canard;;;;Plat;Tout;Non
+Pdt Sautées + Haricot vert + Aiguillettes de poulet;Haricot vert;Pomme de terre;Aiguillettes de poulet;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Blanc de poulet à la crème;Haricot vert;Pomme de terre;Blanc de poulet;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Lardons;Haricot vert;Pomme de terre;Lardons;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Magret de canard;Haricot vert;Pomme de terre;Magret de canard;;;;Plat;Tout;Non
+Pdt Sautées + Haricot vert + Poulet du marché;Haricot vert;Pomme de terre;Poulet du marché;;;;Plat;Tout;Non
+Pdt Sautées + Haricot vert + Saucisses;Haricot vert;Pomme de terre;Saucisses;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;;;;Plat;Tout;Oui
+Pdt Sautées + Haricot vert + Steak haché;Haricot vert;Pomme de terre;Steak haché;;;;Plat;Tout;Oui
+Pdt Sautées + Nuggets;;Pomme de terre;Nuggets;;;;Plat;Tout;Oui
+Pdt Sautées + Poulet du marché;;Pomme de terre;Poulet du marché;;;;Plat;Tout;Non
+Pdt Sautées + Saucisses;;Pomme de terre;Saucisses;;;;Plat;Tout;Oui
+Pdt Sautées + Saucisson chaud;;Pomme de terre;Saucisson Chaud;;;;Plat;Tout;Non
+Petit pois carottes + Boudin blanc;Petit pois carottes;;Boudin blanc;;;;Plat;Tout;Oui
+Petit pois carottes + Boulettes de viande;Petit pois carottes;;Boulettes de viande;;;;Plat;Tout;Oui
+Petit pois carottes + Cordon bleu;Petit pois carottes;;Cordon bleu;;;;Plat;Tout;Oui
+Petit pois carottes + Jambon;Petit pois carottes;;Jambon;;;;Plat;Tout;Oui
+Petit pois carottes + Knacki;Petit pois carottes;;Knacki;;;;Plat;Tout;Oui
+Petit pois carottes + Pillon de poulet;Petit pois carottes;;Pillon de poulet;;;;Plat;Tout;Oui
+Petit pois carottes + Poulet;Petit pois carottes;;Poulet;;;;Plat;Tout;Oui
+Petit pois carottes + Steak;Petit pois carottes;;Steak;;;;Plat;Tout;Oui
+Petit pois carottes + Steak Haché;Petit pois carottes;;Steak Haché;;;;Plat;Tout;Oui
+Pillon de poulet + ratatouille;Ratatouille;;Pillon de poulet;;;;Plat;Été;Non
+Pizza maison;;Tarte;Jambon;;;;Tarte;Tout;Oui
+Pizza patate douce;Patate douce;Tarte;;;;;Tarte;Tout;Non
+Poêlée de Courgettes;Courgette;;;;;;Plat VG;Été;Non
+Purée de carottes + Aiguillettes de poulet;Carotte;;Aiguillettes de poulet;;;Oui;Plat;Tout;Oui
+Purée de carottes + Boudin blanc;Carotte;;Boudin blanc;;;Oui;Plat;Tout;Oui
+Purée de carottes + Boulettes de viande;Carotte;;Boulettes de viande;;;Oui;Plat;Tout;Oui
+Purée de carottes + Cordon bleu;Carotte;;Cordon bleu;;;Oui;Plat;Tout;Oui
+Purée de carottes + Jambon;Carotte;;Jambon;;;Oui;Plat;Tout;Oui
+Purée de carottes + Knacki;Carotte;;Knacki;;;Oui;Plat;Tout;Oui
+Purée de carottes + Steak;Carotte;;Steak;;;Oui;Plat;Tout;Oui
+Purée de carottes + Steak Haché;Carotte;;Steak Haché;;;Oui;Plat;Tout;Oui
+Purée de patate douce + Aiguillettes de poulet;Patate douce;;Aiguillettes de poulet;;;Oui;Plat;Tout;Non
+Purée de patate douce + Blé;Patate douce;;;;;Oui;Plat VG;Tout;Non
+Purée de patate douce + Boudin blanc;Patate douce;;Boudin blanc;;;Oui;Plat;Tout;Non
+Purée de patate douce + Boulettes de viande;Patate douce;;Boulettes de viande;;;Oui;Plat;Tout;Non
+Purée de patate douce + Jambon;Patate douce;;Jambon;;;Oui;Plat;Tout;Non
+Purée de patate douce + Knachi;Patate douce;;Knacki;;;Oui;Plat;Tout;Non
+Purée de patate douce + Steak;Patate douce;;Steak;;;Oui;Plat;Tout;Non
+Purée de patate douce + Steak Haché;Patate douce;;Steak Haché;;;Oui;Plat;Tout;Non
+Purée de Pdt + Haricot vert + Boudin blanc;Haricot vert;Pomme de terre;Boudin blanc;;;Oui;Plat;Tout;Oui
+Purée de Pdt + Haricot vert + Boulettes de viande;Haricot vert;Pomme de terre;Boulettes de viande;;;Oui;Plat;Tout;Oui
+Purée de Pdt + Haricot vert + Jambon;Haricot vert;Pomme de terre;Jambon;;;Oui;Plat;Tout;Oui
+Purée de Pdt + Haricot vert + Knacki;Haricot vert;Pomme de terre;Knacki;;;Oui;Plat;Tout;Oui
+Purée de Pdt + Haricot vert + Steak;Haricot vert;Pomme de terre;Steak;;;Oui;Plat;Tout;Oui
+Purée de Pdt + Haricot vert + Steak Haché;Haricot vert;Pomme de terre;Steak Haché;;;Oui;Plat;Tout;Oui
+Quenelle Sauce tomate;;;Quenelles;;;;Plat;Tout;Oui
+Quenelles Bechamelle;;;Quenelles;;;;Plat;Tout;Oui
+Quenelles de Brochet Bechamelle;;;;Quenelle de Brochet;;;Plat;Tout;Oui
+Quiche aux poireaux VG;Poireaux;Tarte;;;;;Tarte;Hiver;Non
+Quiche aux poireaux;Poireaux;Tarte;Lardons;;;;Tarte;Hiver;Non
+Quiche lorraine;;;Lardons;;;;Tarte;Tout;Non
+Raclette;;Pomme de terre;Charcuterie;;;;Plat;Hiver;Oui
+Ravioles + Blanc de poulet à la crème;;Ravioles;Blanc de poulet;;Oui;;Plat;Tout;Oui
+Raviolis;;Raviolis;Boeuf;;Oui;;Plat;Tout;Oui
+Risotto + Champignons;Champignon;Riz;;;;;Plat VG;Tout;Non
+Risotto + Chèvre;;Riz;;;;;Plat VG;Tout;Oui
+Risotto + Jambon;;Riz;Jambon;;;;Plat;Tout;Oui
+Risotto + Potiron;Potiron;Riz;;;;;Plat VG;Tout;Non
+Risotto + Poulet;;Riz;Poulet;;;;Plat;Tout;Oui
+Risotto + Quinoa butternut + Poulet;Butternut;Riz;Poulet;;;;Hiver;Tout;Non
+Riz + Boulettes de viande;;Riz;Boulettes de viande;;;;Plat;Tout;Oui
+Riz + Cordon bleu;;Riz;Cordon bleu;;;;Plat;Tout;Oui
+Riz + Courgettes + Poulet;Courgette;Riz;Poulet;;;;Plat;Été;Non
+Riz + Haricot vert;Haricot vert;Riz;;;;;Plat VG;Tout;Oui
+Riz + Jambon;;Riz;Jambon;;;;Plat;Tout;Oui
+Riz + Nuggets de poisson;;Riz;;Nuggets de poisson;;;Plat;Tout;Oui
+Riz + Poisson pané;;Riz;;Poisson Pané;;;Plat;Tout;Oui
+Riz + Poissons;;Riz;;Poissons;;;Plat;Tout;Oui
+Riz + Poissons + Haricot vert;Haricot vert;Riz;;Poissons;;;Plat;Tout;Oui
+Riz + Poulet;;Riz;Poulet;;;;Plat;Tout;Oui
+Riz + Poulet au lard;;Riz;Poulet, Lard;;;;Plat;Tout;Oui
+Riz + Poulet au lard + Haricot vert;Haricot vert;Riz;Poulet, Lard;;;;Plat;Tout;Oui
+Riz + Ratatouille;Ratatouille;Riz;;;;;Plat VG;Tout;Oui
+Riz + Ratatouille + Poulet;Ratatouille;Riz;Poulet;;;;Plat;Tout;Oui
+Riz + Riste d'Aubergines;Aubergine;Riz;;;;;Plat VG;Tout;Oui
+Riz + Rougail Saucisses;Tomate;Riz;Saucisses;;;;Plat;Été;Non
+Riz + Saumon soja;;Riz;;Saumon;;;Plat;Tout;Non
+Riz + Steack Haché;;Riz;Steak Haché;;;;Plat;Tout;Oui
+Riz + Tomates Farcies;Tomate;Riz;Farce;;;;Plat;Été;Non
+Riz cantonais + Nems;;Riz;Nems;;;;Plat;Tout;Oui
+Riz pilaf + Poivron + Boeuf;Poivrons;Riz;Boeuf;;;;Plat;Été;Non
+Rôti de bœuf + Haricot vert;Haricot vert;;Boeuf;;;;Plat;Tout;Non
+Rôti de veau + pdt;;Pomme de terre;Veau;;;;Plat;Tout;Non
+Rumsteak + Pdt;;Pomme de terre;Rumsteak;;;;Plat;Tout;Non
+Salade de pâtes;Salade;Pâtes;;;Oui;;Plat VG;Été;Non
+Salade de pâtes;Concombre, tomates;Pâtes;;;Oui;;Salade;Eté;Non
+Salade verte + Tomates + Brochettes;Salade, tomate;;Brochette;;;;Plat;Été;Non
+Semoule + Carottes + Poulet à la crème;Carotte;Semoule;Poulet;;;;Plat;Tout;Oui
+Semoule + Carottes à la crème;Carotte;Semoule;;;;;Plat VG;Tout;Oui
+Semoule + Haricot vert + Aiguillettes de poulet;Haricot vert;Semoule;Aiguillettes de poulet;;;;Plat;Tout;Oui
+Semoule + Haricot vert + Boulettes de viande;Haricot vert;Semoule;Boulettes de viande;;;;Plat;Tout;Oui
+Semoule + Haricot vert + Jambon;Haricot vert;Semoule;Jambon;;;;Plat;Tout;Oui
+Semoule + Haricot vert + Knacki;Haricot vert;Semoule;Knacki;;;;Plat;Tout;Oui
+Semoule + Haricot vert + Saucisses;Haricot vert;Semoule;Saucisses;;;;Plat;Tout;Oui
+Semoule + Poêlée d'aubergines;Aubergine;Semoule;;;;;Plat VG;Été;Non
+Semoule + Poisson;;Semoule;;Poissons;;;Plat;Tout;Oui
+Semoule + Ratatouille;Ratatouille;Semoule;;;;;Plat VG;Tout;Oui
+Semoule + Tomates farcies;Tomate;Semoule;Farce;;;;Plat;Été;Non
+Soufflé au fromage;;;;;;;Plat VG;Tout;Non
+Soupe;;;;;;;Soupe;Hiver;Non
+Spaghetti + Escalope milanaise;;Pâtes;Escalope milanaise;;Oui;;Plat;Tout;Oui
+Spaghetti Bolognaise;;Pâtes;Boeuf;;Oui;;Plat;Tout;Oui
+Spaghetti Carbo;;Pâtes;Lardons;;Oui;;Plat;Tout;Oui
+Taboulet + Boulettes de viande;Concombre, tomate;Semoule;Boulettes de viande;;;;Plat;Été;Non
+Taboulet + Brochette;Concombre, tomate;Semoule;Brochette;;;;Plat;Été;Non
+Taboulet + Chipolatas;Concombre, tomate;Semoule;Chipolatas;;;;Plat;Été;Non
+Taboulet + pillon de poulet;Concombre, tomate;Semoule;Pillon de poulet;;;;Plat;Été;Non
+Taboulet + Poulet;Concombre, tomate;Semoule;Poulet;;;;Plat;Été;Non
+Tarte à la tomate;Tomate;Tarte;;;;;Tarte;Tout;Non
+Tarte à la tomate façon GM;Tomate;Tarte;;;;;Tarte;Tout;Non
+Tarte au thon;;Tarte;;Thon;;;Tarte;Tout;Non
+Tarte aux poivrons;poivrons;Tarte;;;;;Tarte;Tout;Non
+Tarte chèvre / figue;Figue;Tarte;;;;;Tarte;Tout;Non
+Tarte poireaux;Poireaux;Tarte;;;;;Tarte;Hiver;Non
+Tarte potimarron;Potimarron;Tarte;;;;;Tarte;Tout;Non
+Tarte raclette;;Tarte;;;;;Tarte;Tout;Non
+Tarte ratatouille;Ratatouille;Tarte;;;;;Tarte;Tout;Non
+Tarte riste d'aubergines;Riste d'Aubergines;Tarte;;;;;Tarte;Tout;Non
+Tarte tomate cheddar;Tomate;Tarte;;;;;Tarte;Tout;Non
+Tarte tomates cerises;Tomate cerises;Tarte;;;;;Tarte;Été;Non
+Tarte tomates/thon;Tomate;Tarte;;Thon;;;Tarte;Été;Non
+Tartiflette;;Pomme de terre;Lardons;;;;Plat;Hiver;Non
+Tatin courgettes;Courgette;Tarte;;;;;Tarte;Été;Non
+Tian de légumes + Brochette;Courgette, tomate, aubergine;;Brochette;;;;Plat;Été;Non
+Timbale de macaroni;;Macaroni;Saucisse;;Oui;;Pâtes;Tout;Non
+Tourte aux épinards;Epinard;Tarte;;;;;Tarte;Hiver;Non
+Velouté de butternut et lards;Butternut;Pomme de terre;Lard;;;;Soupe;Hiver;Non
+Morbiflette;;Pomme de terre;Saucisse de Morteau;;;;Gratin;Hiver;Non
+Riz + carottes à la crème;Carottes;Riz;;;;;Plat VG;Tout;Oui
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
+;;;;;;;;;
