@@ -334,7 +334,8 @@ async function chargerRepas(){
     //                            Booléen : "Oui" → true, vide → false
     //   cols[6] = Purée        → indicateur booléen (non utilisé par les règles actuelles)
     //   cols[7] = Catégorie    → utilisé par les Règles 1 et 2 (exception/quota Tarte)
-    //   cols[8] = Saison       → non utilisé par les règles actuelles
+    //   cols[8] = Saison       → utilisé par la Règle 7 (filtre saisonnier)
+    //                            Valeurs : "Hiver", "Eté" / "Été", "Tout"
     //   cols[9] = Repas facile → non utilisé par les règles actuelles
     repas = lignes.slice(1).map(r => {
         const cols = r.split(";");
@@ -345,7 +346,8 @@ async function chargerRepas(){
             viande:    (cols[3] || "").trim(),
             poisson:   (cols[4] || "").trim(),
             pates:     (cols[5] || "").trim().toLowerCase() === "oui",
-            categorie: (cols[7] || "").trim()
+            categorie: (cols[7] || "").trim(),
+            saison:    (cols[8] || "").trim()
         };
     }).filter(r => r.name !== "");
 }
@@ -354,6 +356,36 @@ async function chargerRepas(){
 
 function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 7 – Filtre saisonnier
+//
+// La saison est déterminée à partir du mois courant au moment de la génération :
+//   • Octobre (10) → Mars (3)  inclus : saison "hiver"
+//     → repas autorisés : Saison = "Hiver" ou "Tout"
+//   • Avril (4) → Septembre (9) inclus : saison "été"
+//     → repas autorisés : Saison = "Eté" / "Été" ou "Tout"
+//
+// Les valeurs CSV étant parfois "Eté" (sans accent) ou "Été" (avec accent),
+// les deux formes sont acceptées pour la saison estivale.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Retourne "hiver" ou "ete" selon le mois courant.
+function saisonCourante(){
+    const mois = new Date().getMonth() + 1; // getMonth() retourne 0-11
+    return (mois >= 10 || mois <= 3) ? "hiver" : "ete";
+}
+
+// Retourne true si le repas r est autorisé pour la saison courante.
+// "Tout" est toujours autorisé. Les valeurs "Eté" et "Été" sont équivalentes.
+function autoriseParRegle7(r){
+    const s = (r.saison || "").trim().toLowerCase()
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // retire les accents
+    if(s === "tout" || s === "") return true; // valeur vide = pas de restriction
+    const saison = saisonCourante();
+    if(saison === "hiver") return s === "hiver";
+    return s === "ete"; // été (normalisé sans accent)
+}
 
 // Découpe la chaîne de légumes du CSV (séparés par des virgules) en un tableau
 // de chaînes normalisées (trim + lowercase). Retourne [] si la chaîne est vide.
@@ -499,7 +531,10 @@ function piocherAvecFiltre(exclu, nb, filtre){
 //   Les signatures à exclure sont passées en paramètre par les fonctions de
 //   génération (genererMenu → 1 semaine, generer2Semaines → 2 semaines).
 //   Si le Set est vide (première génération), la règle ne bloque rien.
-// RÈGLE 6 – Au moins 3 jours d'écart entre deux repas partageant le même légume.
+// RÈGLE 7 – Filtre saisonnier : seuls les repas dont la colonne Saison correspond
+//   à la saison courante (ou vaut "Tout") sont inclus dans les pools de pioche.
+//   Le filtre est appliqué en amont sur tous les pools (tousDispo, soirDispo,
+//   tarteDispo, patesSoirDispo) pour simplifier les fonctions de pioche.
 //   Un légume ne peut réapparaître qu'à partir du jour indexJour + 3 (inclus).
 //   Midi et soir du même jour sont autorisés à partager le même légume (écart = 0).
 //   Le Map dernierUsageLegume { légume → dernier indexJour } est mis à jour après
@@ -511,15 +546,17 @@ function piocherAvecFiltre(exclu, nb, filtre){
 //   viande ni de poisson le soir).
 // ─────────────────────────────────────────────────────────────────────────
 function construireSemaine(exclu, signaturesExclues = new Set()){
-    const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name));
+    // -- Règle 7 : filtrer par saison courante dès la constitution des pools --
+    // Tous les pools héritent automatiquement de ce filtre ; les fonctions de
+    // pioche n'ont pas besoin de le re-vérifier individuellement.
+    const tousDispo  = shuffle([...repas]).filter(r => !exclu.includes(r.name) && autoriseParRegle7(r));
     const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
 
     // -- Règle 5 : pool des plats de pâtes pour le dimanche soir --
-    // Filtre : Pâtes=Oui + autorisé le soir (Règle 1 : pas de viande ni poisson)
-    // Ce pool est mélangé indépendamment pour éviter les biais de tri.
+    // Filtre : Pâtes=Oui + autorisé le soir (Règle 1) + saison courante (Règle 7)
     const patesSoirDispo = shuffle([...repas]).filter(r =>
-        !exclu.includes(r.name) && r.pates && autoriseLeSOir(r)
+        !exclu.includes(r.name) && r.pates && autoriseLeSOir(r) && autoriseParRegle7(r)
     );
 
     let idxTous = 0;
@@ -819,11 +856,8 @@ window.generer2Semaines = async function(){
 // RÈGLE 2 – Exactement 1 Tarte par semaine
 // RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
 // RÈGLE 4 – Pas de repas dont l'empreinte correspond aux semaines précédentes
-// RÈGLE 5 – Dimanche soir = plat de pâtes forcé (Pâtes = Oui) :
-//   Si l'emplacement régénéré est le dimanche soir (indexJour === 6, moment === "soir"),
-//   le filtre force Pâtes=Oui et applique la Règle 3 allégée pour le féculent
-//   (vérification uniquement contre Lundi et Samedi). Viande et poisson restent
-//   soumis à la Règle 3 complète.
+// RÈGLE 7 – Filtre saisonnier : seuls les repas de la saison courante (ou "Tout")
+//   peuvent être proposés. Appliqué dans chaque branche du filtre.
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
     const semaineActuelle = menus[indexSemaine].repas;
@@ -928,6 +962,7 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
         // Règle 5 : pâtes forcées ; Règle 3 allégée sur le féculent (Lundi+Samedi seulement)
         filtre = r => r.pates
                    && autoriseLeSOir(r)
+                   && autoriseParRegle7(r)
                    && !(r.feculent && r.feculent !== "" && feculentsSamediLundi.has(r.feculent))
                    && !(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))
                    && !(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson))
@@ -935,27 +970,32 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
                    && autoriseParRegle6Regen(r);
     } else if(doitEtreTarte){
         filtre = r => r.categorie.toLowerCase() === "tarte"
+                   && autoriseParRegle7(r)
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r))
                    && autoriseParRegle6Regen(r);
     } else if(moment === "soir" && tarteInterdite){
         filtre = r => autoriseLeSOir(r)
+                   && autoriseParRegle7(r)
                    && r.categorie.toLowerCase() !== "tarte"
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r))
                    && autoriseParRegle6Regen(r);
     } else if(moment === "soir"){
         filtre = r => autoriseLeSOir(r)
+                   && autoriseParRegle7(r)
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r))
                    && autoriseParRegle6Regen(r);
     } else if(tarteInterdite){
         filtre = r => r.categorie.toLowerCase() !== "tarte"
+                   && autoriseParRegle7(r)
                    && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r))
                    && autoriseParRegle6Regen(r);
     } else {
-        filtre = r => autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+        filtre = r => autoriseParRegle7(r)
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
                    && !signaturesExclues.has(signature(r))
                    && autoriseParRegle6Regen(r);
     }
