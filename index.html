@@ -201,6 +201,91 @@ button:hover{background:#2563eb;}
     font-style: italic;
     font-size: 13px;
 }
+/* ── Modal liste des ingrédients ─────────────────────────────────────── */
+#ingredientsModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.ingredients-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+.ingredients-card {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 360px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.ingredients-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.ingredients-titre-modal {
+    font-weight: bold;
+    font-size: 16px;
+    color: #374151;
+}
+.ingredients-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+}
+.ingredients-close:hover { background: #e5e7eb; color: #374151; }
+.ingredients-section { margin-bottom: 14px; }
+.ingredients-section-titre {
+    font-weight: bold;
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.ingredients-item { font-size: 14px; color: #374151; padding: 2px 0; }
+.ingredients-count { color: #9ca3af; font-size: 13px; }
+.semaine-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.semaine-header h3 { margin: 0; }
+.btn-ingredients {
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin: 0;
+}
+.btn-ingredients:hover { background: #dbeafe; }
 </style>
 </head>
 
@@ -256,6 +341,17 @@ button:hover{background:#2563eb;}
 <div id="menu"></div>
 </div>
 
+<div id="ingredientsModal" style="display:none">
+    <div class="ingredients-overlay" onclick="fermerModal()"></div>
+    <div class="ingredients-card">
+        <div class="ingredients-header">
+            <span class="ingredients-titre-modal" id="ingredientsTitre"></span>
+            <button class="ingredients-close" onclick="fermerModal()" title="Fermer">✕</button>
+        </div>
+        <div id="ingredientsContent"></div>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -289,6 +385,9 @@ let dernierMenu = null;
 // après une génération, dernierMenu est écrasé par le menu courant,
 // donc on ne peut plus l'utiliser pour retrouver les semaines précédentes.
 let menuAvantGeneration = null;
+// Index de la semaine actuellement affichée dans le modal (null = fermé).
+// Permet de rafraîchir automatiquement le contenu lors d'un rechargement.
+let modalSemaineIndex = null;
 
 // ─── Utilitaires Firebase ─────────────────────────────────────────────────
 
@@ -787,6 +886,105 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     return semaine.map(j => ({ midi: j.midi || null, soir: j.soir || null }));
 }
 
+// ─── Liste des ingrédients ────────────────────────────────────────────────
+
+// Agrège les ingrédients de tous les repas d'une semaine, par colonne.
+// Retourne un objet { legumes, feculent, viande, poisson } dont chaque valeur
+// est un tableau trié { label, count } (count > 1 si plusieurs occurrences).
+function compterIngredients(semaine){
+    const compteurs = { legumes: {}, feculent: {}, viande: {}, poisson: {} };
+
+    semaine.repas.forEach(jour => {
+        ["midi", "soir"].forEach(m => {
+            const r = jour[m];
+            if(!r || !r.name) return;
+
+            // Légumes : plusieurs valeurs possibles séparées par des virgules
+            parseLegumes(r.legumes).forEach(l => {
+                const key = l.toLowerCase();
+                if(!compteurs.legumes[key]) compteurs.legumes[key] = { label: l, count: 0 };
+                compteurs.legumes[key].count++;
+            });
+
+            // Féculent, Viande, Poisson : valeur unique
+            [["feculent", r.feculent], ["viande", r.viande], ["poisson", r.poisson]].forEach(([col, val]) => {
+                if(!val || val.trim() === "") return;
+                const key = val.trim().toLowerCase();
+                if(!compteurs[col][key]) compteurs[col][key] = { label: val.trim(), count: 0 };
+                compteurs[col][key].count++;
+            });
+        });
+    });
+
+    // Convertir chaque section en tableau trié alphabétiquement
+    const trier = obj => Object.values(obj).sort((a, b) =>
+        a.label.localeCompare(b.label, "fr", { sensitivity: "base" })
+    );
+    return {
+        legumes:  trier(compteurs.legumes),
+        feculent: trier(compteurs.feculent),
+        viande:   trier(compteurs.viande),
+        poisson:  trier(compteurs.poisson)
+    };
+}
+
+// Remplit le contenu du modal avec les ingrédients de la semaine donnée.
+function remplirModal(semaine){
+    const data = compterIngredients(semaine);
+    const content = document.getElementById("ingredientsContent");
+    content.innerHTML = "";
+
+    const sections = [
+        { key: "legumes",  label: "🥦 Légumes" },
+        { key: "feculent", label: "🌾 Féculents" },
+        { key: "viande",   label: "🥩 Viandes" },
+        { key: "poisson",  label: "🐟 Poissons" }
+    ];
+
+    sections.forEach(({ key, label }) => {
+        const items = data[key];
+        if(items.length === 0) return;
+
+        const section = document.createElement("div");
+        section.className = "ingredients-section";
+
+        const titre = document.createElement("div");
+        titre.className = "ingredients-section-titre";
+        titre.textContent = label;
+        section.appendChild(titre);
+
+        items.forEach(({ label: itemLabel, count }) => {
+            const item = document.createElement("div");
+            item.className = "ingredients-item";
+            item.textContent = itemLabel;
+            if(count > 1){
+                const badge = document.createElement("span");
+                badge.className = "ingredients-count";
+                badge.textContent = " (" + count + ")";
+                item.appendChild(badge);
+            }
+            section.appendChild(item);
+        });
+
+        content.appendChild(section);
+    });
+}
+
+// Ouvre le modal pour la semaine donnée.
+function ouvrirListeIngredients(menus, indexSemaine){
+    modalSemaineIndex = indexSemaine;
+    document.getElementById("ingredientsTitre").textContent =
+        "🛒 " + menus[indexSemaine].titre;
+    remplirModal(menus[indexSemaine]);
+    document.getElementById("ingredientsModal").style.display = "flex";
+}
+
+// Ferme le modal.
+window.fermerModal = function(){
+    modalSemaineIndex = null;
+    document.getElementById("ingredientsModal").style.display = "none";
+};
+
 // ─── Affichage ────────────────────────────────────────────────────────────
 
 // Crée une box repas.
@@ -838,8 +1036,20 @@ function afficher(menus){
     menus.forEach((semaine, indexSemaine) => {
         const bloc = document.createElement("div");
         bloc.className = "semaine";
+
+        // En-tête : titre à gauche, bouton ingrédients à droite
+        const header = document.createElement("div");
+        header.className = "semaine-header";
         const titre = document.createElement("h3");
         titre.textContent = semaine.titre;
+        const btnIngredients = document.createElement("button");
+        btnIngredients.className = "btn-ingredients";
+        btnIngredients.textContent = "🛒 Liste des ingrédients";
+        btnIngredients.onclick = () => ouvrirListeIngredients(menus, indexSemaine);
+        header.appendChild(titre);
+        header.appendChild(btnIngredients);
+        bloc.appendChild(header);
+
         const grid = document.createElement("div");
         grid.className = "grid";
 
@@ -865,10 +1075,14 @@ function afficher(menus){
             grid.appendChild(ligne);
         });
 
-        bloc.appendChild(titre);
         bloc.appendChild(grid);
         container.appendChild(bloc);
     });
+
+    // Rafraîchit automatiquement le modal si celui-ci est ouvert
+    if(modalSemaineIndex !== null && menus[modalSemaineIndex]){
+        remplirModal(menus[modalSemaineIndex]);
+    }
 }
 
 // ─── Génération ───────────────────────────────────────────────────────────
