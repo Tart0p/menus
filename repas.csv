@@ -13,11 +13,19 @@ Canelloni bolognaise + Ratatouille;Ratatouille;Canelloni;Bolognaise;;Oui;;Plat;T
 Canelloni épinard - ricotta;Epinards;Canelloni;;;Oui;;Plat;Tout;Non
 Carottes + Blanc de poulet à la crème;Carotte;;Blanc de poulet;;;;Plat;Tout;Oui
 Carottes + Chipolatas;Carotte;;Chipolatas;;;;Plat;Tout;Oui
-Carpacio + Salade;Salade;;Carpacio;;;;Plat;Été;Oui
+Carpaccio + Salade;Salade;;Carpacio;;;;Plat;Été;Oui
 Carpacio + Salade de tomates;Tomate;;Carpacio;;;;Plat;Été;Non
 Commande Thaï;;Riz;Poulet;;;;Plat;Tout;Non
+Coquilettes + Knacki;;Coquillettes;Knacki;;Oui;;Plat;Tout;Oui
+Coquillettes + Boudin blanc;;Coquillettes;Boudin blanc;;Oui;;Plat;Tout;Oui
+Coquillettes + Cordon bleu;;Coquillettes;Cordon bleu;;Oui;;Plat;Tout;Oui
+Coquillettes + Jambon;;Coquillettes;Jambon;;Oui;;Plat;Tout;Oui
+Coquillettes + Poulet;;Coquillettes;Poulet;;Oui;;Plat;Tout;Oui
+Coquillettes + Steak;;Coquillettes;Steak;;Oui;;Plat;Tout;Oui
+Coquillettes + Steak Haché;;Coquillettes;Steak haché;;Oui;;Plat;Tout;Oui
 Crêpes;;;;;;;Plat;Tout;Non
 Croque monsieur;;;Jambon;;;;Plat;Tout;Oui
+Croque monsieur + salade;Salade;;Jambon;;;;Plat;Tout;Oui
 Crozet + Boulettes de viande;;Crozet;Boulettes de viande;;Oui;;Plat;Tout;Oui
 Crozet + Carottes à la crème;Carotte;Crozet;;;Oui;;Plat VG;Tout;Oui
 Crozet + Cordon bleu;;Crozet;Cordon bleu;;Oui;;Plat;Tout;Oui
@@ -52,6 +60,7 @@ Gnocchi;;Pomme de terre;;;;;Plat VG;Tout;Oui
 Gnocchi + Haricot vert;Haricot vert;Pomme de terre;;;;;Plat VG;Tout;Oui
 Gnocchi + Jambon;;Pomme de terre;Jambon;;;;Plat;Tout;Oui
 Gnocchi + Petit pois carottes;Petit pois carottes;Pomme de terre;;;;;Plat VG;Tout;Oui
+Gougères + Haricot vert;Haricot vert;;;;;;Plat VG;Tout;Non
 Gratin dauphinois;;Pomme de terre;;;;;Gratin;Hiver;Non
 Gratin de chou-fleur;Chou-fleur;;;;;;Gratin;Hiver;Non
 Gratin de courgettes;Courgette;;;;;;Gratin;Été;Non
@@ -82,10 +91,18 @@ Haricot vert + Tomates + Lardons;Haricot vert, tomates;;Lardons;;;;Plat;Été;No
 Lasagnes;Tomate, carotte;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
 Lasagnes + Butternut;Butternut;Lasagne;Boeuf;;Oui;;Hiver;Tout;Non
 Lasagnes + Ratatouille;Ratatouille;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
-Lasagnes VG;Ratatouille;Lasagne;;;Oui;;Plat VG;Tout;Non
 Lasagnes riste d'aubergine;Riste d'aubergines;Lasagne;;;Oui;;Plat VG;Tout;Non
+Lasagnes VG;Ratatouille;Lasagne;;;Oui;;Plat VG;Tout;Non
 Lentilles + Dhal Patate douce;Patate douce;Lentilles;;;;;Plat VG;Tout;Non
 Lentilles + Saucisses;;Lentilles;Saucisses;;;;Plat;Tout;Non
+Macaroni + Boudin blanc;;Macaroni;Boudin blanc;;Oui;;Plat;Tout;Oui
+Macaroni + Boulettes de viande;;Macaroni;Boulettes de viande;;Oui;;Plat;Tout;Oui
+Macaroni + Jambon;;Macaroni;Jambon;;Oui;;Plat;Tout;Oui
+Macaroni + Knacki;;Macaroni;Knacki;;Oui;;Plat;Tout;Oui
+Macaroni + Poulet;;Macaroni;Poulet;;Oui;;Plat;Tout;Oui
+Macaroni + Steak;;Macaroni;Steak;;Oui;;Plat;Tout;Oui
+Macaroni + Steak Haché;;Macaroni;Steak haché;;Oui;;Plat;Tout;Oui
+Morbiflette;;Pomme de terre;Saucisse de Morteau;;;;Gratin;Hiver;Non
 Moussaka;Aubergine;Pomme de terre;Boeuf;;;;Gratin;Été;Non
 Moussaka VG;Aubergine;Pomme de terre;;;;;Gratin;Été;Non
 Oeuf + Haricot vert + Tomates;Haricot vert, tomates;;Œuf;;;;Plat;Été;Non
@@ -93,14 +110,6 @@ Oeuf + Riste d'Aubergines;Riste d'Aubergines;;Œuf;;;;Plat;Tout;Non
 Omelette;;;Œuf;;;;Plat;Tout;Non
 Omelette + Pdt;;Pomme de terre;Œuf;;;;Plat;Tout;Non
 Patate douce sautées + steak;Patate douce;;Steak;;;;Plat;Tout;Non
-Pâtes + Boudin blanc;;Pâtes;Boudin blanc;;Oui;;Plat;Tout;Oui
-Pâtes + Boulettes de viande;;Pâtes;Boulettes de viande;;Oui;;Plat;Tout;Oui
-Pâtes + Cordon bleu;;Pâtes;Cordon bleu;;Oui;;Plat;Tout;Oui
-Pâtes + Jambon;;Pâtes;Jambon;;Oui;;Plat;Tout;Oui
-Pâtes + Knacki;;Pâtes;Knacki;;Oui;;Plat;Tout;Oui
-Pâtes + Poulet;;Pâtes;Poulet;;Oui;;Plat;Tout;Oui
-Pâtes + Steak;;Pâtes;Steak;;Oui;;Plat;Tout;Oui
-Pâtes + Steak Haché;;Pâtes;Steak Haché;;Oui;;Plat;Tout;Oui
 Pdt + Carottes + Paupiettes;Carotte;Pomme de terre;Paupiettes de veau;;;;Plat;Tout;Non
 Pdt au lard;;Pomme de terre;Lard;;;;Plat;Tout;Oui
 Pdt Dauphine + Boulettes de viande;;Pomme de terre;Boulettes de viande;;;;Plat;Tout;Oui
@@ -154,6 +163,8 @@ Pillon de poulet + ratatouille;Ratatouille;;Pillon de poulet;;;;Plat;Été;Non
 Pizza maison;;Tarte;Jambon;;;;Tarte;Tout;Oui
 Pizza patate douce;Patate douce;Tarte;;;;;Tarte;Tout;Non
 Poêlée de Courgettes;Courgette;;;;;;Plat VG;Été;Non
+Poêlée de Courgettes/Carottes;Courgette, carottes;;;;;;Plat VG;Eté;Non
+Poêlée légumes + poisson pané;Légumes;;;Poisson pané;;;Plat;Tout;Non
 Purée de carottes + Aiguillettes de poulet;Carotte;;Aiguillettes de poulet;;;Oui;Plat;Tout;Oui
 Purée de carottes + Boudin blanc;Carotte;;Boudin blanc;;;Oui;Plat;Tout;Oui
 Purée de carottes + Boulettes de viande;Carotte;;Boulettes de viande;;;Oui;Plat;Tout;Oui
@@ -179,8 +190,8 @@ Purée de Pdt + Haricot vert + Steak Haché;Haricot vert;Pomme de terre;Steak Ha
 Quenelle Sauce tomate;;;Quenelles;;;;Plat;Tout;Oui
 Quenelles Bechamelle;;;Quenelles;;;;Plat;Tout;Oui
 Quenelles de Brochet Bechamelle;;;;Quenelle de Brochet;;;Plat;Tout;Oui
-Quiche aux poireaux VG;Poireaux;Tarte;;;;;Tarte;Hiver;Non
 Quiche aux poireaux;Poireaux;Tarte;Lardons;;;;Tarte;Hiver;Non
+Quiche aux poireaux VG;Poireaux;Tarte;;;;;Tarte;Hiver;Non
 Quiche lorraine;;;Lardons;;;;Tarte;Tout;Non
 Raclette;;Pomme de terre;Charcuterie;;;;Plat;Hiver;Oui
 Ravioles + Blanc de poulet à la crème;;Ravioles;Blanc de poulet;;Oui;;Plat;Tout;Oui
@@ -192,7 +203,9 @@ Risotto + Potiron;Potiron;Riz;;;;;Plat VG;Tout;Non
 Risotto + Poulet;;Riz;Poulet;;;;Plat;Tout;Oui
 Risotto + Quinoa butternut + Poulet;Butternut;Riz;Poulet;;;;Hiver;Tout;Non
 Riz + Boulettes de viande;;Riz;Boulettes de viande;;;;Plat;Tout;Oui
+Riz + carottes à la crème;Carottes;Riz;;;;;Plat VG;Tout;Oui
 Riz + Cordon bleu;;Riz;Cordon bleu;;;;Plat;Tout;Oui
+Riz + Courgettes;Courgette;Riz;;;;;Plat VG;Eté;Non
 Riz + Courgettes + Poulet;Courgette;Riz;Poulet;;;;Plat;Été;Non
 Riz + Haricot vert;Haricot vert;Riz;;;;;Plat VG;Tout;Oui
 Riz + Jambon;;Riz;Jambon;;;;Plat;Tout;Oui
@@ -215,8 +228,8 @@ Riz pilaf + Poivron + Boeuf;Poivrons;Riz;Boeuf;;;;Plat;Été;Non
 Rôti de bœuf + Haricot vert;Haricot vert;;Boeuf;;;;Plat;Tout;Non
 Rôti de veau + pdt;;Pomme de terre;Veau;;;;Plat;Tout;Non
 Rumsteak + Pdt;;Pomme de terre;Rumsteak;;;;Plat;Tout;Non
-Salade de pâtes;Salade;Pâtes;;;Oui;;Plat VG;Été;Non
-Salade de pâtes;Concombre, tomates;Pâtes;;;Oui;;Salade;Été;Non
+Salade de pâtes (Coquillettes);Concombre, tomates;Coquillettes;;;Oui;;Plat VG;Été;Non
+Salade de pâtes (Macaroni);Concombre, tomates;Macaroni;;;Oui;;Plat VG;Été;Non
 Salade verte + Tomates + Brochettes;Salade, tomate;;Brochette;;;;Plat;Été;Non
 Semoule + Carottes + Poulet à la crème;Carotte;Semoule;Poulet;;;;Plat;Tout;Oui
 Semoule + Carottes à la crème;Carotte;Semoule;;;;;Plat VG;Tout;Oui
@@ -231,9 +244,16 @@ Semoule + Ratatouille;Ratatouille;Semoule;;;;;Plat VG;Tout;Oui
 Semoule + Tomates farcies;Tomate;Semoule;Farce;;;;Plat;Été;Non
 Soufflé au fromage;;;;;;;Plat VG;Tout;Non
 Soupe;;;;;;;Soupe;Hiver;Non
-Spaghetti + Escalope milanaise;;Pâtes;Escalope milanaise;;Oui;;Plat;Tout;Oui
-Spaghetti Bolognaise;;Pâtes;Boeuf;;Oui;;Plat;Tout;Oui
-Spaghetti Carbo;;Pâtes;Lardons;;Oui;;Plat;Tout;Oui
+Spaghetti + Boulettes de viande;;Spaghetti;Boulettes de viande;;Oui;;Plat;Tout;Oui
+Spaghetti + Cordon bleu;;Spaghetti;Cordon bleu;;Oui;;Plat;Tout;Oui
+Spaghetti + Escalope milanaise;;Spaghetti;Escalope milanaise;;Oui;;Plat;Tout;Oui
+Spaghetti + Jambon;;Spaghetti;Jambon;;Oui;;Plat;Tout;Oui
+Spaghetti + Knacki;;Spaghetti;Knacki;;Oui;;Plat;Tout;Oui
+Spaghetti + Poulet;;Spaghetti;Poulet;;Oui;;Plat;Tout;Oui
+Spaghetti + Steak;;Spaghetti;Steak;;Oui;;Plat;Tout;Oui
+Spaghetti + Steak Haché;;Spaghetti;Steak haché;;Oui;;Plat;Tout;Oui
+Spaghetti Bolognaise;;Spaghetti;Boeuf;;Oui;;Plat;Tout;Oui
+Spaghetti Carbo;;Spaghetti;Lardons;;Oui;;Plat;Tout;Oui
 Taboulet + Boulettes de viande;Concombre, tomate;Semoule;Boulettes de viande;;;;Plat;Été;Non
 Taboulet + Brochette;Concombre, tomate;Semoule;Brochette;;;;Plat;Été;Non
 Taboulet + Chipolatas;Concombre, tomate;Semoule;Chipolatas;;;;Plat;Été;Non
@@ -258,8 +278,6 @@ Tian de légumes + Brochette;Courgette, tomate, aubergine;;Brochette;;;;Plat;Ét
 Timbale de macaroni;;Macaroni;Saucisse;;Oui;;Pâtes;Tout;Non
 Tourte aux épinards;Epinard;Tarte;;;;;Tarte;Hiver;Non
 Velouté de butternut et lards;Butternut;Pomme de terre;Lard;;;;Soupe;Hiver;Non
-Morbiflette;;Pomme de terre;Saucisse de Morteau;;;;Gratin;Hiver;Non
-Riz + carottes à la crème;Carottes;Riz;;;;;Plat VG;Tout;Oui
 ;;;;;;;;;
 ;;;;;;;;;
 ;;;;;;;;;
