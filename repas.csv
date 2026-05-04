@@ -5,7 +5,7 @@ Blé + Poivrons + Sauce tomate;Poivrons;Blé;;;;;Plat VG;Été;Oui
 Blé + Ratatouille;Ratatouille;Blé;;;;;Plat VG;Tout;Oui
 Blé + Tian de légumes;Tomate, Courgette, Aubergine;;;;;;Plat VG;Été;Non
 Boulgour + poêlée de légumes;Aubergine, courgette;Boulgour;;;;;Plat VF;Été;Non
-Boulgour + Poivrons farcis;Poivrons;Boulgour;Farce de boeuf;;;;Plat;Été;Non
+Boulgour + Poivrons farcis;Poivron;Boulgour;Farce de boeuf;;;;Plat;Été;Non
 Cake Jambon / Emmental;;;Jambon;;;;Tarte;Tout;Oui
 Cake Jambon / Olive;Olive;;Jambon;;;;Tarte;Tout;Oui
 Cake VG;Tomate;;Oeufs;;;;Tarte;Tout;Oui
@@ -36,7 +36,7 @@ Crozet + Nuggets de poisson;;Crozet;;Nuggets de poisson;Oui;;Plat;Tout;Oui
 Crozet + Poissons;;Crozet;;Poisson;Oui;;Plat;Tout;Oui
 Crozet + Poulet;;Crozet;Poulet;;Oui;;Plat;Tout;Oui
 Crozet + Ratatouille;Ratatouille;Crozet;;;Oui;;Plat VG;Été;Oui
-Crozet + Riste d'Aubergines;Riste d'Aubergines;Crozet;;;Oui;;Plat VG;Tout;Oui
+Crozet + Riste d'Aubergines;Riste d'Aubergine;Crozet;;;Oui;;Plat VG;Tout;Oui
 Crozet + Steack Haché;;Crozet;Steak Haché;;Oui;;Plat;Tout;Oui
 Crozet à la butternut;Butternut;Crozet;;;Oui;;Plat VG;Hiver;Non
 Crumble courgette chèvre;Courgette;;;;;;Gratin VG;Tout;Non
@@ -47,8 +47,8 @@ Dino picard + Poulet;Dino picard;;Poulet;;;;Plat;Tout;Oui
 Dino picard + Steack Haché;Carotte;Pomme de terre;Steak Haché;;;;Plat;Tout;Oui
 Epinard + saumon en papillotte;Epinard;;;Saumon;;;Plat;Hiver;Non
 Fajitas Poulet;;;Poulet;;;;Plat;Tout;Oui
-Fajitas VG été;Poivrons,Courgettes;;;;;;Plat VG;Été;Non
-Fajitas VG hiver;Courgettes, champignons;;;;;;Plat VG;Hiver;Non
+Fajitas VG été;Poivron,Courgette;;;;;;Plat VG;Été;Non
+Fajitas VG hiver;Courgette, champignon;;;;;;Plat VG;Hiver;Non
 Feuilleté au fromage;;;;;;;Tarte;Tout;Oui
 Feuilleté chêvre épinard;Epinard;;;;;;Tarte;Hiver;Oui
 Feuilletté épinard chèvre;Epinard;;;;;;Tarte;Hiver;Oui
@@ -87,11 +87,11 @@ Haricot vert + Poulet;Haricot vert;;Poulet;;;;Plat;Tout;Oui
 Haricot vert + Rougail saucisses;Haricot vert;;Saucisses;;;;Plat;Tout;Non
 Haricot vert + Steak;Haricot vert;;Steak;;;;Plat;Tout;Oui
 Haricot vert + Steak Haché;Haricot vert;;Steak Haché;;;;Plat;Tout;Oui
-Haricot vert + Tomates + Lardons;Haricot vert, tomates;;Lardons;;;;Plat;Été;Non
+Haricot vert + Tomates + Lardons;Haricot vert, tomate;;Lardons;;;;Plat;Été;Non
 Lasagnes;Tomate, carotte;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
 Lasagnes + Butternut;Butternut;Lasagne;Boeuf;;Oui;;Hiver;Tout;Non
 Lasagnes + Ratatouille;Ratatouille;Lasagne;Boeuf;;Oui;;Plat;Tout;Non
-Lasagnes riste d'aubergine;Riste d'aubergines;Lasagne;;;Oui;;Plat VG;Tout;Non
+Lasagnes riste d'aubergine;Riste d'aubergine;Lasagne;;;Oui;;Plat VG;Tout;Non
 Lasagnes VG;Ratatouille;Lasagne;;;Oui;;Plat VG;Tout;Non
 Lentilles + Dhal Patate douce;Patate douce;Lentilles;;;;;Plat VG;Tout;Non
 Lentilles + Saucisses;;Lentilles;Saucisses;;;;Plat;Tout;Non
@@ -105,8 +105,8 @@ Macaroni + Steak Haché;;Macaroni;Steak haché;;Oui;;Plat;Tout;Oui
 Morbiflette;;Pomme de terre;Saucisse de Morteau;;;;Gratin;Hiver;Non
 Moussaka;Aubergine;Pomme de terre;Boeuf;;;;Gratin;Été;Non
 Moussaka VG;Aubergine;Pomme de terre;;;;;Gratin;Été;Non
-Oeuf + Haricot vert + Tomates;Haricot vert, tomates;;Œuf;;;;Plat;Été;Non
-Oeuf + Riste d'Aubergines;Riste d'Aubergines;;Œuf;;;;Plat;Tout;Non
+Oeuf + Haricot vert + Tomates;Haricot vert, tomate;;Œuf;;;;Plat;Été;Non
+Oeuf + Riste d'Aubergines;Riste d'Aubergine;;Œuf;;;;Plat;Tout;Non
 Omelette;;;Œuf;;;;Plat;Tout;Non
 Omelette + Pdt;;Pomme de terre;Œuf;;;;Plat;Tout;Non
 Patate douce sautées + steak;Patate douce;;Steak;;;;Plat;Tout;Non
@@ -163,7 +163,7 @@ Pillon de poulet + ratatouille;Ratatouille;;Pillon de poulet;;;;Plat;Été;Non
 Pizza maison;;Tarte;Jambon;;;;Tarte;Tout;Oui
 Pizza patate douce;Patate douce;Tarte;;;;;Tarte;Tout;Non
 Poêlée de Courgettes;Courgette;;;;;;Plat VG;Été;Non
-Poêlée de Courgettes/Carottes;Courgette, carottes;;;;;;Plat VG;Eté;Non
+Poêlée de Courgettes/Carottes;Courgette, carotte;;;;;;Plat VG;Eté;Non
 Poêlée légumes + poisson pané;Légumes;;;Poisson pané;;;Plat;Tout;Non
 Purée de carottes + Aiguillettes de poulet;Carotte;;Aiguillettes de poulet;;;Oui;Plat;Tout;Oui
 Purée de carottes + Boudin blanc;Carotte;;Boudin blanc;;;Oui;Plat;Tout;Oui
@@ -203,7 +203,7 @@ Risotto + Potiron;Potiron;Riz;;;;;Plat VG;Tout;Non
 Risotto + Poulet;;Riz;Poulet;;;;Plat;Tout;Oui
 Risotto + Quinoa butternut + Poulet;Butternut;Riz;Poulet;;;;Hiver;Tout;Non
 Riz + Boulettes de viande;;Riz;Boulettes de viande;;;;Plat;Tout;Oui
-Riz + carottes à la crème;Carottes;Riz;;;;;Plat VG;Tout;Oui
+Riz + carottes à la crème;Carotte;Riz;;;;;Plat VG;Tout;Oui
 Riz + Cordon bleu;;Riz;Cordon bleu;;;;Plat;Tout;Oui
 Riz + Courgettes;Courgette;Riz;;;;;Plat VG;Eté;Non
 Riz + Courgettes + Poulet;Courgette;Riz;Poulet;;;;Plat;Été;Non
@@ -224,7 +224,7 @@ Riz + Saumon soja;;Riz;;Saumon;;;Plat;Tout;Non
 Riz + Steack Haché;;Riz;Steak Haché;;;;Plat;Tout;Oui
 Riz + Tomates Farcies;Tomate;Riz;Farce;;;;Plat;Été;Non
 Riz cantonais + Nems;;Riz;Nems;;;;Plat;Tout;Oui
-Riz pilaf + Poivron + Boeuf;Poivrons;Riz;Boeuf;;;;Plat;Été;Non
+Riz pilaf + Poivron + Boeuf;Poivron;Riz;Boeuf;;;;Plat;Été;Non
 Rôti de bœuf + Haricot vert;Haricot vert;;Boeuf;;;;Plat;Tout;Non
 Rôti de veau + pdt;;Pomme de terre;Veau;;;;Plat;Tout;Non
 Rumsteak + Pdt;;Pomme de terre;Rumsteak;;;;Plat;Tout;Non
@@ -262,13 +262,13 @@ Taboulet + Poulet;Concombre, tomate;Semoule;Poulet;;;;Plat;Été;Non
 Tarte à la tomate;Tomate;Tarte;;;;;Tarte;Tout;Non
 Tarte à la tomate façon GM;Tomate;Tarte;;;;;Tarte;Tout;Non
 Tarte au thon;;Tarte;;Thon;;;Tarte;Tout;Non
-Tarte aux poivrons;poivrons;Tarte;;;;;Tarte;Tout;Non
+Tarte aux poivrons;Poivron;Tarte;;;;;Tarte;Tout;Non
 Tarte chèvre / figue;Figue;Tarte;;;;;Tarte;Tout;Non
 Tarte poireaux;Poireaux;Tarte;;;;;Tarte;Hiver;Non
 Tarte potimarron;Potimarron;Tarte;;;;;Tarte;Tout;Non
 Tarte raclette;;Tarte;;;;;Tarte;Tout;Non
 Tarte ratatouille;Ratatouille;Tarte;;;;;Tarte;Tout;Non
-Tarte riste d'aubergines;Riste d'Aubergines;Tarte;;;;;Tarte;Tout;Non
+Tarte riste d'aubergines;Riste d'Aubergine;Tarte;;;;;Tarte;Tout;Non
 Tarte tomate cheddar;Tomate;Tarte;;;;;Tarte;Tout;Non
 Tarte tomates cerises;Tomate cerises;Tarte;;;;;Tarte;Été;Non
 Tarte tomates/thon;Tomate;Tarte;;Thon;;;Tarte;Été;Non
