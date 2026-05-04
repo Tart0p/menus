@@ -600,9 +600,11 @@ function extraireSignaturesPrecedentes(menusPrecedents, n){
 //
 // Un repas contenant une viande (colonne "Viande") ou un poisson (colonne
 // "Poisson") ne peut être placé que le midi.
-// Exception : si la catégorie est "Tarte", le repas est autorisé le soir
+// Exception 1 : si la catégorie est "Tarte", le repas est autorisé le soir
 // quelle que soit la présence de viande ou de poisson (ex. : Tarte au thon,
 // Pizza jambon, Flammkueche aux lardons).
+// Exception 2 : le dimanche soir, la règle est entièrement levée — viande
+// et poisson y sont autorisés (via le pool patesSoirDispo non filtré par cette règle).
 // ─────────────────────────────────────────────────────────────────────────
 function autoriseLeSOir(r){
     const aViande  = r.viande  && r.viande  !== "";
@@ -701,9 +703,11 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
 
     // -- Règle 5 : pool des plats de pâtes pour le dimanche soir uniquement --
-    // Filtre : Pâtes=Oui + autorisé le soir (Règle 1) + saison courante (Règle 7)
+    // Filtre : Pâtes=Oui + saison courante (Règle 7).
+    // La Règle 1 (pas de viande/poisson le soir) ne s'applique PAS le dimanche
+    // soir : la viande et le poisson y sont autorisés dans un plat de pâtes.
     const patesSoirDispo = shuffle([...repas]).filter(r =>
-        !exclu.includes(r.name) && r.pates && autoriseLeSOir(r) && autoriseParRegle7(r)
+        !exclu.includes(r.name) && r.pates && autoriseParRegle7(r)
     );
 
     let idxTous = 0;
@@ -798,7 +802,8 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     // ── Règle 5 : pioche spéciale pour le dimanche soir ───────────────────
     // Conditions :
     //   - Pâtes = Oui  (obligatoire)
-    //   - Règle 1      : pas de viande ni de poisson (autoriseLeSOir)
+    //   - Règle 1      : NON appliquée — la viande et le poisson sont autorisés
+    //                    le dimanche soir, même dans un plat de pâtes
     //   - Règle 3      : féculent NON vérifié — le dimanche soir peut répéter
     //                    n'importe quel féculent déjà utilisé dans la semaine
     //   - Règle 3      : viande et poisson vérifiés sur toute la semaine
@@ -1228,11 +1233,11 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
     let filtre;
     if(estDimancheSoir){
         // Règle 5 : pâtes forcées.
+        // Règle 1 : NON appliquée — la viande et le poisson sont autorisés le dimanche soir.
         // Règle 3 féculent : aucune vérification — le dimanche soir peut répéter
         // n'importe quel féculent déjà présent dans la semaine (Règle 5 prime).
         // Règle 3 viande/poisson : vérifiés sur toute la semaine.
         filtre = r => r.pates
-                   && autoriseLeSOir(r)
                    && autoriseParRegle7(r)
                    && autoriseParRegle8(r, nomJour, "soir")
                    && !(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))
