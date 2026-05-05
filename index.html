@@ -286,6 +286,104 @@ button:hover{background:#2563eb;}
     margin: 0;
 }
 .btn-ingredients:hover { background: #dbeafe; }
+/* ── Modal règles de génération ──────────────────────────────────────── */
+#reglesModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.regles-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+.regles-card {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.regles-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.regles-titre-modal {
+    font-weight: bold;
+    font-size: 17px;
+    color: #1e3a5f;
+}
+.regles-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; margin: 0;
+    flex-shrink: 0;
+}
+.regles-close:hover { background: #e5e7eb; color: #374151; }
+.regle-item {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+.regle-item:last-child { margin-bottom: 0; }
+.regle-numero {
+    font-size: 11px;
+    font-weight: bold;
+    color: #3b82f6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+.regle-titre {
+    font-weight: bold;
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+.regle-desc {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.55;
+}
+.regle-desc em {
+    color: #1d4ed8;
+    font-style: normal;
+    font-weight: 500;
+}
+.btn-regles {
+    background: #f0f4ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin: 5px;
+}
+.btn-regles:hover { background: #dbeafe; }
 </style>
 </head>
 
@@ -339,6 +437,61 @@ button:hover{background:#2563eb;}
 </div>
 
 <div id="menu"></div>
+
+<div style="text-align:center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+    <button class="btn-regles" onclick="ouvrirRegles()">📋 Règles de génération</button>
+</div>
+</div>
+
+<!-- ── Modal règles de génération ─────────────────────────────────────── -->
+<div id="reglesModal" style="display:none">
+    <div class="regles-overlay" onclick="fermerRegles()"></div>
+    <div class="regles-card">
+        <div class="regles-header">
+            <span class="regles-titre-modal">📋 Règles de génération des repas</span>
+            <button class="regles-close" onclick="fermerRegles()" title="Fermer">✕</button>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 1</div>
+            <div class="regle-titre">Pas de viande ni de poisson le soir</div>
+            <div class="regle-desc">Les repas contenant de la viande ou du poisson sont réservés au midi. Exceptions : la catégorie <em>Tarte</em> est autorisée le soir même avec de la viande ou du poisson (ex. Tarte au thon, Pizza, Flammkuche). Le <em>dimanche soir</em> est entièrement exempté de cette règle (viande et poisson autorisés dans un plat de pâtes).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 2</div>
+            <div class="regle-titre">Exactement une Tarte par semaine</div>
+            <div class="regle-desc">Chaque semaine contient obligatoirement une et une seule Tarte. Si aucune n'est piochée naturellement, une est forcée en remplacement d'un repas du soir (jamais le dimanche). Lors d'une régénération manuelle, si le repas remplacé était la seule Tarte de la semaine, le nouveau repas doit également être une Tarte.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 3</div>
+            <div class="regle-titre">Pas de doublon de viande, poisson ni féculent dans la semaine</div>
+            <div class="regle-desc">Une même viande, un même poisson ou un même féculent ne peut apparaître qu'une seule fois par semaine. Si aucun repas disponible ne satisfait cette contrainte, l'emplacement affiche <em>⚠️ Aucun repas possible</em>, sans contournement silencieux. Exception : le dimanche soir, la contrainte sur le féculent est levée (Règle 5 prime).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 4</div>
+            <div class="regle-titre">Pas de répétition de profil par rapport à la semaine précédente</div>
+            <div class="regle-desc">Un repas est identifié par son empreinte : la combinaison de ses légumes, féculent, viande, poisson et catégorie. Si ce profil correspond à un repas servi la semaine précédente (ou les deux semaines précédentes en mode 2 semaines), il est exclu — même sous un nom différent (ex. <em>Riz + Poulet</em> et <em>Commande Thaï</em> ont le même profil).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 5</div>
+            <div class="regle-titre">Pâtes obligatoires le dimanche soir</div>
+            <div class="regle-desc">Le dimanche soir est toujours un plat de pâtes (colonne Pâtes = Oui). En contrepartie, les plats de pâtes sont interdits le lundi, le samedi (midi et soir), et le dimanche midi. Le dimanche soir bénéficie en plus de deux levées : la Règle 1 (viande/poisson autorisés) et la contrainte féculent de la Règle 3.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 6</div>
+            <div class="regle-titre">Écart minimum de 3 jours entre deux repas avec le même légume</div>
+            <div class="regle-desc">Si un légume est utilisé un jour donné, il ne peut réapparaître qu'au minimum 3 jours plus tard dans la semaine. Le midi et le soir du même jour peuvent partager le même légume sans restriction.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 7</div>
+            <div class="regle-titre">Filtrage saisonnier</div>
+            <div class="regle-desc">Seuls les repas compatibles avec la saison au moment de la génération sont proposés. <em>Octobre → mars</em> : saison hiver. <em>Avril → septembre</em> : saison été. Les repas marqués <em>Tout</em> sont toujours disponibles. La saison active est affichée dans le panneau Paramètres.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 8</div>
+            <div class="regle-titre">Filtre "Repas facile" par jour</div>
+            <div class="regle-desc">Si la case <em>⚡ Repas facile</em> est cochée pour un jour, seuls les repas marqués comme faciles sont proposés le <em>soir</em> de ce jour. Le midi n'est jamais affecté par ce filtre.</div>
+        </div>
+    </div>
 </div>
 
 <div id="ingredientsModal" style="display:none">
@@ -988,6 +1141,16 @@ function ouvrirListeIngredients(menus, indexSemaine){
 window.fermerModal = function(){
     modalSemaineIndex = null;
     document.getElementById("ingredientsModal").style.display = "none";
+};
+
+// ─── Modal règles de génération ───────────────────────────────────────────
+
+window.ouvrirRegles = function(){
+    document.getElementById("reglesModal").style.display = "flex";
+};
+
+window.fermerRegles = function(){
+    document.getElementById("reglesModal").style.display = "none";
 };
 
 // ─── Affichage ────────────────────────────────────────────────────────────
