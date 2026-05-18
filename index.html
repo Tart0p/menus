@@ -1262,7 +1262,11 @@ function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = fal
     if(!locked) btn.onclick = onRegen;
 
     header.appendChild(titreEl);
-    header.appendChild(btn);
+
+    // Groupe les boutons 🔄 et 🔒/🔓 côte à côte à droite du header
+    const btnGroupe = document.createElement("div");
+    btnGroupe.style.cssText = "display:flex;align-items:center;gap:2px;";
+    btnGroupe.appendChild(btn);
 
     // Bouton cadenas : affiché uniquement quand un repas est stocké
     // (inutile de verrouiller un emplacement vide ou impossible)
@@ -1272,8 +1276,10 @@ function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = fal
         lockBtn.textContent = locked ? "🔒" : "🔓";
         lockBtn.title = locked ? "Déverrouiller ce repas" : "Verrouiller ce repas";
         lockBtn.onclick = onLock;
-        header.appendChild(lockBtn);
+        btnGroupe.appendChild(lockBtn);
     }
+
+    header.appendChild(btnGroupe);
 
     const contenuEl = document.createElement("div");
     contenuEl.className = "repas-contenu";
