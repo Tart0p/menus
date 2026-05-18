@@ -89,6 +89,23 @@ button:hover{background:#2563eb;}
 }
 /* ── Grille paramètres : disposition desktop ─────────────────────────── */
 /* Sur desktop : légende à gauche + 7 colonnes de jours en ligne         */
+
+/* Wrapper flex qui place la légende à gauche et les jours à droite */
+.param-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+/* La légende est décalée vers le bas pour s'aligner avec les checkboxes,
+   en sautant la hauteur du nom du jour (≈ 26px = font 12px + gap 4px + marge) */
+.param-legende-bloc {
+    padding-top: 26px;
+    flex-shrink: 0;
+}
+.parametres-jours {
+    flex: 1;
+}
+
 .parametres-jours {
     display: flex;
     gap: 6px;
@@ -251,7 +268,8 @@ button:hover{background:#2563eb;}
     h1 { font-size: 20px; }
 
     /* ── Bloc paramètres mobile ───────────────────────────────────────── */
-    /* La légende desktop est cachée ; les icônes dans chaque carte la remplacent */
+    /* Le wrapper passe en colonne ; la légende est cachée au profit des icônes */
+    .param-layout       { display: block; }
     .param-legende-bloc { display: none; }
     .param-check-icone  { display: inline; }
 
@@ -635,7 +653,8 @@ button:hover{background:#2563eb;}
 
 <div class="parametres-bloc">
     <div class="parametres-titre">⚙️ Paramètres</div>
-    <!-- Légende desktop uniquement (cachée sur mobile où les icônes sont dans chaque carte) -->
+    <!-- Wrapper flex : légende à gauche + 7 colonnes à droite sur desktop -->
+    <div class="param-layout">
     <div class="param-legende-bloc">
         <div class="param-legende-ligne">☀️ Midi</div>
         <div class="param-legende-ligne">⚡ Repas facile</div>
@@ -678,6 +697,7 @@ button:hover{background:#2563eb;}
             <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_dimanche"></label>
         </div>
     </div>
+    </div><!-- /param-layout -->
     <div class="saison-info">
         🌡️ Saison : <span id="saisonLabel"></span>
     </div>
