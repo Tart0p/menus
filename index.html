@@ -189,6 +189,39 @@ button:hover{background:#2563eb;}
     font-style: italic;
     font-size: 13px;
 }
+/* Bouton régénérer désactivé quand le repas est verrouillé */
+.repas-box .regen-btn.bloque {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+/* ── Bouton cadenas ───────────────────────────────────────────────────── */
+.repas-box .lock-btn {
+    background: transparent;
+    color: #d1d5db;
+    border: none;
+    padding: 0;
+    margin: 0 0 0 2px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.repas-box .lock-btn:hover {
+    color: #3b82f6;
+    background: #dbeafe;
+}
+/* Cadenas fermé : icône colorée pour signaler l'état verrouillé */
+.repas-box .lock-btn.verrouille {
+    color: #3b82f6;
+}
+/* Repas verrouillé : fond bleu très léger et bordure gauche bleue */
+.repas-box.verrouille {
+    border-left-color: #93c5fd;
+    background: #eff6ff;
+}
 /* Box affichée quand une case midi est cochée après coup mais qu'aucun repas
    n'avait été stocké pour ce jour (génération initiale faite sans ce jour coché).
    Ton neutre pour indiquer une action à effectuer (🔄), sans signaler d'erreur. */
@@ -845,7 +878,24 @@ function piocherAvecFiltre(exclu, nb, filtre){
 // RÈGLE 8 – Filtre "Repas facile" : si la case est cochée pour un jour, seuls les
 //   repas avec facilite=true sont proposés le soir de ce jour.
 // ─────────────────────────────────────────────────────────────────────────
-function construireSemaine(exclu, signaturesExclues = new Set()){
+// Paramètre optionnel `locksParJour` : tableau de 7 entrées issues du menu
+// actuellement affiché, chacune de la forme { midi, soir, midiLocked, soirLocked }.
+// Les slots verrouillés sont pré-assignés : leur repas est conservé tel quel et
+// leurs contraintes (viande, poisson, féculent, tarte) sont enregistrées AVANT
+// toute pioche afin d'imposer leurs restrictions aux slots libres. Les légumes
+// (Règle 6) sont enregistrés dans le loop principal (ordre des jours respecté).
+// ─────────────────────────────────────────────────────────────────────────
+function construireSemaine(exclu, signaturesExclues = new Set(), locksParJour = null){
+    // -- Extraction de l'état verrouillé pour chaque jour --
+    const jourInit = jours.map((_, i) => {
+        const lock = locksParJour ? locksParJour[i] : null;
+        return {
+            midiLocked: lock ? (lock.midiLocked || false) : false,
+            soirLocked: lock ? (lock.soirLocked || false) : false,
+            midiRepas:  lock && lock.midiLocked ? lock.midi : null,
+            soirRepas:  lock && lock.soirLocked ? lock.soir : null,
+        };
+    });
     // -- Règle 7 : filtrer par saison courante dès la constitution des pools --
     // Tous les pools héritent automatiquement de ce filtre ; les fonctions de
     // pioche n'ont pas besoin de le re-vérifier individuellement.
@@ -883,6 +933,21 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     // Index du jour en cours de traitement — mis à jour avant chaque appel à piocher()
     // et piocherPates() pour que ces fonctions puissent vérifier la Règle 6.
     let currentDayIndex = 0;
+
+    // -- Pré-enregistrement des contraintes des repas verrouillés --
+    // Viandes, poissons, féculents et tartes sont enregistrés AVANT la première pioche
+    // pour que les slots libres soient générés en tenant compte des repas verrouillés.
+    // Les légumes (Règle 6) sont enregistrés dans le loop principal (ordre des jours).
+    jourInit.forEach(j => {
+        [j.midiRepas, j.soirRepas].forEach(r => {
+            if(!r) return;
+            if(r.viande   && r.viande   !== "") viandesUtilises.add(r.viande);
+            if(r.poisson  && r.poisson  !== "") poissonsUtilises.add(r.poisson);
+            if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
+            if((r.categorie || "").toLowerCase() === "tarte") tarteUtilisee = true;
+            utilises.add(r.name);
+        });
+    });
 
     // Retourne true si aucun légume du repas r ne viole la Règle 6 pour currentDayIndex.
     // Un légume est refusé si son dernier jour d'usage est différent du jour courant
@@ -987,20 +1052,27 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
     }
 
     const semaine = jours.map((jour, indexJour) => {
+        const init = jourInit[indexJour];
         let midi = null, soir = null;
         const nomJour = jour.toLowerCase();
 
         // -- Règle 6 : indiquer le jour courant aux fonctions piocher/piocherPates --
         currentDayIndex = indexJour;
 
-        if(midiActive(nomJour)){
+        if(init.midiLocked){
+            // Slot verrouillé : conserver le repas existant (déjà pré-enregistré)
+            midi = init.midiRepas;
+        } else if(midiActive(nomJour)){
             currentMoment = "midi";
             const res = piocher(tousDispo, idxTous);
             midi    = res.repas;
             idxTous = res.idx;
         }
 
-        if(indexJour === 6){
+        if(init.soirLocked){
+            // Slot verrouillé : conserver le repas existant (déjà pré-enregistré)
+            soir = init.soirRepas;
+        } else if(indexJour === 6){
             // -- Règle 5 : dimanche soir = pâtes forcé --
             currentMoment = "soir";
             soir = piocherPates();
@@ -1011,15 +1083,18 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
             idxSoir = resSoir.idx;
         }
 
-        // -- Règle 6 : enregistrer les légumes de midi ET soir après attribution --
+        // -- Règle 6 : enregistrer les légumes de midi ET soir (verrouillés ou non) --
         // Les deux repas du même jour sont enregistrés avec le même indexJour,
         // ce qui permet à autoriseParRegle6() de les autoriser mutuellement.
         [midi, soir].forEach(r => { if(r) enregistrerRegle6(r, indexJour); });
 
-        return { midi, soir };
+        return { midi, soir, midiLocked: init.midiLocked, soirLocked: init.soirLocked };
     });
 
     // -- Règle 2b : forcer une Tarte si aucune n'a été piochée --
+    // La tarte de substitution ne peut être placée que dans un slot soir
+    // non verrouillé (pour ne pas écraser un repas que l'utilisateur a fixé)
+    // et hors dimanche (réservé aux pâtes par la Règle 5).
     const aTarte = semaine.some(j =>
         (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
         (j.soir && j.soir.categorie.toLowerCase() === "tarte")
@@ -1030,6 +1105,7 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
         if(tarte){
             const candidats = semaine.map((j, i) => i).filter(i =>
                 i !== 6 && // Règle 5 : dimanche soir réservé aux pâtes, pas de Tarte
+                !semaine[i].soirLocked && // ne pas écraser un slot verrouillé
                 semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
             );
             if(candidats.length > 0){
@@ -1041,7 +1117,12 @@ function construireSemaine(exclu, signaturesExclues = new Set()){
         }
     }
 
-    return semaine.map(j => ({ midi: j.midi || null, soir: j.soir || null }));
+    return semaine.map(j => ({
+        midi:       j.midi       || null,
+        soir:       j.soir       || null,
+        midiLocked: j.midiLocked || false,
+        soirLocked: j.soirLocked || false
+    }));
 }
 
 // ─── Liste des ingrédients ────────────────────────────────────────────────
@@ -1158,25 +1239,42 @@ window.fermerRegles = function(){
 // Crée une box repas.
 // repasObj  : objet repas, ou null si aucun repas n'est disponible/stocké
 // label     : libellé affiché ("☀️ Midi" / "🌙 Soir")
-// onRegen   : callback du bouton 🔄
+// locked    : true si le repas est verrouillé (cadenas fermé 🔒)
+// onRegen   : callback du bouton 🔄 (désactivé si locked)
+// onLock    : callback du bouton cadenas (toggle verrouillé/déverrouillé)
 // nonStocke : true si le jour était non coché lors de la génération
 //             → message distinct "➕ Cliquer sur 🔄 pour générer"
 //             → false (défaut) = "⚠️ Aucun repas possible" (pool épuisé, Règles 3/4)
-function creerRepasBox(repasObj, label, onRegen, nonStocke = false){
+function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = false){
     const box = document.createElement("div");
-    box.className = "repas-box";
+    box.className = "repas-box" + (locked ? " verrouille" : "");
     const header = document.createElement("div");
     header.className = "repas-header";
     const titreEl = document.createElement("div");
     titreEl.className = "repas-titre";
     titreEl.textContent = label;
+
+    // Bouton régénérer : grisé et inactif quand le repas est verrouillé
     const btn = document.createElement("button");
-    btn.className = "regen-btn";
+    btn.className = "regen-btn" + (locked ? " bloque" : "");
     btn.textContent = "🔄";
-    btn.title = "Régénérer";
-    btn.onclick = onRegen;
+    btn.title = locked ? "Repas verrouillé — déverrouillez d'abord" : "Régénérer";
+    if(!locked) btn.onclick = onRegen;
+
     header.appendChild(titreEl);
     header.appendChild(btn);
+
+    // Bouton cadenas : affiché uniquement quand un repas est stocké
+    // (inutile de verrouiller un emplacement vide ou impossible)
+    if(repasObj){
+        const lockBtn = document.createElement("button");
+        lockBtn.className = "lock-btn" + (locked ? " verrouille" : "");
+        lockBtn.textContent = locked ? "🔒" : "🔓";
+        lockBtn.title = locked ? "Déverrouiller ce repas" : "Verrouiller ce repas";
+        lockBtn.onclick = onLock;
+        header.appendChild(lockBtn);
+    }
+
     const contenuEl = document.createElement("div");
     contenuEl.className = "repas-contenu";
     if(repasObj){
@@ -1234,12 +1332,25 @@ function afficher(menus){
                 // n'avait pas de midi lors de la génération (plat.midi === null).
                 // L'utilisateur peut alors utiliser 🔄 pour générer un repas à la demande.
                 const nonStocke = !plat.midi;
-                ligne.appendChild(creerRepasBox(plat.midi, "☀️ Midi", () => regenererRepas(i, "midi", menus, indexSemaine), nonStocke));
+                ligne.appendChild(creerRepasBox(
+                    plat.midi,
+                    "☀️ Midi",
+                    plat.midiLocked || false,
+                    () => regenererRepas(i, "midi", menus, indexSemaine),
+                    () => toggleLock(i, "midi", menus, indexSemaine),
+                    nonStocke
+                ));
             } else {
                 ligne.appendChild(document.createElement("div"));
             }
 
-            ligne.appendChild(creerRepasBox(plat.soir, "🌙 Soir", () => regenererRepas(i, "soir", menus, indexSemaine)));
+            ligne.appendChild(creerRepasBox(
+                plat.soir,
+                "🌙 Soir",
+                plat.soirLocked || false,
+                () => regenererRepas(i, "soir", menus, indexSemaine),
+                () => toggleLock(i, "soir", menus, indexSemaine)
+            ));
             grid.appendChild(ligne);
         });
 
@@ -1256,13 +1367,20 @@ function afficher(menus){
 // ─── Génération ───────────────────────────────────────────────────────────
 
 window.genererMenu = async function(){
+    // Si un menu d'une semaine est déjà affiché, on transmet son état de
+    // verrouillage à construireSemaine() pour que les slots verrouillés
+    // soient conservés et leurs contraintes appliquées en priorité.
+    const locksParJour = (dernierMenu && dernierMenu.length === 1)
+        ? dernierMenu[0].repas
+        : null;
+
     const exclu = historique.map(r => r.name || r);
     // -- Règle 4 : capturer le menu précédent AVANT génération --
     // dernierMenu sera écrasé par afficher() ; on le sauvegarde ici
     // pour que regenererRepas() puisse s'y référer via menuAvantGeneration.
     menuAvantGeneration = dernierMenu;
     const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 1);
-    const semaine = construireSemaine(exclu, signaturesExclues);
+    const semaine = construireSemaine(exclu, signaturesExclues, locksParJour);
     const menus   = [{ titre: "Semaine", repas: semaine }];
     afficher(menus);
     const noms = semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
@@ -1276,10 +1394,30 @@ window.generer2Semaines = async function(){
     menuAvantGeneration = dernierMenu;
     const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 2);
     for(let s = 1; s <= 2; s++){
-        const semaine = construireSemaine(exclu, signaturesExclues);
+        // Si un menu 2 semaines est déjà affiché, on transmet l'état de
+        // verrouillage de la semaine correspondante à construireSemaine().
+        const locksParJour = (dernierMenu && dernierMenu.length >= s)
+            ? dernierMenu[s - 1].repas
+            : null;
+
+        const semaine = construireSemaine(exclu, signaturesExclues, locksParJour);
         menus.push({ titre: "Semaine " + s, repas: semaine });
         exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r)];
     }
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Bascule l'état verrouillé d'un slot (midi ou soir) sans régénérer le repas.
+// L'état est immédiatement persisté en Firebase pour être synchronisé sur
+// tous les appareils. L'état de verrouillage est stocké dans l'objet menus
+// (champs midiLocked / soirLocked), qui fait partie des données sauvegardées.
+// ─────────────────────────────────────────────────────────────────────────
+async function toggleLock(indexJour, moment, menus, indexSemaine){
+    const lockKey = moment === "midi" ? "midiLocked" : "soirLocked";
+    menus[indexSemaine].repas[indexJour][lockKey] = !menus[indexSemaine].repas[indexJour][lockKey];
     afficher(menus);
     const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
     await sauvegarderDansFirebase(noms, menus);
@@ -1300,6 +1438,12 @@ window.generer2Semaines = async function(){
 // RÈGLE 8 – Filtre "Repas facile" : si la case est cochée, uniquement le soir
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
+    // -- Vérification de sécurité : ne pas régénérer un slot verrouillé --
+    // Le bouton 🔄 est déjà visuellement désactivé, mais cette garde agit
+    // en filet de sécurité pour tout appel programmatique éventuel.
+    const lockKey = moment === "midi" ? "midiLocked" : "soirLocked";
+    if(menus[indexSemaine].repas[indexJour][lockKey]) return;
+
     const semaineActuelle = menus[indexSemaine].repas;
     const repasActuel = semaineActuelle[indexJour][moment];
 
