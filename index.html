@@ -1093,7 +1093,7 @@ function construireSemaine(exclu, signaturesExclues = new Set(), locksParJour = 
 
     // -- Règle 2b : forcer une Tarte si aucune n'a été piochée --
     // La tarte de substitution ne peut être placée que dans un slot soir
-    // non verrouillé (pour ne pas écraser un repas que l'utilisateur a fixé)
+    // non verrouillé (pour ne pas écraser un repas fixé par l'utilisateur)
     // et hors dimanche (réservé aux pâtes par la Règle 5).
     const aTarte = semaine.some(j =>
         (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
@@ -1367,12 +1367,12 @@ function afficher(menus){
 // ─── Génération ───────────────────────────────────────────────────────────
 
 window.genererMenu = async function(){
-    // Si un menu d'une semaine est déjà affiché, on transmet son état de
-    // verrouillage à construireSemaine() pour que les slots verrouillés
-    // soient conservés et leurs contraintes appliquées en priorité.
-    const locksParJour = (dernierMenu && dernierMenu.length === 1)
-        ? dernierMenu[0].repas
-        : null;
+    // On transmet toujours les locks de la semaine 1 du menu affiché,
+    // quelle que soit sa longueur (1 ou 2 semaines).
+    // Correction : la condition précédente (.length === 1) faisait disparaître
+    // les locks lorsqu'on cliquait "Générer une semaine" après une génération
+    // 2 semaines — car dernierMenu.length valait 2, renvoyant null.
+    const locksParJour = dernierMenu ? dernierMenu[0].repas : null;
 
     const exclu = historique.map(r => r.name || r);
     // -- Règle 4 : capturer le menu précédent AVANT génération --
@@ -1399,7 +1399,6 @@ window.generer2Semaines = async function(){
         const locksParJour = (dernierMenu && dernierMenu.length >= s)
             ? dernierMenu[s - 1].repas
             : null;
-
         const semaine = construireSemaine(exclu, signaturesExclues, locksParJour);
         menus.push({ titre: "Semaine " + s, repas: semaine });
         exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r)];
@@ -1436,11 +1435,13 @@ async function toggleLock(indexJour, moment, menus, indexSemaine){
 //   (vérification bidirectionnelle via legumesDays)
 // RÈGLE 7 – Filtre saisonnier : seuls les repas de la saison courante (ou "Tout")
 // RÈGLE 8 – Filtre "Repas facile" : si la case est cochée, uniquement le soir
+//
+// VERROUILLAGE : un slot verrouillé ne peut pas être régénéré. Le bouton 🔄
+// est visuellement désactivé, mais cette vérification préalable agit en
+// filet de sécurité pour les appels programmatiques éventuels.
 // ─────────────────────────────────────────────────────────────────────────
 async function regenererRepas(indexJour, moment, menus, indexSemaine){
     // -- Vérification de sécurité : ne pas régénérer un slot verrouillé --
-    // Le bouton 🔄 est déjà visuellement désactivé, mais cette garde agit
-    // en filet de sécurité pour tout appel programmatique éventuel.
     const lockKey = moment === "midi" ? "midiLocked" : "soirLocked";
     if(menus[indexSemaine].repas[indexJour][lockKey]) return;
 
