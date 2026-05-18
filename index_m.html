@@ -87,34 +87,58 @@ button:hover{background:#2563eb;}
     font-size: 16px;
     color: #374151;
 }
-.parametres-grid {
-    display: grid;
-    grid-template-columns: auto repeat(7, 1fr);
-    gap: 6px 10px;
-    align-items: center;
+/* ── Grille paramètres : disposition desktop ─────────────────────────── */
+/* Sur desktop : légende à gauche + 7 colonnes de jours en ligne         */
+.parametres-jours {
+    display: flex;
+    gap: 6px;
 }
-.param-jour {
+.param-jour-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.param-jour-nom {
     font-weight: bold;
-    font-size: 13px;
+    font-size: 12px;
     color: #4b5563;
     text-align: center;
 }
-.param-row-label {
-    font-size: 14px;
+/* Légende des lignes visible uniquement sur desktop */
+.param-legende-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+.param-legende-ligne {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
     color: #6b7280;
-    white-space: nowrap;
-    padding-right: 4px;
+    height: 22px;
 }
 .param-check {
     display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 4px;
     cursor: pointer;
+    height: 22px;
+}
+/* Icône visible uniquement sur mobile dans chaque carte */
+.param-check-icone {
+    font-size: 13px;
+    display: none;
 }
 .param-check input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
     accent-color: #3b82f6;
+    margin: 0;
 }
 .saison-info {
     margin-top: 10px;
@@ -225,6 +249,37 @@ button:hover{background:#2563eb;}
         flex: 1 1 100%;
     }
     h1 { font-size: 20px; }
+
+    /* ── Bloc paramètres mobile ───────────────────────────────────────── */
+    /* La légende desktop est cachée ; les icônes dans chaque carte la remplacent */
+    .param-legende-bloc { display: none; }
+    .param-check-icone  { display: inline; }
+
+    /* Les 7 cartes jour s'organisent en grille 4 colonnes avec wrap */
+    .parametres-jours {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .param-jour-col {
+        background: white;
+        border-radius: 8px;
+        padding: 8px 4px;
+        border: 1px solid #dbeafe;
+        gap: 6px;
+    }
+    .param-jour-nom {
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+    .param-check {
+        gap: 6px;
+        font-size: 14px;
+    }
+    .param-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
 }
 /* Bouton régénérer désactivé quand le repas est verrouillé */
 .repas-box .regen-btn.bloque {
@@ -580,31 +635,48 @@ button:hover{background:#2563eb;}
 
 <div class="parametres-bloc">
     <div class="parametres-titre">⚙️ Paramètres</div>
-    <div class="parametres-grid">
-        <div></div>
-        <div class="param-jour">Lundi</div>
-        <div class="param-jour">Mardi</div>
-        <div class="param-jour">Mercredi</div>
-        <div class="param-jour">Jeudi</div>
-        <div class="param-jour">Vendredi</div>
-        <div class="param-jour">Samedi</div>
-        <div class="param-jour">Dimanche</div>
-        <div class="param-row-label">☀️ Midi</div>
-        <label class="param-check"><input type="checkbox" id="midi_lundi"></label>
-        <label class="param-check"><input type="checkbox" id="midi_mardi"></label>
-        <label class="param-check"><input type="checkbox" id="midi_mercredi"></label>
-        <label class="param-check"><input type="checkbox" id="midi_jeudi"></label>
-        <label class="param-check"><input type="checkbox" id="midi_vendredi"></label>
-        <label class="param-check"><input type="checkbox" id="midi_samedi" checked></label>
-        <label class="param-check"><input type="checkbox" id="midi_dimanche" checked></label>
-        <div class="param-row-label">⚡ Repas facile</div>
-        <label class="param-check"><input type="checkbox" id="facile_lundi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_mardi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_mercredi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_jeudi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_vendredi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_samedi"></label>
-        <label class="param-check"><input type="checkbox" id="facile_dimanche"></label>
+    <!-- Légende desktop uniquement (cachée sur mobile où les icônes sont dans chaque carte) -->
+    <div class="param-legende-bloc">
+        <div class="param-legende-ligne">☀️ Midi</div>
+        <div class="param-legende-ligne">⚡ Repas facile</div>
+    </div>
+    <!-- 7 cartes jour -->
+    <div class="parametres-jours">
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Lun</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_lundi"></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_lundi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Mar</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_mardi"></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_mardi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Mer</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_mercredi"></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_mercredi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Jeu</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_jeudi"></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_jeudi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Ven</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_vendredi"></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_vendredi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Sam</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_samedi" checked></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_samedi"></label>
+        </div>
+        <div class="param-jour-col">
+            <div class="param-jour-nom">Dim</div>
+            <label class="param-check"><span class="param-check-icone">☀️</span><input type="checkbox" id="midi_dimanche" checked></label>
+            <label class="param-check"><span class="param-check-icone">⚡</span><input type="checkbox" id="facile_dimanche"></label>
+        </div>
     </div>
     <div class="saison-info">
         🌡️ Saison : <span id="saisonLabel"></span>
