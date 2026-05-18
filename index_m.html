@@ -298,6 +298,26 @@ button:hover{background:#2563eb;}
         width: 18px;
         height: 18px;
     }
+
+    /* ── Tooltip de recherche mobile ─────────────────────────────────────── */
+    /* Sur mobile : centré en bas de l'écran, pleine largeur, au-dessus du clavier */
+    #rechercheTooltip {
+        width: calc(100vw - 24px);
+        left: 12px !important;
+        right: 12px;
+        top: auto !important;
+        bottom: 12px;
+        position: fixed;
+        max-height: 60vh;
+        overflow-y: auto;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+    }
+
+    /* La carte du modal ingrédients déborde sur petits écrans */
+    .ingredients-card {
+        width: calc(100vw - 32px);
+        max-height: 85vh;
+    }
 }
 /* Bouton régénérer désactivé quand le repas est verrouillé */
 .repas-box .regen-btn.bloque {
@@ -1935,8 +1955,15 @@ function ouvrirRecherche(e, callback){
         top = rect.top - 220 - margin;
     }
 
-    tooltip.style.left = left + "px";
-    tooltip.style.top  = (top + window.scrollY) + "px";
+    // Sur mobile (< 600px), le positionnement est géré par CSS (centré en bas)
+    // Sur desktop, on applique le positionnement dynamique près du bouton
+    if(window.innerWidth >= 600){
+        tooltip.style.left = left + "px";
+        tooltip.style.top  = (top + window.scrollY) + "px";
+    } else {
+        tooltip.style.left = "";
+        tooltip.style.top  = "";
+    }
     tooltip.classList.add("visible");
     input.focus();
 }
