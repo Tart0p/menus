@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificateur de menus</title>
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:#eef2f7;
+    margin:0;
+    padding:40px;
+    display:flex;
+    justify-content:center;
+    box-sizing:border-box;
+}
+.app{
+    width:100%;
+    max-width:800px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    box-sizing:border-box;
+}
+h1{text-align:center;margin-top:0;}
+.controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:20px;
+}
+.controls button{margin:0;}
+button{
+    background:#3b82f6;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    margin:5px;
+    border-radius:8px;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.2s;
+}
+button:hover{background:#2563eb;}
+.reset{background:#ef4444;}
+.reset:hover{background:#dc2626;}
+.semaine{
+    margin-top:20px;
+    background:#f9fafc;
+    padding:15px;
+    border-radius:10px;
+}
+.semaine h3{margin-top:0;}
+.grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+}
+.jour{
+    background:white;
+    padding:10px;
+    border-radius:6px;
+    display:grid;
+    grid-template-columns: 120px 1fr 1fr;
+    align-items:center;
+    border:1px solid #eee;
+    gap:10px;
+}
+.nomjour{
+    font-weight:bold;
+    color:#555;
+    min-width:90px;
+    display:flex;
+    align-items:center;
+}
+.parametres-bloc {
+    background: #f0f4ff;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+.parametres-titre {
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #374151;
+}
+.parametres-grid {
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr);
+    gap: 6px 10px;
+    align-items: center;
+}
+.param-jour {
+    font-weight: bold;
+    font-size: 13px;
+    color: #4b5563;
+    text-align: center;
+}
+.param-row-label {
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+    padding-right: 4px;
+}
+.param-check {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+.param-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+.saison-info {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #dbeafe;
+    font-size: 13px;
+    color: #6b7280;
+}
+.saison-info span {
+    font-weight: bold;
+    color: #374151;
+}
+.firebase-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
+}
+.firebase-status.ok { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; }
+.firebase-status.erreur { background:#fef2f2; border-color:#fecaca; color:#dc2626; }
+.firebase-status.chargement { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+.firebase-status .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.firebase-status .badge {
+    margin-left: auto;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.firebase-status.ok .badge { background:#dcfce7; color:#15803d; }
+.firebase-status.erreur .badge { background:#fee2e2; color:#dc2626; }
+.firebase-status.chargement .badge { background:#dbeafe; color:#1d4ed8; }
+.repas-box .regen-btn {
+    background: transparent;
+    color: #9ca3af;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.repas-box .regen-btn:hover {
+    color: #3b82f6;
+    background: #dbeafe;
+}
+.repas-box{
+    background:#f9fafc;
+    border-radius:6px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    border-left:3px solid #e5e7eb;
+}
+.repas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+.repas-titre{ font-size:12px; color:#6b7280; }
+.repas-contenu{ font-size:14px; font-weight:500; }
+.repas-box.impossible {
+    border-left-color: #f97316;
+    background: #fff7ed;
+}
+.repas-box.impossible .repas-contenu {
+    color: #c2410c;
+    font-style: italic;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+    .app {
+        padding: 16px;
+        border-radius: 8px;
+    }
+    .jour {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+    }
+    .nomjour {
+        grid-column: 1 / -1;
+        font-size: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 6px;
+        margin-bottom: 2px;
+    }
+    .controls button {
+        flex: 1 1 100%;
+    }
+    h1 { font-size: 20px; }
+}
+/* Bouton régénérer désactivé quand le repas est verrouillé */
+.repas-box .regen-btn.bloque {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+/* ── Bouton cadenas ───────────────────────────────────────────────────── */
+.repas-box .lock-btn {
+    background: transparent;
+    color: #d1d5db;
+    border: none;
+    padding: 0;
+    margin: 0 0 0 2px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.repas-box .lock-btn:hover {
+    color: #3b82f6;
+    background: #dbeafe;
+}
+/* Cadenas fermé : icône colorée pour signaler l'état verrouillé */
+.repas-box .lock-btn.verrouille {
+    color: #3b82f6;
+}
+/* Repas verrouillé : fond bleu très léger et bordure gauche bleue */
+.repas-box.verrouille {
+    border-left-color: #93c5fd;
+    background: #eff6ff;
+}
+/* Box affichée quand une case midi est cochée après coup mais qu'aucun repas
+   n'avait été stocké pour ce jour (génération initiale faite sans ce jour coché).
+   Ton neutre pour indiquer une action à effectuer (🔄), sans signaler d'erreur. */
+.repas-box.non-stocke {
+    border-left-color: #d1d5db;
+    background: #f3f4f6;
+}
+.repas-box.non-stocke .repas-contenu {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 13px;
+}
+/* ── Modal liste des ingrédients ─────────────────────────────────────── */
+#ingredientsModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.ingredients-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+.ingredients-card {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 360px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.ingredients-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.ingredients-titre-modal {
+    font-weight: bold;
+    font-size: 16px;
+    color: #374151;
+}
+.ingredients-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+}
+.ingredients-close:hover { background: #e5e7eb; color: #374151; }
+.ingredients-section { margin-bottom: 14px; }
+.ingredients-section-titre {
+    font-weight: bold;
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.ingredients-item { font-size: 14px; color: #374151; padding: 2px 0; }
+.ingredients-count { color: #9ca3af; font-size: 13px; }
+.semaine-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.semaine-header h3 { margin: 0; }
+.btn-ingredients {
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin: 0;
+}
+.btn-ingredients:hover { background: #dbeafe; }
+/* ── Modal règles de génération ──────────────────────────────────────── */
+#reglesModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.regles-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+.regles-card {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.regles-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+.regles-titre-modal {
+    font-weight: bold;
+    font-size: 17px;
+    color: #1e3a5f;
+}
+.regles-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; margin: 0;
+    flex-shrink: 0;
+}
+.regles-close:hover { background: #e5e7eb; color: #374151; }
+.regle-item {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+.regle-item:last-child { margin-bottom: 0; }
+.regle-numero {
+    font-size: 11px;
+    font-weight: bold;
+    color: #3b82f6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+.regle-titre {
+    font-weight: bold;
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+.regle-desc {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.55;
+}
+.regle-desc em {
+    color: #1d4ed8;
+    font-style: normal;
+    font-weight: 500;
+}
+.btn-regles {
+    background: #f0f4ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin: 5px;
+}
+.btn-regles:hover { background: #dbeafe; }
+
+/* ── Bouton "+" ajout manuel de repas ────────────────────────────────── */
+.repas-box .add-btn {
+    background: transparent;
+    color: #9ca3af;
+    border: none;
+    padding: 0 2px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.repas-box .add-btn:hover {
+    color: #16a34a;
+    background: #dcfce7;
+}
+/* Groupe contenant + et 🔄 et 🔓 alignés */
+.repas-header-btns {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Tooltip de recherche de repas ───────────────────────────────────── */
+/* z-index 1001 : au-dessus des modals ingrédients et règles (1000) */
+#rechercheTooltip {
+    position: fixed;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    width: 300px;
+    z-index: 1001;
+    padding: 12px;
+    display: none;
+}
+#rechercheTooltip.visible {
+    display: block;
+}
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.tooltip-titre {
+    font-size: 13px;
+    font-weight: bold;
+    color: #374151;
+}
+.tooltip-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #9ca3af;
+    padding: 0 2px;
+    margin: 0;
+    line-height: 1;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+}
+.tooltip-close:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+#rechercheInput {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#rechercheInput:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #bfdbfe;
+}
+/* Hauteur limitée à ~5 résultats (~35px/item) avant défilement */
+#rechercheResultats {
+    margin-top: 8px;
+    max-height: 175px;
+    overflow-y: auto;
+}
+#rechercheResultats::-webkit-scrollbar { width: 6px; }
+#rechercheResultats::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+#rechercheResultats::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.resultat-item {
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: background 0.15s;
+}
+.resultat-item:hover { background: #eff6ff; color: #1d4ed8; }
+/* Caractères correspondants mis en gras et colorés */
+.resultat-item b { color: #1d4ed8; font-weight: 700; }
+.resultat-vide {
+    font-size: 13px;
+    color: #9ca3af;
+    padding: 10px;
+    text-align: center;
+    font-style: italic;
+}
+.recherche-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    padding: 8px 10px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+<h1>Planificateur de menus</h1>
+
+<div class="parametres-bloc">
+    <div class="parametres-titre">⚙️ Paramètres</div>
+    <div class="parametres-grid">
+        <div></div>
+        <div class="param-jour">Lundi</div>
+        <div class="param-jour">Mardi</div>
+        <div class="param-jour">Mercredi</div>
+        <div class="param-jour">Jeudi</div>
+        <div class="param-jour">Vendredi</div>
+        <div class="param-jour">Samedi</div>
+        <div class="param-jour">Dimanche</div>
+        <div class="param-row-label">☀️ Midi</div>
+        <label class="param-check"><input type="checkbox" id="midi_lundi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_mardi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_mercredi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_jeudi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_vendredi"></label>
+        <label class="param-check"><input type="checkbox" id="midi_samedi" checked></label>
+        <label class="param-check"><input type="checkbox" id="midi_dimanche" checked></label>
+        <div class="param-row-label">⚡ Repas facile</div>
+        <label class="param-check"><input type="checkbox" id="facile_lundi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_mardi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_mercredi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_jeudi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_vendredi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_samedi"></label>
+        <label class="param-check"><input type="checkbox" id="facile_dimanche"></label>
+    </div>
+    <div class="saison-info">
+        🌡️ Saison : <span id="saisonLabel"></span>
+    </div>
+</div>
+
+<div id="firebaseStatus" class="firebase-status chargement">
+    <span class="dot"></span>
+    <span id="firebaseStatusText">Connexion à Firebase…</span>
+    <span class="badge" id="firebaseBadge">chargement</span>
+</div>
+
+<div class="controls">
+    <button onclick="genererMenu()">Générer une semaine</button>
+    <button onclick="generer2Semaines()">Générer 2 semaines</button>
+    <button class="reset" onclick="resetHistorique()">Réinitialiser l'historique</button>
+</div>
+
+<div id="menu"></div>
+
+<div style="text-align:center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+    <button class="btn-regles" onclick="ouvrirRegles()">📋 Règles de génération</button>
+</div>
+</div>
+
+<!-- ── Modal règles de génération ─────────────────────────────────────── -->
+<div id="reglesModal" style="display:none">
+    <div class="regles-overlay" onclick="fermerRegles()"></div>
+    <div class="regles-card">
+        <div class="regles-header">
+            <span class="regles-titre-modal">📋 Règles de génération des repas</span>
+            <button class="regles-close" onclick="fermerRegles()" title="Fermer">✕</button>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 1</div>
+            <div class="regle-titre">Pas de viande ni de poisson le soir</div>
+            <div class="regle-desc">Les repas contenant de la viande ou du poisson sont réservés au midi. Exceptions : la catégorie <em>Tarte</em> est autorisée le soir même avec de la viande ou du poisson (ex. Tarte au thon, Pizza, Flammkuche). Le <em>dimanche soir</em> est entièrement exempté de cette règle (viande et poisson autorisés dans un plat de pâtes).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 2</div>
+            <div class="regle-titre">Exactement une Tarte par semaine</div>
+            <div class="regle-desc">Chaque semaine contient obligatoirement une et une seule Tarte. Si aucune n'est piochée naturellement, une est forcée en remplacement d'un repas du soir (jamais le dimanche). Lors d'une régénération manuelle, si le repas remplacé était la seule Tarte de la semaine, le nouveau repas doit également être une Tarte.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 3</div>
+            <div class="regle-titre">Pas de doublon de viande, poisson ni féculent dans la semaine</div>
+            <div class="regle-desc">Une même viande, un même poisson ou un même féculent ne peut apparaître qu'une seule fois par semaine. Si aucun repas disponible ne satisfait cette contrainte, l'emplacement affiche <em>⚠️ Aucun repas possible</em>, sans contournement silencieux. Exception : le dimanche soir, la contrainte sur le féculent est levée (Règle 5 prime).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 4</div>
+            <div class="regle-titre">Pas de répétition de profil par rapport à la semaine précédente</div>
+            <div class="regle-desc">Un repas est identifié par son empreinte : la combinaison de ses légumes, féculent, viande, poisson et catégorie. Si ce profil correspond à un repas servi la semaine précédente (ou les deux semaines précédentes en mode 2 semaines), il est exclu — même sous un nom différent (ex. <em>Riz + Poulet</em> et <em>Commande Thaï</em> ont le même profil).</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 5</div>
+            <div class="regle-titre">Pâtes obligatoires le dimanche soir</div>
+            <div class="regle-desc">Le dimanche soir est toujours un plat de pâtes (colonne Pâtes = Oui). En contrepartie, les plats de pâtes sont interdits le lundi, le samedi (midi et soir), et le dimanche midi. Le dimanche soir bénéficie en plus de deux levées : la Règle 1 (viande/poisson autorisés) et la contrainte féculent de la Règle 3.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 6</div>
+            <div class="regle-titre">Écart minimum de 3 jours entre deux repas avec le même légume</div>
+            <div class="regle-desc">Si un légume est utilisé un jour donné, il ne peut réapparaître qu'au minimum 3 jours plus tard dans la semaine. Le midi et le soir du même jour peuvent partager le même légume sans restriction.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 7</div>
+            <div class="regle-titre">Filtrage saisonnier</div>
+            <div class="regle-desc">Seuls les repas compatibles avec la saison au moment de la génération sont proposés. <em>Octobre → mars</em> : saison hiver. <em>Avril → septembre</em> : saison été. Les repas marqués <em>Tout</em> sont toujours disponibles. La saison active est affichée dans le panneau Paramètres.</div>
+        </div>
+        <div class="regle-item">
+            <div class="regle-numero">Règle 8</div>
+            <div class="regle-titre">Filtre "Repas facile" par jour</div>
+            <div class="regle-desc">Si la case <em>⚡ Repas facile</em> est cochée pour un jour, seuls les repas marqués comme faciles sont proposés le <em>soir</em> de ce jour. Le midi n'est jamais affecté par ce filtre.</div>
+        </div>
+    </div>
+</div>
+
+<div id="ingredientsModal" style="display:none">
+    <div class="ingredients-overlay" onclick="fermerModal()"></div>
+    <div class="ingredients-card">
+        <div class="ingredients-header">
+            <span class="ingredients-titre-modal" id="ingredientsTitre"></span>
+            <button class="ingredients-close" onclick="fermerModal()" title="Fermer">✕</button>
+        </div>
+        <div id="ingredientsContent"></div>
+    </div>
+</div>
+
+<!-- ── Tooltip global de recherche de repas ───────────────────────────────
+     Un seul tooltip partagé, repositionné dynamiquement au clic sur "+".
+     La variable _tooltipCallback stocke la fonction de sélection courante.
+     z-index 1001 : au-dessus des modals ingrédients et règles (1000).
+──────────────────────────────────────────────────────────────────────── -->
+<div id="rechercheTooltip">
+    <div class="tooltip-header">
+        <span class="tooltip-titre">🔍 Choisir un repas</span>
+        <button class="tooltip-close" id="tooltipCloseBtn" title="Fermer">✕</button>
+    </div>
+    <input type="text" id="rechercheInput" placeholder="Rechercher (3 caractères min.)…" autocomplete="off">
+    <div id="rechercheResultats">
+        <div class="recherche-hint">Saisissez au moins 3 caractères</div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+// ─── Configuration Firebase ───────────────────────────────────────────────
+const firebaseConfig = {
+    apiKey: "AIzaSyA7-OjvE2UEfy0DtxGuEP9kJ9iM4OslUvI",
+    authDomain: "menus-ce381.firebaseapp.com",
+    projectId: "menus-ce381",
+    storageBucket: "menus-ce381.firebasestorage.app",
+    messagingSenderId: "828215763434",
+    appId: "1:828215763434:web:d9686690f65b59c8871293"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const DOC_HISTORIQUE = doc(db, "historique", "precedent");
+const DOC_MENU       = doc(db, "historique", "dernier_menu");
+
+const jours = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+
+// Tableau des repas chargés depuis le CSV.
+// Chaque entrée contient : { name, legumes, feculent, viande, poisson, pates, categorie, saison, facilite }
+let repas = [];
+
+let historique  = [];
+let dernierMenu = null;
+// Capture du menu stocké AVANT la génération en cours.
+// Utilisé par regenererRepas() pour appliquer la Règle 4 :
+// après une génération, dernierMenu est écrasé par le menu courant,
+// donc on ne peut plus l'utiliser pour retrouver les semaines précédentes.
+let menuAvantGeneration = null;
+// Index de la semaine actuellement affichée dans le modal (null = fermé).
+// Permet de rafraîchir automatiquement le contenu lors d'un rechargement.
+let modalSemaineIndex = null;
+
+// ─── Utilitaires Firebase ─────────────────────────────────────────────────
+
+function setStatut(etat, texte, badge){
+    const el = document.getElementById("firebaseStatus");
+    el.className = "firebase-status " + etat;
+    document.getElementById("firebaseStatusText").textContent = texte;
+    document.getElementById("firebaseBadge").textContent = badge;
+}
+
+async function chargerDepuisFirebase(){
+    try {
+        const snapHisto = await getDoc(DOC_HISTORIQUE);
+        historique = snapHisto.exists() ? (snapHisto.data().repas || []) : [];
+
+        const snapMenu = await getDoc(DOC_MENU);
+        dernierMenu = snapMenu.exists() ? (snapMenu.data().menus || null) : null;
+
+        setStatut("ok", "Firebase connecté — historique synchronisé sur tous vos appareils", historique.length + " repas exclus");
+        if(dernierMenu) afficher(dernierMenu);
+    } catch(e){
+        setStatut("erreur", "Erreur Firebase : " + e.message, "hors ligne");
+    }
+}
+
+async function sauvegarderDansFirebase(repasGeneres, menus){
+    historique = repasGeneres;
+    try {
+        await setDoc(DOC_HISTORIQUE, { repas: historique });
+        await setDoc(DOC_MENU, { menus: menus });
+        setStatut("ok", "Historique sauvegardé ✓ — synchronisé sur tous vos appareils", historique.length + " repas exclus");
+    } catch(e){
+        setStatut("erreur", "Sauvegarde échouée : " + e.message, "erreur");
+    }
+}
+
+window.resetHistorique = async function(){
+    historique  = [];
+    dernierMenu = null;
+    try {
+        await setDoc(DOC_HISTORIQUE, { repas: [] });
+        await setDoc(DOC_MENU, { menus: null });
+        setStatut("ok", "Historique réinitialisé ✓", "0 repas exclus");
+    } catch(e){
+        setStatut("erreur", "Erreur lors de la réinitialisation", "erreur");
+    }
+    document.getElementById("menu").innerHTML = "";
+}
+
+// ─── Chargement du CSV ────────────────────────────────────────────────────
+
+async function chargerRepas(){
+    const response = await fetch("repas.csv");
+    const texte    = await response.text();
+    const lignes   = texte.split("\n").map(r => r.trim()).filter(r => r !== "");
+    // Colonnes parsées (nouveau format CSV — "Repas de fête" supprimé, "Poisson" ajouté) :
+    //   cols[0] = Nom complet  → nom affiché
+    //   cols[1] = Légumes      → non utilisé par les règles (conservé pour info)
+    //   cols[2] = Féculent     → utilisé par la Règle 3 (pas de doublon de féculent)
+    //   cols[3] = Viande       → utilisé par la Règle 1 (pas de viande/poisson le soir)
+    //                            et par la Règle 3 (pas de doublon de viande)
+    //   cols[4] = Poisson      → utilisé par la Règle 1 (pas de poisson le soir, sauf Tarte)
+    //                            et par la Règle 3 (pas de doublon de poisson)
+    //   cols[5] = Pâtes        → utilisé par la Règle 5 (pâtes forcées le dimanche soir)
+    //                            Booléen : "Oui" → true, vide → false
+    //   cols[6] = Purée        → indicateur booléen (non utilisé par les règles actuelles)
+    //   cols[7] = Catégorie    → utilisé par les Règles 1 et 2 (exception/quota Tarte)
+    //   cols[8] = Saison       → utilisé par la Règle 7 (filtre saisonnier)
+    //                            Valeurs : "Hiver", "Eté" / "Été", "Tout"
+    //   cols[9] = Repas facile → utilisé par la Règle 8 (filtre repas facile par jour)
+    //                            Booléen : "Oui" → true, vide ou autre → false
+    repas = lignes.slice(1).map(r => {
+        const cols = r.split(";");
+        return {
+            name:      (cols[0] || "").replace(/^"/, "").replace(/"$/, "").trim(),
+            legumes:   (cols[1] || "").trim(),
+            feculent:  (cols[2] || "").trim(),
+            viande:    (cols[3] || "").trim(),
+            poisson:   (cols[4] || "").trim(),
+            pates:     (cols[5] || "").trim().toLowerCase() === "oui",
+            categorie: (cols[7] || "").trim(),
+            saison:    (cols[8] || "").trim(),
+            facilite:  (cols[9] || "").trim().toLowerCase() === "oui"
+        };
+    }).filter(r => r.name !== "");
+}
+
+// ─── Utilitaires généraux ─────────────────────────────────────────────────
+
+function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
+function midiActive(jour){ return document.getElementById("midi_" + jour).checked; }
+// Retourne true si la case "Repas facile" est cochée pour le jour donné.
+// Quand elle est cochée, seuls les repas avec facilite=true sont proposés le SOIR de ce jour.
+function faciliteActive(jour){ return document.getElementById("facile_" + jour).checked; }
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 8 – Filtre "Repas facile" par jour, uniquement le soir
+//
+// Si la case "Repas facile" est cochée pour un jour donné, seuls les repas
+// dont la colonne "Repas facile" vaut "Oui" (facilite=true) peuvent être
+// proposés le SOIR de ce jour. Le midi n'est jamais filtré par cette règle.
+// Si la case est décochée, aucune restriction.
+//
+// Paramètres :
+//   r       : objet repas à évaluer
+//   nomJour : nom du jour normalisé lowercase (ex. "lundi")
+//   moment  : "midi" ou "soir" — la règle ne s'applique que pour "soir"
+// ─────────────────────────────────────────────────────────────────────────
+function autoriseParRegle8(r, nomJour, moment){
+    if(moment !== "soir") return true;   // midi : aucune restriction
+    if(!faciliteActive(nomJour)) return true; // case décochée : aucune restriction
+    return r.facilite; // seuls les repas faciles sont autorisés ce soir
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 7 – Filtre saisonnier
+//
+// La saison est déterminée à partir du mois courant au moment de la génération :
+//   • Octobre (10) → Mars (3)  inclus : saison "hiver"
+//     → repas autorisés : Saison = "Hiver" ou "Tout"
+//   • Avril (4) → Septembre (9) inclus : saison "été"
+//     → repas autorisés : Saison = "Eté" / "Été" ou "Tout"
+//
+// Les valeurs CSV étant parfois "Eté" (sans accent) ou "Été" (avec accent),
+// les deux formes sont acceptées pour la saison estivale.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Retourne "hiver" ou "ete" selon le mois courant.
+function saisonCourante(){
+    const mois = new Date().getMonth() + 1; // getMonth() retourne 0-11
+    return (mois >= 10 || mois <= 3) ? "hiver" : "ete";
+}
+
+// Retourne true si le repas r est autorisé pour la saison courante.
+// "Tout" est toujours autorisé. Les valeurs "Eté" et "Été" sont équivalentes.
+function autoriseParRegle7(r){
+    const s = (r.saison || "").trim().toLowerCase()
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // retire les accents
+    if(s === "tout" || s === "") return true; // valeur vide = pas de restriction
+    const saison = saisonCourante();
+    if(saison === "hiver") return s === "hiver";
+    return s === "ete"; // été (normalisé sans accent)
+}
+
+// Découpe la chaîne de légumes du CSV (séparés par des virgules) en un tableau
+// de chaînes normalisées (trim + lowercase). Retourne [] si la chaîne est vide.
+// Exemples :
+//   "Carotte"                      → ["carotte"]
+//   "Tomate, Courgette, Aubergine" → ["tomate", "courgette", "aubergine"]
+//   "Haricot vert,tomates"         → ["haricot vert", "tomates"]
+function parseLegumes(str){
+    if(!str || str.trim() === "") return [];
+    return str.split(",").map(l => l.trim().toLowerCase()).filter(l => l !== "");
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 4 – Utilitaires : empreinte de repas et extraction des signatures
+//           des semaines précédentes
+//
+// Deux repas sont considérés comme "identiques" si leurs 5 colonnes clés
+// (Légumes, Féculent, Viande, Poisson, Catégorie) sont identiques.
+// Le nom affiché n'entre PAS en compte : ainsi "Riz + Poulet" et
+// "Commande Thaï" (même profil) seront tous deux bloqués si l'un d'eux
+// a été servi la semaine précédente.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Calcule une empreinte unique pour un repas à partir des 5 colonnes pertinentes.
+// Les valeurs sont normalisées (trim + lowercase) pour éviter les faux négatifs
+// dus aux espaces ou à la casse.
+function signature(r){
+    return [
+        (r.legumes   || "").trim().toLowerCase(),
+        (r.feculent  || "").trim().toLowerCase(),
+        (r.viande    || "").trim().toLowerCase(),
+        (r.poisson   || "").trim().toLowerCase(),
+        (r.categorie || "").trim().toLowerCase()
+    ].join("|");
+}
+
+// Construit un Set des signatures des repas présents dans les `n` dernières
+// semaines du menu stocké (dernierMenu). Utilisé par construireSemaine() pour
+// appliquer la Règle 4.
+//
+// Paramètres :
+//   menusPrecedents : tableau de semaines issu de dernierMenu (peut être null)
+//   n               : nombre de semaines à remonter (1 pour genererMenu,
+//                     2 pour generer2Semaines)
+//
+// Retourne un Set vide si menusPrecedents est null ou vide (première génération).
+function extraireSignaturesPrecedentes(menusPrecedents, n){
+    if(!menusPrecedents || menusPrecedents.length === 0) return new Set();
+    // slice(-n) prend les `n` dernières semaines ; si le menu en contient moins,
+    // il prend toutes celles disponibles (comportement natif de slice).
+    const dernieres = menusPrecedents.slice(-n);
+    const sigs = new Set();
+    dernieres.forEach(s => {
+        (s.repas || []).forEach(jour => {
+            ["midi", "soir"].forEach(m => {
+                const r = jour[m];
+                // On ignore les emplacements vides ("Aucun repas possible")
+                if(r && r.name) sigs.add(signature(r));
+            });
+        });
+    });
+    return sigs;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 1 : Pas de viande NI de poisson le soir (sauf catégorie Tarte)
+//
+// Un repas contenant une viande (colonne "Viande") ou un poisson (colonne
+// "Poisson") ne peut être placé que le midi.
+// Exception 1 : si la catégorie est "Tarte", le repas est autorisé le soir
+// quelle que soit la présence de viande ou de poisson (ex. : Tarte au thon,
+// Pizza jambon, Flammkueche aux lardons).
+// Exception 2 : le dimanche soir, la règle est entièrement levée — viande
+// et poisson y sont autorisés (via le pool patesSoirDispo non filtré par cette règle).
+// ─────────────────────────────────────────────────────────────────────────
+function autoriseLeSOir(r){
+    const aViande  = r.viande  && r.viande  !== "";
+    const aPoisson = r.poisson && r.poisson !== "";
+    const estTarte = r.categorie.toLowerCase() === "tarte";
+    // Interdit le soir si viande ou poisson, sauf si c'est une Tarte
+    return (!aViande && !aPoisson) || estTarte;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RÈGLE 3 : Pas de doublon de viande, poisson ni féculent dans la même semaine.
+//
+// Un repas contient potentiellement une viande (colonne "Viande"), un poisson
+// (colonne "Poisson") et/ou un féculent (colonne "Féculent"). Pour éviter la
+// monotonie, on s'assure qu'aucune de ces valeurs n'apparaît deux fois dans
+// la même semaine générée.
+//
+// Fonctionnement :
+//   - viandesUtilises  : Set des viandes déjà présentes dans la semaine
+//   - poissonsUtilises : Set des poissons déjà présents dans la semaine
+//   - feculentsUtilises : Set des féculents déjà présents dans la semaine
+//
+// Un repas est refusé si :
+//   - Sa viande (non vide) est déjà dans viandesUtilises
+//   - OU son poisson (non vide) est déjà dans poissonsUtilises
+//   - OU son féculent (non vide) est déjà dans feculentsUtilises
+//
+// Les valeurs vides ("") sont ignorées (pas de contrainte).
+//
+// Cette règle s'applique :
+//   1. Dans construireSemaine() lors de la génération initiale
+//   2. Dans regenererRepas() lors du rechargement manuel d'un repas
+// ─────────────────────────────────────────────────────────────────────────
+function autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises){
+    // Si le repas a une viande déjà utilisée cette semaine → refusé
+    if(r.viande   && r.viande   !== "" && viandesUtilises.has(r.viande))   return false;
+    // Si le repas a un poisson déjà utilisé cette semaine → refusé
+    if(r.poisson  && r.poisson  !== "" && poissonsUtilises.has(r.poisson)) return false;
+    // Si le repas a un féculent déjà utilisé cette semaine → refusé
+    if(r.feculent && r.feculent !== "" && feculentsUtilises.has(r.feculent)) return false;
+    return true;
+}
+
+// Pioche `nb` repas aléatoires hors de la liste `exclu`,
+// avec un filtre optionnel (ex. : autoriseLeSOir).
+// Si pas assez de repas disponibles après exclusion, on relâche l'historique.
+function piocherAvecFiltre(exclu, nb, filtre){
+    let liste = shuffle([...repas])
+        .filter(r => !exclu.includes(r.name))
+        .filter(filtre || (() => true));
+    if(liste.length < nb){
+        liste = shuffle([...repas]).filter(filtre || (() => true));
+    }
+    return liste.slice(0, nb);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Construction d'une semaine de menus en appliquant les huit règles :
+//
+// RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
+// RÈGLE 2 – Exactement 1 Tarte par semaine
+//   (le dimanche soir est exclu des candidats du fallback Règle 2b, car réservé
+//    par la Règle 5)
+// RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
+//   Les sets viandesUtilises, poissonsUtilises et feculentsUtilises sont mis à jour
+//   après chaque repas attribué. Si le pool est épuisé, l'emplacement affichera
+//   "Aucun repas possible" sans contournement silencieux.
+// RÈGLE 4 – Pas de repas dont l'empreinte (Légumes+Féculent+Viande+Poisson+Catégorie)
+//   correspond à un repas des semaines précédentes stockées.
+//   Les signatures à exclure sont passées en paramètre par les fonctions de
+//   génération (genererMenu → 1 semaine, generer2Semaines → 2 semaines).
+//   Si le Set est vide (première génération), la règle ne bloque rien.
+// RÈGLE 5 – Dimanche soir = plat de pâtes forcé (Pâtes = Oui).
+//   Les repas Pâtes=Oui sont interdits le lundi (midi+soir), le samedi (midi+soir)
+//   et le dimanche midi. Le dimanche soir est géré par piocherPates().
+//   La Règle 3 féculent est entièrement levée pour le dimanche soir.
+// RÈGLE 6 – Au moins 3 jours d'écart entre deux repas partageant le même légume.
+//   Un légume ne peut réapparaître qu'à partir du jour indexJour + 3 (inclus).
+//   Midi et soir du même jour sont autorisés à partager le même légume (écart = 0).
+//   Le Map dernierUsageLegume { légume → dernier indexJour } est mis à jour après
+//   attribution des deux repas de chaque journée.
+// RÈGLE 7 – Filtre saisonnier : seuls les repas dont la colonne Saison correspond
+//   à la saison courante (ou vaut "Tout") sont inclus dans les pools de pioche.
+//   Le filtre est appliqué en amont sur tous les pools pour simplifier piocher().
+// RÈGLE 8 – Filtre "Repas facile" : si la case est cochée pour un jour, seuls les
+//   repas avec facilite=true sont proposés le soir de ce jour.
+// ─────────────────────────────────────────────────────────────────────────
+// Paramètre optionnel `locksParJour` : tableau de 7 entrées issues du menu
+// actuellement affiché, chacune de la forme { midi, soir, midiLocked, soirLocked }.
+// Les slots verrouillés sont pré-assignés : leur repas est conservé tel quel et
+// leurs contraintes (viande, poisson, féculent, tarte) sont enregistrées AVANT
+// toute pioche afin d'imposer leurs restrictions aux slots libres. Les légumes
+// (Règle 6) sont enregistrés dans le loop principal (ordre des jours respecté).
+// ─────────────────────────────────────────────────────────────────────────
+function construireSemaine(exclu, signaturesExclues = new Set(), locksParJour = null){
+    // -- Extraction de l'état verrouillé pour chaque jour --
+    const jourInit = jours.map((_, i) => {
+        const lock = locksParJour ? locksParJour[i] : null;
+        return {
+            midiLocked: lock ? (lock.midiLocked || false) : false,
+            soirLocked: lock ? (lock.soirLocked || false) : false,
+            midiRepas:  lock && lock.midiLocked ? lock.midi : null,
+            soirRepas:  lock && lock.soirLocked ? lock.soir : null,
+        };
+    });
+    // -- Règle 7 : filtrer par saison courante dès la constitution des pools --
+    // Tous les pools héritent automatiquement de ce filtre ; les fonctions de
+    // pioche n'ont pas besoin de le re-vérifier individuellement.
+    const tousDispo  = shuffle([...repas]).filter(r =>
+        !exclu.includes(r.name) && autoriseParRegle7(r)
+    );
+    const soirDispo  = tousDispo.filter(r => autoriseLeSOir(r));
+    const tarteDispo = tousDispo.filter(r => r.categorie.toLowerCase() === "tarte");
+
+    // -- Règle 5 : pool des plats de pâtes pour le dimanche soir uniquement --
+    // Filtre : Pâtes=Oui + saison courante (Règle 7).
+    // La Règle 1 (pas de viande/poisson le soir) ne s'applique PAS le dimanche
+    // soir : la viande et le poisson y sont autorisés dans un plat de pâtes.
+    const patesSoirDispo = shuffle([...repas]).filter(r =>
+        !exclu.includes(r.name) && r.pates && autoriseParRegle7(r)
+    );
+
+    let idxTous = 0;
+    let idxSoir = 0;
+
+    const utilises = new Set(); // Set pour lookups O(1) (vs Array O(n))
+    let tarteUtilisee = false;
+
+    // -- Règle 3 : suivi des viandes, poissons et féculents déjà utilisés cette semaine --
+    const viandesUtilises   = new Set();
+    const poissonsUtilises  = new Set();
+    const feculentsUtilises = new Set();
+
+    // -- Règle 6 : suivi du dernier jour d'utilisation de chaque légume --
+    // Clé : nom du légume (normalisé lowercase), Valeur : dernier indexJour où il apparaît.
+    const dernierUsageLegume = new Map();
+    // Moment en cours de traitement ("midi" ou "soir") — mis à jour avant chaque
+    // appel à piocher() pour que la Règle 8 puisse distinguer midi et soir.
+    let currentMoment = "soir";
+    // Index du jour en cours de traitement — mis à jour avant chaque appel à piocher()
+    // et piocherPates() pour que ces fonctions puissent vérifier la Règle 6.
+    let currentDayIndex = 0;
+
+    // -- Pré-enregistrement des contraintes des repas verrouillés --
+    // Viandes, poissons, féculents et tartes sont enregistrés AVANT la première pioche
+    // pour que les slots libres soient générés en tenant compte des repas verrouillés.
+    // Les légumes (Règle 6) sont enregistrés dans le loop principal (ordre des jours).
+    jourInit.forEach(j => {
+        [j.midiRepas, j.soirRepas].forEach(r => {
+            if(!r) return;
+            if(r.viande   && r.viande   !== "") viandesUtilises.add(r.viande);
+            if(r.poisson  && r.poisson  !== "") poissonsUtilises.add(r.poisson);
+            if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
+            if((r.categorie || "").toLowerCase() === "tarte") tarteUtilisee = true;
+            utilises.add(r.name);
+        });
+    });
+
+    // Retourne true si aucun légume du repas r ne viole la Règle 6 pour currentDayIndex.
+    // Un légume est refusé si son dernier jour d'usage est différent du jour courant
+    // ET que l'écart (currentDayIndex - dernierJour) est inférieur à 3.
+    function autoriseParRegle6(r){
+        const legumes = parseLegumes(r.legumes);
+        for(const legume of legumes){
+            if(dernierUsageLegume.has(legume)){
+                const dernierJour = dernierUsageLegume.get(legume);
+                // Même jour autorisé (midi + soir peuvent partager le même légume)
+                if(dernierJour !== currentDayIndex && currentDayIndex - dernierJour < 3) return false;
+            }
+        }
+        return true;
+    }
+
+    // Enregistre les légumes d'un repas dans dernierUsageLegume pour indexJour.
+    function enregistrerRegle6(r, indexJour){
+        parseLegumes(r.legumes).forEach(l => dernierUsageLegume.set(l, indexJour));
+    }
+
+    // Enregistre la viande, le poisson et le féculent d'un repas dans les sets de suivi
+    function enregistrerRegle3(r){
+        if(r.viande   && r.viande   !== "") viandesUtilises.add(r.viande);
+        if(r.poisson  && r.poisson  !== "") poissonsUtilises.add(r.poisson);
+        if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
+    }
+
+    function piocher(pool, idx){
+        // Saute les repas déjà utilisés, les Tartes en surnombre (Règle 2a),
+        // les repas dont la viande/poisson/féculent est déjà pris (Règle 3),
+        // les repas dont l'empreinte correspond aux semaines précédentes (Règle 4),
+        // les repas Pâtes=Oui interdits le lundi et le samedi (Règle 5),
+        // et les repas dont un légume est réapparu trop tôt dans la semaine (Règle 6).
+        // Si toutes les règles épuisent le pool, on retourne null sans fallback.
+        let i = idx;
+        while(i < pool.length){
+            const r = pool[i];
+            const dejaUtilise  = utilises.has(r.name);
+            const tarteBloquee = tarteUtilisee && r.categorie.toLowerCase() === "tarte";
+            const regle3Bloque = !autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises);
+            const regle4Bloque = signaturesExclues.has(signature(r));
+            // Règle 5 : les repas Pâtes=Oui sont interdits le lundi (index 0),
+            // le samedi (index 5) et le dimanche midi (index 6), midi comme soir
+            // pour lundi et samedi. Le dimanche soir est géré séparément par
+            // piocherPates() et n'atteint jamais cette fonction.
+            const regle5Bloque = r.pates && (currentDayIndex === 0 || currentDayIndex === 5 || currentDayIndex === 6);
+            // Règle 6 : bloquer si un légume du repas est réapparu moins de 3 jours après
+            const regle6Bloque = !autoriseParRegle6(r);
+            // Règle 8 : si "Repas facile" coché pour ce jour, seuls les repas facilite=true
+            // — restriction appliquée uniquement le soir (currentMoment)
+            const regle8Bloque = !autoriseParRegle8(r, jours[currentDayIndex].toLowerCase(), currentMoment);
+
+            if(!dejaUtilise && !tarteBloquee && !regle3Bloque && !regle4Bloque && !regle5Bloque && !regle6Bloque && !regle8Bloque){
+                // Candidat valide pour toutes les règles (1, 2, 3, 4, 5, 6 et 8)
+                utilises.add(r.name);
+                if(r.categorie.toLowerCase() === "tarte") tarteUtilisee = true;
+                enregistrerRegle3(r);
+                return { repas: r, idx: i + 1 };
+            }
+            i++;
+        }
+
+        // Aucun candidat valide : on retourne null sans fallback.
+        // Aucune règle n'est jamais relâchée silencieusement ;
+        // l'interface affichera "Aucun repas possible" pour cet emplacement.
+        return { repas: null, idx: i };
+    }
+
+    // ── Règle 5 : pioche spéciale pour le dimanche soir ───────────────────
+    // Conditions :
+    //   - Pâtes = Oui  (obligatoire)
+    //   - Règle 1      : NON appliquée — la viande et le poisson sont autorisés
+    //                    le dimanche soir, même dans un plat de pâtes
+    //   - Règle 3      : féculent NON vérifié — le dimanche soir peut répéter
+    //                    n'importe quel féculent déjà utilisé dans la semaine
+    //   - Règle 3      : viande et poisson vérifiés sur toute la semaine
+    //   - Règle 4      : pas de signature présente dans les semaines précédentes
+    //   - Règle 6      : écart légumes ≥ 3 jours
+    // Si le pool est épuisé, retourne null → "Aucun repas possible".
+    function piocherPates(){
+        for(let i = 0; i < patesSoirDispo.length; i++){
+            const r = patesSoirDispo[i];
+            if(utilises.has(r.name)) continue;
+            // Règle 4
+            if(signaturesExclues.has(signature(r))) continue;
+            // Règle 3 féculent : aucune vérification — un féculent déjà utilisé
+            // dans la semaine est autorisé pour le dimanche soir (Règle 5 prime)
+            // Règle 3 viande et poisson : vérifiés sur toute la semaine
+            if(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))  continue;
+            if(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson)) continue;
+            // Règle 6 : écart légumes ≥ 3 jours
+            if(!autoriseParRegle6(r)) continue;
+            // Règle 8 : repas facile si coché pour le dimanche (soir uniquement — toujours soir ici)
+            if(!autoriseParRegle8(r, "dimanche", "soir")) continue;
+
+            utilises.add(r.name);
+            enregistrerRegle3(r);
+            return r;
+        }
+        return null; // Aucun plat de pâtes valide disponible
+    }
+
+    const semaine = jours.map((jour, indexJour) => {
+        const init = jourInit[indexJour];
+        let midi = null, soir = null;
+        const nomJour = jour.toLowerCase();
+
+        // -- Règle 6 : indiquer le jour courant aux fonctions piocher/piocherPates --
+        currentDayIndex = indexJour;
+
+        if(init.midiLocked){
+            // Slot verrouillé : conserver le repas existant (déjà pré-enregistré)
+            midi = init.midiRepas;
+        } else if(midiActive(nomJour)){
+            currentMoment = "midi";
+            const res = piocher(tousDispo, idxTous);
+            midi    = res.repas;
+            idxTous = res.idx;
+        }
+
+        if(init.soirLocked){
+            // Slot verrouillé : conserver le repas existant (déjà pré-enregistré)
+            soir = init.soirRepas;
+        } else if(indexJour === 6){
+            // -- Règle 5 : dimanche soir = pâtes forcé --
+            currentMoment = "soir";
+            soir = piocherPates();
+        } else {
+            currentMoment = "soir";
+            const resSoir = piocher(soirDispo, idxSoir);
+            soir    = resSoir.repas;
+            idxSoir = resSoir.idx;
+        }
+
+        // -- Règle 6 : enregistrer les légumes de midi ET soir (verrouillés ou non) --
+        // Les deux repas du même jour sont enregistrés avec le même indexJour,
+        // ce qui permet à autoriseParRegle6() de les autoriser mutuellement.
+        [midi, soir].forEach(r => { if(r) enregistrerRegle6(r, indexJour); });
+
+        return { midi, soir, midiLocked: init.midiLocked, soirLocked: init.soirLocked };
+    });
+
+    // -- Règle 2b : forcer une Tarte si aucune n'a été piochée --
+    // La tarte de substitution ne peut être placée que dans un slot soir
+    // non verrouillé (pour ne pas écraser un repas fixé par l'utilisateur)
+    // et hors dimanche (réservé aux pâtes par la Règle 5).
+    const aTarte = semaine.some(j =>
+        (j.midi && j.midi.categorie.toLowerCase() === "tarte") ||
+        (j.soir && j.soir.categorie.toLowerCase() === "tarte")
+    );
+
+    if(!aTarte && tarteDispo.length > 0){
+        const tarte = tarteDispo.find(t => !utilises.has(t.name));
+        if(tarte){
+            const candidats = semaine.map((j, i) => i).filter(i =>
+                i !== 6 && // Règle 5 : dimanche soir réservé aux pâtes, pas de Tarte
+                !semaine[i].soirLocked && // ne pas écraser un slot verrouillé
+                semaine[i].soir && semaine[i].soir.categorie.toLowerCase() !== "tarte"
+            );
+            if(candidats.length > 0){
+                const idx = candidats[Math.floor(Math.random() * candidats.length)];
+                // Retirer les légumes/féculents du repas remplacé avant d'ajouter la tarte
+                // (la Règle 3 n'est pas re-vérifiée ici pour ne pas bloquer le fallback Règle 2)
+                semaine[idx].soir = tarte;
+            }
+        }
+    }
+
+    return semaine.map(j => ({
+        midi:       j.midi       || null,
+        soir:       j.soir       || null,
+        midiLocked: j.midiLocked || false,
+        soirLocked: j.soirLocked || false
+    }));
+}
+
+// ─── Liste des ingrédients ────────────────────────────────────────────────
+
+// Agrège les ingrédients de tous les repas d'une semaine, par colonne.
+// Retourne un objet { legumes, feculent, viande, poisson } dont chaque valeur
+// est un tableau trié { label, count } (count > 1 si plusieurs occurrences).
+function compterIngredients(semaine){
+    const compteurs = { legumes: {}, feculent: {}, viande: {}, poisson: {} };
+
+    semaine.repas.forEach(jour => {
+        ["midi", "soir"].forEach(m => {
+            const r = jour[m];
+            if(!r || !r.name) return;
+
+            // Légumes : plusieurs valeurs possibles séparées par des virgules
+            parseLegumes(r.legumes).forEach(l => {
+                const key = l.toLowerCase();
+                if(!compteurs.legumes[key]) compteurs.legumes[key] = { label: l, count: 0 };
+                compteurs.legumes[key].count++;
+            });
+
+            // Féculent, Viande, Poisson : valeur unique
+            [["feculent", r.feculent], ["viande", r.viande], ["poisson", r.poisson]].forEach(([col, val]) => {
+                if(!val || val.trim() === "") return;
+                const key = val.trim().toLowerCase();
+                if(!compteurs[col][key]) compteurs[col][key] = { label: val.trim(), count: 0 };
+                compteurs[col][key].count++;
+            });
+        });
+    });
+
+    // Convertir chaque section en tableau trié alphabétiquement
+    const trier = obj => Object.values(obj).sort((a, b) =>
+        a.label.localeCompare(b.label, "fr", { sensitivity: "base" })
+    );
+    return {
+        legumes:  trier(compteurs.legumes),
+        feculent: trier(compteurs.feculent),
+        viande:   trier(compteurs.viande),
+        poisson:  trier(compteurs.poisson)
+    };
+}
+
+// Remplit le contenu du modal avec les ingrédients de la semaine donnée.
+function remplirModal(semaine){
+    const data = compterIngredients(semaine);
+    const content = document.getElementById("ingredientsContent");
+    content.innerHTML = "";
+
+    const sections = [
+        { key: "legumes",  label: "🥦 Légumes" },
+        { key: "feculent", label: "🌾 Féculents" },
+        { key: "viande",   label: "🥩 Viandes" },
+        { key: "poisson",  label: "🐟 Poissons" }
+    ];
+
+    sections.forEach(({ key, label }) => {
+        const items = data[key];
+        if(items.length === 0) return;
+
+        const section = document.createElement("div");
+        section.className = "ingredients-section";
+
+        const titre = document.createElement("div");
+        titre.className = "ingredients-section-titre";
+        titre.textContent = label;
+        section.appendChild(titre);
+
+        items.forEach(({ label: itemLabel, count }) => {
+            const item = document.createElement("div");
+            item.className = "ingredients-item";
+            item.textContent = itemLabel;
+            if(count > 1){
+                const badge = document.createElement("span");
+                badge.className = "ingredients-count";
+                badge.textContent = " (" + count + ")";
+                item.appendChild(badge);
+            }
+            section.appendChild(item);
+        });
+
+        content.appendChild(section);
+    });
+}
+
+// Ouvre le modal pour la semaine donnée.
+function ouvrirListeIngredients(menus, indexSemaine){
+    modalSemaineIndex = indexSemaine;
+    document.getElementById("ingredientsTitre").textContent =
+        "🛒 " + menus[indexSemaine].titre;
+    remplirModal(menus[indexSemaine]);
+    document.getElementById("ingredientsModal").style.display = "flex";
+}
+
+// Ferme le modal.
+window.fermerModal = function(){
+    modalSemaineIndex = null;
+    document.getElementById("ingredientsModal").style.display = "none";
+};
+
+// ─── Modal règles de génération ───────────────────────────────────────────
+
+window.ouvrirRegles = function(){
+    document.getElementById("reglesModal").style.display = "flex";
+};
+
+window.fermerRegles = function(){
+    document.getElementById("reglesModal").style.display = "none";
+};
+
+// ─── Affichage ────────────────────────────────────────────────────────────
+
+// Crée une box repas.
+// repasObj  : objet repas, ou null si aucun repas n'est disponible/stocké
+// label     : libellé affiché ("☀️ Midi" / "🌙 Soir")
+// locked    : true si le repas est verrouillé (cadenas fermé 🔒)
+// onRegen   : callback du bouton 🔄 (désactivé si locked)
+// onLock    : callback du bouton cadenas (toggle verrouillé/déverrouillé)
+// nonStocke : true si le jour était non coché lors de la génération
+//             → message distinct "Cliquer sur 🔄 pour générer"
+//             → false (défaut) = "⚠️ Aucun repas possible" (pool épuisé, Règles 3–8)
+// onAdd     : callback du bouton + (recherche et sélection manuelle d'un repas)
+//             Aucune règle métier n'est vérifiée lors d'une sélection manuelle.
+function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = false, onAdd = null){
+    const box = document.createElement("div");
+    box.className = "repas-box" + (locked ? " verrouille" : "");
+    const header = document.createElement("div");
+    header.className = "repas-header";
+    const titreEl = document.createElement("div");
+    titreEl.className = "repas-titre";
+    titreEl.textContent = label;
+
+    // -- Groupe de boutons d'action : [+] [🔄] [🔓] --
+    const btns = document.createElement("div");
+    btns.className = "repas-header-btns";
+
+    // Bouton "+" : ouvre le tooltip de recherche pour choisir un repas manuellement
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-btn";
+    addBtn.textContent = "+";
+    addBtn.title = "Choisir un repas manuellement";
+    addBtn.onclick = onAdd;
+    btns.appendChild(addBtn);
+
+    // Bouton régénérer : grisé et inactif quand le repas est verrouillé
+    const btn = document.createElement("button");
+    btn.className = "regen-btn" + (locked ? " bloque" : "");
+    btn.textContent = "🔄";
+    btn.title = locked ? "Repas verrouillé — déverrouillez d'abord" : "Régénérer";
+    if(!locked) btn.onclick = onRegen;
+    btns.appendChild(btn);
+
+    // Bouton cadenas : affiché uniquement quand un repas est stocké
+    // (inutile de verrouiller un emplacement vide ou impossible)
+    if(repasObj){
+        const lockBtn = document.createElement("button");
+        lockBtn.className = "lock-btn" + (locked ? " verrouille" : "");
+        lockBtn.textContent = locked ? "🔒" : "🔓";
+        lockBtn.title = locked ? "Déverrouiller ce repas" : "Verrouiller ce repas";
+        lockBtn.onclick = onLock;
+        btns.appendChild(lockBtn);
+    }
+
+    header.appendChild(titreEl);
+    header.appendChild(btns);
+
+    const contenuEl = document.createElement("div");
+    contenuEl.className = "repas-contenu";
+    if(repasObj){
+        contenuEl.textContent = repasObj.name || repasObj;
+    } else if(nonStocke){
+        // Le jour midi n'était pas coché lors de la génération : aucun repas
+        // n'a été stocké pour cet emplacement. L'utilisateur peut en générer
+        // un à la demande via le bouton 🔄.
+        contenuEl.textContent = "Cliquer sur 🔄 pour générer";
+        box.classList.add("non-stocke");
+    } else {
+        // Aucun repas ne satisfait toutes les règles (l'une des Règles 3 à 8 a épuisé le pool).
+        contenuEl.textContent = "⚠️ Aucun repas possible";
+        box.classList.add("impossible");
+    }
+    box.appendChild(header);
+    box.appendChild(contenuEl);
+    return box;
+}
+
+function afficher(menus){
+    dernierMenu = menus;
+    const container = document.getElementById("menu");
+    container.innerHTML = "";
+    menus.forEach((semaine, indexSemaine) => {
+        const bloc = document.createElement("div");
+        bloc.className = "semaine";
+
+        // En-tête : titre à gauche, bouton ingrédients à droite
+        const header = document.createElement("div");
+        header.className = "semaine-header";
+        const titre = document.createElement("h3");
+        titre.textContent = semaine.titre;
+        const btnIngredients = document.createElement("button");
+        btnIngredients.className = "btn-ingredients";
+        btnIngredients.textContent = "🛒 Liste des ingrédients";
+        btnIngredients.onclick = () => ouvrirListeIngredients(menus, indexSemaine);
+        header.appendChild(titre);
+        header.appendChild(btnIngredients);
+        bloc.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
+
+        semaine.repas.forEach((plat, i) => {
+            const ligne = document.createElement("div");
+            ligne.className = "jour";
+            const j = document.createElement("span");
+            j.className = "nomjour";
+            j.textContent = jours[i];
+            ligne.appendChild(j);
+
+            if(midiActive(jours[i].toLowerCase())){
+                // nonStocke = true si la case midi est désormais cochée mais que ce jour
+                // n'avait pas de midi lors de la génération (plat.midi === null).
+                // L'utilisateur peut alors utiliser 🔄 pour générer un repas à la demande.
+                const nonStocke = !plat.midi;
+                ligne.appendChild(creerRepasBox(
+                    plat.midi,
+                    "☀️ Midi",
+                    plat.midiLocked || false,
+                    () => regenererRepas(i, "midi", menus, indexSemaine),
+                    () => toggleLock(i, "midi", menus, indexSemaine),
+                    nonStocke,
+                    (e) => ouvrirRecherche(e, (r) => selectionnerRepas(i, "midi", menus, indexSemaine, r))
+                ));
+            } else {
+                ligne.appendChild(document.createElement("div"));
+            }
+
+            ligne.appendChild(creerRepasBox(
+                plat.soir,
+                "🌙 Soir",
+                plat.soirLocked || false,
+                () => regenererRepas(i, "soir", menus, indexSemaine),
+                () => toggleLock(i, "soir", menus, indexSemaine),
+                false,
+                (e) => ouvrirRecherche(e, (r) => selectionnerRepas(i, "soir", menus, indexSemaine, r))
+            ));
+            grid.appendChild(ligne);
+        });
+
+        bloc.appendChild(grid);
+        container.appendChild(bloc);
+    });
+
+    // Rafraîchit automatiquement le modal si celui-ci est ouvert
+    if(modalSemaineIndex !== null && menus[modalSemaineIndex]){
+        remplirModal(menus[modalSemaineIndex]);
+    }
+}
+
+// ─── Génération ───────────────────────────────────────────────────────────
+
+window.genererMenu = async function(){
+    // On transmet toujours les locks de la semaine 1 du menu affiché,
+    // quelle que soit sa longueur (1 ou 2 semaines).
+    // Correction : la condition précédente (.length === 1) faisait disparaître
+    // les locks lorsqu'on cliquait "Générer une semaine" après une génération
+    // 2 semaines — car dernierMenu.length valait 2, renvoyant null.
+    const locksParJour = dernierMenu ? dernierMenu[0].repas : null;
+
+    const exclu = historique.map(r => r.name || r);
+    // -- Règle 4 : capturer le menu précédent AVANT génération --
+    // dernierMenu sera écrasé par afficher() ; on le sauvegarde ici
+    // pour que regenererRepas() puisse s'y référer via menuAvantGeneration.
+    menuAvantGeneration = dernierMenu;
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 1);
+    const semaine = construireSemaine(exclu, signaturesExclues, locksParJour);
+    const menus   = [{ titre: "Semaine", repas: semaine }];
+    afficher(menus);
+    const noms = semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+window.generer2Semaines = async function(){
+    const menus = [];
+    let exclu = historique.map(r => r.name || r);
+    // -- Règle 4 : capturer le menu précédent AVANT génération --
+    menuAvantGeneration = dernierMenu;
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, 2);
+    for(let s = 1; s <= 2; s++){
+        // Si un menu 2 semaines est déjà affiché, on transmet l'état de
+        // verrouillage de la semaine correspondante à construireSemaine().
+        const locksParJour = (dernierMenu && dernierMenu.length >= s)
+            ? dernierMenu[s - 1].repas
+            : null;
+        const semaine = construireSemaine(exclu, signaturesExclues, locksParJour);
+        menus.push({ titre: "Semaine " + s, repas: semaine });
+        exclu = [...exclu, ...semaine.flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r)];
+    }
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Bascule l'état verrouillé d'un slot (midi ou soir) sans régénérer le repas.
+// L'état est immédiatement persisté en Firebase pour être synchronisé sur
+// tous les appareils. L'état de verrouillage est stocké dans l'objet menus
+// (champs midiLocked / soirLocked), qui fait partie des données sauvegardées.
+// ─────────────────────────────────────────────────────────────────────────
+async function toggleLock(indexJour, moment, menus, indexSemaine){
+    const lockKey = moment === "midi" ? "midiLocked" : "soirLocked";
+    menus[indexSemaine].repas[indexJour][lockKey] = !menus[indexSemaine].repas[indexJour][lockKey];
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Régénère un seul repas (midi ou soir) en respectant les huit règles :
+//
+// RÈGLE 1 – Pas de viande ni de poisson le soir (sauf Tarte)
+// RÈGLE 2 – Exactement 1 Tarte par semaine
+// RÈGLE 3 – Pas de doublon de viande, poisson ni féculent dans la semaine
+// RÈGLE 4 – Pas de repas dont l'empreinte correspond aux semaines précédentes
+// RÈGLE 5 – Dimanche soir = pâtes forcées (Pâtes=Oui interdit ailleurs sur lundi,
+//   samedi et dimanche midi) ; Règle 3 féculent levée pour le dimanche soir
+// RÈGLE 6 – Au moins 3 jours d'écart entre deux repas partageant le même légume
+//   (vérification bidirectionnelle via legumesDays)
+// RÈGLE 7 – Filtre saisonnier : seuls les repas de la saison courante (ou "Tout")
+// RÈGLE 8 – Filtre "Repas facile" : si la case est cochée, uniquement le soir
+//
+// VERROUILLAGE : un slot verrouillé ne peut pas être régénéré. Le bouton 🔄
+// est visuellement désactivé, mais cette vérification préalable agit en
+// filet de sécurité pour les appels programmatiques éventuels.
+// ─────────────────────────────────────────────────────────────────────────
+async function regenererRepas(indexJour, moment, menus, indexSemaine){
+    // -- Vérification de sécurité : ne pas régénérer un slot verrouillé --
+    const lockKey = moment === "midi" ? "midiLocked" : "soirLocked";
+    if(menus[indexSemaine].repas[indexJour][lockKey]) return;
+
+    const semaineActuelle = menus[indexSemaine].repas;
+    const repasActuel = semaineActuelle[indexJour][moment];
+
+    // -- Règle 2 : comptage des Tartes hors emplacement remplacé --
+    const tartesAilleurs = semaineActuelle.reduce((nb, jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return;
+            const r = jour[m];
+            if(r && (r.categorie || "").toLowerCase() === "tarte") nb++;
+        });
+        return nb;
+    }, 0);
+
+    const ancienEstTarte = repasActuel && (repasActuel.categorie || "").toLowerCase() === "tarte";
+    const doitEtreTarte  = ancienEstTarte && tartesAilleurs === 0;
+    const tarteInterdite = tartesAilleurs > 0;
+
+    // -- Règle 3 : collecte des viandes, poissons et féculents déjà utilisés cette semaine --
+    // On exclut le repas en cours de remplacement pour ne pas bloquer
+    // inutilement sur ses propres viande/poisson/féculent.
+    const viandesUtilises   = new Set();
+    const poissonsUtilises  = new Set();
+    const feculentsUtilises = new Set();
+    semaineActuelle.forEach((jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return; // exclure l'emplacement remplacé
+            const r = jour[m];
+            if(!r) return;
+            if(r.viande   && r.viande   !== "") viandesUtilises.add(r.viande);
+            if(r.poisson  && r.poisson  !== "") poissonsUtilises.add(r.poisson);
+            if(r.feculent && r.feculent !== "") feculentsUtilises.add(r.feculent);
+        });
+    });
+
+    // -- Règle 5 : estDimancheSoir --
+    const estDimancheSoir = (indexJour === 6 && moment === "soir");
+    // feculentsSamediLundi supprimé : le dimanche soir est entièrement libéré
+    // de la contrainte de féculent (Règle 3 levée sur le féculent pour ce slot).
+
+    // -- Règle 6 : map légume → Set d'indices de jours (semaine courante) --
+    // Construit à partir de tous les repas de la semaine, en excluant l'emplacement
+    // en cours de remplacement (dont les contraintes ne s'appliquent plus).
+    // La vérification est bidirectionnelle : on contrôle les jours avant ET après
+    // indexJour (|jourVoisin - indexJour| < 3, et jourVoisin ≠ indexJour).
+    const legumesDays = new Map();
+    semaineActuelle.forEach((jour, i) => {
+        ["midi", "soir"].forEach(m => {
+            if(i === indexJour && m === moment) return; // exclure l'emplacement remplacé
+            const r = jour[m];
+            if(!r) return;
+            parseLegumes(r.legumes).forEach(legume => {
+                if(!legumesDays.has(legume)) legumesDays.set(legume, new Set());
+                legumesDays.get(legume).add(i);
+            });
+        });
+    });
+
+    function autoriseParRegle6Regen(r){
+        const legumes = parseLegumes(r.legumes);
+        for(const legume of legumes){
+            if(legumesDays.has(legume)){
+                for(const jourIdx of legumesDays.get(legume)){
+                    // Même jour autorisé ; jours à moins de 3 de distance = refusé
+                    if(jourIdx !== indexJour && Math.abs(jourIdx - indexJour) < 3) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // -- Règle 4 : reconstituer les signatures des semaines précédentes --
+    // menus.length indique si on est dans un contexte 1 semaine ou 2 semaines,
+    // ce qui détermine combien de semaines précédentes on remonte (même logique
+    // que lors de la génération initiale).
+    // La signature du repas actuel (en cours de remplacement) est retirée du Set
+    // pour ne pas bloquer inutilement la recherche d'un repas de même profil.
+    const signaturesExclues = extraireSignaturesPrecedentes(menuAvantGeneration, menus.length);
+    if(repasActuel && repasActuel.name) signaturesExclues.delete(signature(repasActuel));
+
+    const tousActuels = menus.flatMap(s => s.repas)
+        .flatMap(r => [r.midi, r.soir])
+        .filter(Boolean)
+        .filter(r => r !== repasActuel)
+        .map(r => r.name || r);
+    const exclu = [...historique.map(r => r.name || r), ...tousActuels];
+
+    // Construction du filtre combinant Règles 1, 2, 3, 4, 5, 6, 7 et 8.
+    // La branche Règle 5 (dimanche soir) est évaluée en premier car elle
+    // prime sur toutes les autres contraintes pour cet emplacement.
+    // Pour tous les autres slots : Pâtes=Oui interdit le lundi (0), samedi (5)
+    // et dimanche midi (index 6, moment "midi" — le soir est géré par estDimancheSoir).
+    const nomJour = jours[indexJour].toLowerCase();
+    const patesInterditesIci = !estDimancheSoir && (indexJour === 0 || indexJour === 5 || (indexJour === 6 && moment === "midi"));
+    let filtre;
+    if(estDimancheSoir){
+        // Règle 5 : pâtes forcées.
+        // Règle 1 : NON appliquée — la viande et le poisson sont autorisés le dimanche soir.
+        // Règle 3 féculent : aucune vérification — le dimanche soir peut répéter
+        // n'importe quel féculent déjà présent dans la semaine (Règle 5 prime).
+        // Règle 3 viande/poisson : vérifiés sur toute la semaine.
+        filtre = r => r.pates
+                   && autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, "soir")
+                   && !(r.viande  && r.viande  !== "" && viandesUtilises.has(r.viande))
+                   && !(r.poisson && r.poisson !== "" && poissonsUtilises.has(r.poisson))
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    } else if(doitEtreTarte){
+        filtre = r => r.categorie.toLowerCase() === "tarte"
+                   && autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, moment)
+                   && !(patesInterditesIci && r.pates)
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    } else if(moment === "soir" && tarteInterdite){
+        filtre = r => autoriseLeSOir(r)
+                   && autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, moment)
+                   && !(patesInterditesIci && r.pates)
+                   && r.categorie.toLowerCase() !== "tarte"
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    } else if(moment === "soir"){
+        filtre = r => autoriseLeSOir(r)
+                   && autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, moment)
+                   && !(patesInterditesIci && r.pates)
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    } else if(tarteInterdite){
+        filtre = r => r.categorie.toLowerCase() !== "tarte"
+                   && autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, moment)
+                   && !(patesInterditesIci && r.pates)
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    } else {
+        filtre = r => autoriseParRegle7(r)
+                   && autoriseParRegle8(r, nomJour, moment)
+                   && !(patesInterditesIci && r.pates)
+                   && autoriseParRegle3(r, viandesUtilises, poissonsUtilises, feculentsUtilises)
+                   && !signaturesExclues.has(signature(r))
+                   && autoriseParRegle6Regen(r);
+    }
+
+    // Tentative avec toutes les règles (1 à 8 strictement appliquées).
+    // Si le résultat est vide, aucun fallback n'est appliqué :
+    // le repas sera mis à null et l'interface affichera "Aucun repas possible".
+    let liste = piocherAvecFiltre(exclu, 1, filtre);
+
+    if(liste.length > 0){
+        menus[indexSemaine].repas[indexJour][moment] = liste[0];
+    } else {
+        // Aucun repas disponible sans violer au moins une règle.
+        // On ne relâche aucune règle ; on signale l'impossibilité via null.
+        menus[indexSemaine].repas[indexJour][moment] = null;
+    }
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// TOOLTIP DE RECHERCHE
+//
+// Un seul tooltip global est réutilisé pour tous les emplacements.
+// _tooltipCallback : fonction appelée avec le repas sélectionné.
+//
+// La sélection manuelle (selectionnerRepas) ne vérifie AUCUNE règle métier :
+// l'utilisateur est libre de choisir le repas qu'il souhaite.
+// ─────────────────────────────────────────────────────────────────────────
+
+let _tooltipCallback = null;
+
+// Ouvre le tooltip positionné près du bouton "+" cliqué.
+// callback(repasObj) sera appelé quand l'utilisateur choisit un résultat.
+function ouvrirRecherche(e, callback){
+    e.stopPropagation(); // empêche la fermeture immédiate via le listener document
+
+    _tooltipCallback = callback;
+
+    const tooltip  = document.getElementById("rechercheTooltip");
+    const input    = document.getElementById("rechercheInput");
+    const resultats = document.getElementById("rechercheResultats");
+
+    // Réinitialiser le champ et les résultats
+    input.value = "";
+    resultats.innerHTML = '<div class="recherche-hint">Saisissez au moins 3 caractères</div>';
+
+    // Positionner le tooltip près du bouton "+"
+    const rect     = e.currentTarget.getBoundingClientRect();
+    const tooltipW = 300;
+    const margin   = 6;
+
+    // Horizontal : décaler vers la gauche si trop proche du bord droit
+    let left = rect.left;
+    if(left + tooltipW > window.innerWidth - 10){
+        left = Math.max(10, window.innerWidth - tooltipW - 10);
+    }
+
+    // Vertical : afficher sous le bouton ; basculer au-dessus si pas de place
+    let top = rect.bottom + margin;
+    if(top + 220 > window.innerHeight && rect.top - 220 > 0){
+        top = rect.top - 220 - margin;
+    }
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top  = (top + window.scrollY) + "px";
+    tooltip.classList.add("visible");
+    input.focus();
+}
+
+// Ferme le tooltip et réinitialise le callback.
+function fermerTooltip(){
+    document.getElementById("rechercheTooltip").classList.remove("visible");
+    _tooltipCallback = null;
+}
+
+// Surligne toutes les occurrences de `query` dans `text` avec <b>.
+// Retourne un DocumentFragment prêt à insérer dans le DOM.
+function highlightMatch(text, query){
+    const fragment = document.createDocumentFragment();
+    const lower    = text.toLowerCase();
+    const lowerQ   = query.toLowerCase();
+    let last = 0, idx;
+    while((idx = lower.indexOf(lowerQ, last)) !== -1){
+        if(idx > last) fragment.appendChild(document.createTextNode(text.substring(last, idx)));
+        const bold = document.createElement("b");
+        bold.textContent = text.substring(idx, idx + query.length);
+        fragment.appendChild(bold);
+        last = idx + query.length;
+    }
+    if(last < text.length) fragment.appendChild(document.createTextNode(text.substring(last)));
+    return fragment;
+}
+
+// Recherche dans le CSV les repas dont le nom contient `query` (insensible
+// à la casse), affiche les résultats dans le tooltip avec les caractères
+// correspondants en gras. La hauteur est limitée à ~5 résultats visibles ;
+// un scroll apparaît pour les suivants.
+function rechercherRepas(query){
+    const container = document.getElementById("rechercheResultats");
+
+    if(query.length < 3){
+        container.innerHTML = '<div class="recherche-hint">Saisissez au moins 3 caractères</div>';
+        return;
+    }
+
+    const lower     = query.toLowerCase();
+    const resultats = repas.filter(r => r.name.toLowerCase().includes(lower));
+
+    container.innerHTML = "";
+
+    if(resultats.length === 0){
+        const vide = document.createElement("div");
+        vide.className = "resultat-vide";
+        vide.textContent = "Aucun repas trouvé";
+        container.appendChild(vide);
+        return;
+    }
+
+    resultats.forEach(r => {
+        const item = document.createElement("div");
+        item.className = "resultat-item";
+        item.appendChild(highlightMatch(r.name, query));
+        item.onclick = (ev) => {
+            ev.stopPropagation();
+            if(_tooltipCallback) _tooltipCallback(r);
+            fermerTooltip();
+        };
+        container.appendChild(item);
+    });
+}
+
+// Affecte directement le repas choisi à l'emplacement ciblé,
+// réaffiche et sauvegarde en Firebase. Aucune règle métier n'est vérifiée.
+async function selectionnerRepas(indexJour, moment, menus, indexSemaine, repasChoisi){
+    menus[indexSemaine].repas[indexJour][moment] = repasChoisi;
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─── Initialisation des listeners du tooltip ──────────────────────────────
+
+document.getElementById("rechercheInput").addEventListener("input", (e) => {
+    rechercherRepas(e.target.value);
+});
+
+// Fermer via la croix
+document.getElementById("tooltipCloseBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    fermerTooltip();
+});
+
+// Fermer en cliquant en dehors du tooltip
+document.addEventListener("click", (e) => {
+    const tooltip = document.getElementById("rechercheTooltip");
+    if(tooltip.classList.contains("visible") && !tooltip.contains(e.target)){
+        fermerTooltip();
+    }
+});
+
+// Fermer avec la touche Échap
+document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape") fermerTooltip();
+});
+
+// ─── Initialisation ───────────────────────────────────────────────────────
+(async function(){
+    await chargerRepas();
+    await chargerDepuisFirebase();
+
+    // ── Affichage de la saison active dans l'encart Paramètres ───────────
+    document.getElementById("saisonLabel").textContent =
+        saisonCourante() === "hiver" ? "Hiver + Tout" : "Été + Tout";
+
+    // ── Listeners sur les cases à cocher Midi et Repas facile ────────────
+    // Quand l'utilisateur coche ou décoche une case APRÈS le chargement,
+    // on re-rend le dernier menu connu sans regénérer.
+    jours.forEach(jour => {
+        ["midi", "facile"].forEach(prefixe => {
+            const cb = document.getElementById(prefixe + "_" + jour.toLowerCase());
+            if(cb){
+                cb.addEventListener("change", () => {
+                    if(dernierMenu) afficher(dernierMenu);
+                });
+            }
+        });
+    });
+})();
+
+</script>
+</body>
+</html>
