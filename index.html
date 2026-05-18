@@ -417,6 +417,123 @@ button:hover{background:#2563eb;}
     margin: 5px;
 }
 .btn-regles:hover { background: #dbeafe; }
+
+/* ── Bouton "+" ajout manuel de repas ────────────────────────────────── */
+.repas-box .add-btn {
+    background: transparent;
+    color: #9ca3af;
+    border: none;
+    padding: 0 2px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.repas-box .add-btn:hover {
+    color: #16a34a;
+    background: #dcfce7;
+}
+/* Groupe contenant + et 🔄 et 🔓 alignés */
+.repas-header-btns {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Tooltip de recherche de repas ───────────────────────────────────── */
+/* z-index 1001 : au-dessus des modals ingrédients et règles (1000) */
+#rechercheTooltip {
+    position: fixed;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    width: 300px;
+    z-index: 1001;
+    padding: 12px;
+    display: none;
+}
+#rechercheTooltip.visible {
+    display: block;
+}
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.tooltip-titre {
+    font-size: 13px;
+    font-weight: bold;
+    color: #374151;
+}
+.tooltip-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #9ca3af;
+    padding: 0 2px;
+    margin: 0;
+    line-height: 1;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+}
+.tooltip-close:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+#rechercheInput {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#rechercheInput:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #bfdbfe;
+}
+/* Hauteur limitée à ~5 résultats (~35px/item) avant défilement */
+#rechercheResultats {
+    margin-top: 8px;
+    max-height: 175px;
+    overflow-y: auto;
+}
+#rechercheResultats::-webkit-scrollbar { width: 6px; }
+#rechercheResultats::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+#rechercheResultats::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.resultat-item {
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: background 0.15s;
+}
+.resultat-item:hover { background: #eff6ff; color: #1d4ed8; }
+/* Caractères correspondants mis en gras et colorés */
+.resultat-item b { color: #1d4ed8; font-weight: 700; }
+.resultat-vide {
+    font-size: 13px;
+    color: #9ca3af;
+    padding: 10px;
+    text-align: center;
+    font-style: italic;
+}
+.recherche-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    padding: 8px 10px;
+    text-align: center;
+}
 </style>
 </head>
 
@@ -535,6 +652,22 @@ button:hover{background:#2563eb;}
             <button class="ingredients-close" onclick="fermerModal()" title="Fermer">✕</button>
         </div>
         <div id="ingredientsContent"></div>
+    </div>
+</div>
+
+<!-- ── Tooltip global de recherche de repas ───────────────────────────────
+     Un seul tooltip partagé, repositionné dynamiquement au clic sur "+".
+     La variable _tooltipCallback stocke la fonction de sélection courante.
+     z-index 1001 : au-dessus des modals ingrédients et règles (1000).
+──────────────────────────────────────────────────────────────────────── -->
+<div id="rechercheTooltip">
+    <div class="tooltip-header">
+        <span class="tooltip-titre">🔍 Choisir un repas</span>
+        <button class="tooltip-close" id="tooltipCloseBtn" title="Fermer">✕</button>
+    </div>
+    <input type="text" id="rechercheInput" placeholder="Rechercher (3 caractères min.)…" autocomplete="off">
+    <div id="rechercheResultats">
+        <div class="recherche-hint">Saisissez au moins 3 caractères</div>
     </div>
 </div>
 
@@ -1243,9 +1376,11 @@ window.fermerRegles = function(){
 // onRegen   : callback du bouton 🔄 (désactivé si locked)
 // onLock    : callback du bouton cadenas (toggle verrouillé/déverrouillé)
 // nonStocke : true si le jour était non coché lors de la génération
-//             → message distinct "➕ Cliquer sur 🔄 pour générer"
-//             → false (défaut) = "⚠️ Aucun repas possible" (pool épuisé, Règles 3/4)
-function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = false){
+//             → message distinct "Cliquer sur 🔄 pour générer"
+//             → false (défaut) = "⚠️ Aucun repas possible" (pool épuisé, Règles 3–8)
+// onAdd     : callback du bouton + (recherche et sélection manuelle d'un repas)
+//             Aucune règle métier n'est vérifiée lors d'une sélection manuelle.
+function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = false, onAdd = null){
     const box = document.createElement("div");
     box.className = "repas-box" + (locked ? " verrouille" : "");
     const header = document.createElement("div");
@@ -1254,15 +1389,25 @@ function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = fal
     titreEl.className = "repas-titre";
     titreEl.textContent = label;
 
+    // -- Groupe de boutons d'action : [+] [🔄] [🔓] --
+    const btns = document.createElement("div");
+    btns.className = "repas-header-btns";
+
+    // Bouton "+" : ouvre le tooltip de recherche pour choisir un repas manuellement
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-btn";
+    addBtn.textContent = "+";
+    addBtn.title = "Choisir un repas manuellement";
+    addBtn.onclick = onAdd;
+    btns.appendChild(addBtn);
+
     // Bouton régénérer : grisé et inactif quand le repas est verrouillé
     const btn = document.createElement("button");
     btn.className = "regen-btn" + (locked ? " bloque" : "");
     btn.textContent = "🔄";
     btn.title = locked ? "Repas verrouillé — déverrouillez d'abord" : "Régénérer";
     if(!locked) btn.onclick = onRegen;
-
-    header.appendChild(titreEl);
-    header.appendChild(btn);
+    btns.appendChild(btn);
 
     // Bouton cadenas : affiché uniquement quand un repas est stocké
     // (inutile de verrouiller un emplacement vide ou impossible)
@@ -1272,8 +1417,11 @@ function creerRepasBox(repasObj, label, locked, onRegen, onLock, nonStocke = fal
         lockBtn.textContent = locked ? "🔒" : "🔓";
         lockBtn.title = locked ? "Déverrouiller ce repas" : "Verrouiller ce repas";
         lockBtn.onclick = onLock;
-        header.appendChild(lockBtn);
+        btns.appendChild(lockBtn);
     }
+
+    header.appendChild(titreEl);
+    header.appendChild(btns);
 
     const contenuEl = document.createElement("div");
     contenuEl.className = "repas-contenu";
@@ -1338,7 +1486,8 @@ function afficher(menus){
                     plat.midiLocked || false,
                     () => regenererRepas(i, "midi", menus, indexSemaine),
                     () => toggleLock(i, "midi", menus, indexSemaine),
-                    nonStocke
+                    nonStocke,
+                    (e) => ouvrirRecherche(e, (r) => selectionnerRepas(i, "midi", menus, indexSemaine, r))
                 ));
             } else {
                 ligne.appendChild(document.createElement("div"));
@@ -1349,7 +1498,9 @@ function afficher(menus){
                 "🌙 Soir",
                 plat.soirLocked || false,
                 () => regenererRepas(i, "soir", menus, indexSemaine),
-                () => toggleLock(i, "soir", menus, indexSemaine)
+                () => toggleLock(i, "soir", menus, indexSemaine),
+                false,
+                (e) => ouvrirRecherche(e, (r) => selectionnerRepas(i, "soir", menus, indexSemaine, r))
             ));
             grid.appendChild(ligne);
         });
@@ -1610,6 +1761,152 @@ async function regenererRepas(indexJour, moment, menus, indexSemaine){
     const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
     await sauvegarderDansFirebase(noms, menus);
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// TOOLTIP DE RECHERCHE
+//
+// Un seul tooltip global est réutilisé pour tous les emplacements.
+// _tooltipCallback : fonction appelée avec le repas sélectionné.
+//
+// La sélection manuelle (selectionnerRepas) ne vérifie AUCUNE règle métier :
+// l'utilisateur est libre de choisir le repas qu'il souhaite.
+// ─────────────────────────────────────────────────────────────────────────
+
+let _tooltipCallback = null;
+
+// Ouvre le tooltip positionné près du bouton "+" cliqué.
+// callback(repasObj) sera appelé quand l'utilisateur choisit un résultat.
+function ouvrirRecherche(e, callback){
+    e.stopPropagation(); // empêche la fermeture immédiate via le listener document
+
+    _tooltipCallback = callback;
+
+    const tooltip  = document.getElementById("rechercheTooltip");
+    const input    = document.getElementById("rechercheInput");
+    const resultats = document.getElementById("rechercheResultats");
+
+    // Réinitialiser le champ et les résultats
+    input.value = "";
+    resultats.innerHTML = '<div class="recherche-hint">Saisissez au moins 3 caractères</div>';
+
+    // Positionner le tooltip près du bouton "+"
+    const rect     = e.currentTarget.getBoundingClientRect();
+    const tooltipW = 300;
+    const margin   = 6;
+
+    // Horizontal : décaler vers la gauche si trop proche du bord droit
+    let left = rect.left;
+    if(left + tooltipW > window.innerWidth - 10){
+        left = Math.max(10, window.innerWidth - tooltipW - 10);
+    }
+
+    // Vertical : afficher sous le bouton ; basculer au-dessus si pas de place
+    let top = rect.bottom + margin;
+    if(top + 220 > window.innerHeight && rect.top - 220 > 0){
+        top = rect.top - 220 - margin;
+    }
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top  = (top + window.scrollY) + "px";
+    tooltip.classList.add("visible");
+    input.focus();
+}
+
+// Ferme le tooltip et réinitialise le callback.
+function fermerTooltip(){
+    document.getElementById("rechercheTooltip").classList.remove("visible");
+    _tooltipCallback = null;
+}
+
+// Surligne toutes les occurrences de `query` dans `text` avec <b>.
+// Retourne un DocumentFragment prêt à insérer dans le DOM.
+function highlightMatch(text, query){
+    const fragment = document.createDocumentFragment();
+    const lower    = text.toLowerCase();
+    const lowerQ   = query.toLowerCase();
+    let last = 0, idx;
+    while((idx = lower.indexOf(lowerQ, last)) !== -1){
+        if(idx > last) fragment.appendChild(document.createTextNode(text.substring(last, idx)));
+        const bold = document.createElement("b");
+        bold.textContent = text.substring(idx, idx + query.length);
+        fragment.appendChild(bold);
+        last = idx + query.length;
+    }
+    if(last < text.length) fragment.appendChild(document.createTextNode(text.substring(last)));
+    return fragment;
+}
+
+// Recherche dans le CSV les repas dont le nom contient `query` (insensible
+// à la casse), affiche les résultats dans le tooltip avec les caractères
+// correspondants en gras. La hauteur est limitée à ~5 résultats visibles ;
+// un scroll apparaît pour les suivants.
+function rechercherRepas(query){
+    const container = document.getElementById("rechercheResultats");
+
+    if(query.length < 3){
+        container.innerHTML = '<div class="recherche-hint">Saisissez au moins 3 caractères</div>';
+        return;
+    }
+
+    const lower     = query.toLowerCase();
+    const resultats = repas.filter(r => r.name.toLowerCase().includes(lower));
+
+    container.innerHTML = "";
+
+    if(resultats.length === 0){
+        const vide = document.createElement("div");
+        vide.className = "resultat-vide";
+        vide.textContent = "Aucun repas trouvé";
+        container.appendChild(vide);
+        return;
+    }
+
+    resultats.forEach(r => {
+        const item = document.createElement("div");
+        item.className = "resultat-item";
+        item.appendChild(highlightMatch(r.name, query));
+        item.onclick = (ev) => {
+            ev.stopPropagation();
+            if(_tooltipCallback) _tooltipCallback(r);
+            fermerTooltip();
+        };
+        container.appendChild(item);
+    });
+}
+
+// Affecte directement le repas choisi à l'emplacement ciblé,
+// réaffiche et sauvegarde en Firebase. Aucune règle métier n'est vérifiée.
+async function selectionnerRepas(indexJour, moment, menus, indexSemaine, repasChoisi){
+    menus[indexSemaine].repas[indexJour][moment] = repasChoisi;
+    afficher(menus);
+    const noms = menus.flatMap(s => s.repas).flatMap(r => [r.midi, r.soir]).filter(Boolean).map(r => r.name || r);
+    await sauvegarderDansFirebase(noms, menus);
+}
+
+// ─── Initialisation des listeners du tooltip ──────────────────────────────
+
+document.getElementById("rechercheInput").addEventListener("input", (e) => {
+    rechercherRepas(e.target.value);
+});
+
+// Fermer via la croix
+document.getElementById("tooltipCloseBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    fermerTooltip();
+});
+
+// Fermer en cliquant en dehors du tooltip
+document.addEventListener("click", (e) => {
+    const tooltip = document.getElementById("rechercheTooltip");
+    if(tooltip.classList.contains("visible") && !tooltip.contains(e.target)){
+        fermerTooltip();
+    }
+});
+
+// Fermer avec la touche Échap
+document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape") fermerTooltip();
+});
 
 // ─── Initialisation ───────────────────────────────────────────────────────
 (async function(){
