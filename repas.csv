@@ -174,7 +174,7 @@ Purée de carottes + Knacki;Carotte;;Knacki;;;Oui;Plat;Tout;Oui
 Purée de carottes + Steak;Carotte;;Steak;;;Oui;Plat;Tout;Oui
 Purée de carottes + Steak Haché;Carotte;;Steak Haché;;;Oui;Plat;Tout;Oui
 Purée de patate douce + Aiguillettes de poulet;Patate douce;;Aiguillettes de poulet;;;Oui;Plat;Tout;Non
-Purée de patate douce + Blé;Patate douce;;;;;Oui;Plat VG;Tout;Non
+Purée de patate douce + Blé;Patate douce;Blé;;;;Oui;Plat VG;Tout;Non
 Purée de patate douce + Boudin blanc;Patate douce;;Boudin blanc;;;Oui;Plat;Tout;Non
 Purée de patate douce + Boulettes de viande;Patate douce;;Boulettes de viande;;;Oui;Plat;Tout;Non
 Purée de patate douce + Jambon;Patate douce;;Jambon;;;Oui;Plat;Tout;Non
@@ -281,7 +281,7 @@ Velouté de butternut et lards;Butternut;Pomme de terre;Lard;;;;Soupe;Hiver;Non
 Galette de pomme de terre;;Pomme de terre;;;;;Plat VG;Tout;Oui
 Ravioles à la crème;;Ravioles;;;Oui;;Pâtes;Tout;Oui
 Poêlée petit pois, pdt carrées + cardons;Petit pois;Pomme de terre;Lardons;;;;Plat;Tout;Oui
-;;;;;;;;;
+Brandade de morue;;Pomme de terre;;Morue;;;Plat;Tout;Oui
 ;;;;;;;;;
 ;;;;;;;;;
 ;;;;;;;;;
